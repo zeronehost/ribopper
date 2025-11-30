@@ -1,0 +1,10 @@
+pre-commit:
+  commands:
+    web-lint:
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: pnpm lint --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
+    rust-lint:
+      glob: "*.{rs}"
+      run: cargo fmt -- --check {staged_files}
+      stage_fixed: true

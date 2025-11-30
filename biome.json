@@ -1,0 +1,19 @@
+{
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "formatter": {
+    "lineWidth": 120,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "dev"
+  }
+}
