@@ -96,6 +96,7 @@ TODO
 7. 剪贴板
 
     https://tauri.app/zh-cn/plugin/clipboard/
+    arboard
     
 8. 自动启动
 

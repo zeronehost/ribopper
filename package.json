@@ -4,8 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter=@ribo/app dev",
-    "build": "pnpm --filter=@ribo/app build",
+    "dev": "run-p dev:*",
+    "dev:app": "pnpm --filter=@ribo/app dev",
+    "dev:api": "pnpm --filter=@ribo/api dev",
+    "build": "run-s build:api build:app",
+    "build:app": "pnpm --filter=@ribo/app build",
+    "build:api": "pnpm --filter=@ribo/api build",
     "lint": "biome check --write",
     "r-init": "lefthook install"
   },
@@ -16,6 +20,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
-    "lefthook": "^2.0.4"
+    "lefthook": "^2.0.4",
+    "npm-run-all2": "^8.0.4"
   }
 }
