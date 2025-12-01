@@ -35,10 +35,14 @@ impl Tray {
       .on_menu_event(|app, ev| match ev.id().as_ref() {
         "quit" => {
           log::info!("退出应用");
-          let answer = app.dialog()
+          let answer = app
+            .dialog()
             .message("确认要退出应用？")
             .title("温馨提示")
-            .buttons(MessageDialogButtons::OkCancelCustom("退出".to_string(), "取消".to_string()))
+            .buttons(MessageDialogButtons::OkCancelCustom(
+              "退出".to_string(),
+              "取消".to_string(),
+            ))
             .blocking_show();
           if answer {
             log::info!("确认退出应用");
@@ -47,12 +51,16 @@ impl Tray {
         }
         "clear" => {
           log::info!("清空历史记录");
-          let answer = app.dialog()
-          .message("确认要清空历史记录？")
-          .title("温馨提示")
-          .buttons(MessageDialogButtons::OkCancelCustom("确认".to_string(), "取消".to_string()))
-          .blocking_show();
-        if answer {
+          let answer = app
+            .dialog()
+            .message("确认要清空历史记录？")
+            .title("温馨提示")
+            .buttons(MessageDialogButtons::OkCancelCustom(
+              "确认".to_string(),
+              "取消".to_string(),
+            ))
+            .blocking_show();
+          if answer {
             log::info!("确认清空历史记录");
             todo!("暂未实现");
           }
