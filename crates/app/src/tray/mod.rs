@@ -9,30 +9,58 @@ pub(crate) struct Tray;
 
 impl Tray {
   pub fn init<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<()> {
+    let mut menu = MenuBuilder::new(app);
+    #[cfg(target_os = "linux")]
+    {
+      menu = menu
+        .item(&MenuItem::with_id(
+          app,
+          "main",
+          "剪贴板",
+          true,
+          None::<&str>,
+        )?)
+        .separator();
+    }
+    let menu = menu
+      .item(&MenuItem::with_id(
+        app,
+        "clear",
+        "清空历史记录",
+        true,
+        None::<&str>,
+      )?)
+      .item(&MenuItem::with_id(
+        app,
+        "setting",
+        "设置",
+        true,
+        None::<&str>,
+      )?)
+      .item(&PredefinedMenuItem::about(app, Some("关于"), None)?)
+      .separator()
+      .item(&MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?)
+      .build()?;
+
     TrayIconBuilder::new()
       .icon(app.default_window_icon().unwrap().clone())
-      .menu(
-        &MenuBuilder::new(app)
-          .item(&MenuItem::with_id(
-            app,
-            "clear",
-            "清空历史记录",
-            true,
-            None::<&str>,
-          )?)
-          .item(&MenuItem::with_id(
-            app,
-            "setting",
-            "设置",
-            true,
-            None::<&str>,
-          )?)
-          .item(&PredefinedMenuItem::about(app, Some("关于"), None)?)
-          .separator()
-          .item(&MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?)
-          .build()?,
-      )
+      .menu(&menu)
+      .on_tray_icon_event(|_icon, ev| match ev {
+        TrayIconEvent::Click {
+          button: MouseButton::Left,
+          button_state: MouseButtonState::Down,
+          position,
+          ..
+        } => {
+          log::info!("左键点击托盘图标");
+          log::debug!("{:?}", position);
+        }
+        _ => {}
+      })
       .on_menu_event(|app, ev| match ev.id().as_ref() {
+        "main" => {
+          log::info!("打开主窗口");
+        }
         "quit" => {
           log::info!("退出应用");
           let answer = app
@@ -62,26 +90,13 @@ impl Tray {
             .blocking_show();
           if answer {
             log::info!("确认清空历史记录");
-            todo!("暂未实现");
+            log::debug!("暂未实现");
           }
         }
         "setting" => {
           log::info!("打开设置窗口");
-          todo!("暂未实现");
+          log::debug!("暂未实现");
         }
-        _ => {}
-      })
-      .on_tray_icon_event(|_icon, ev| match ev {
-        TrayIconEvent::Click {
-          button,
-          button_state,
-          ..
-        } => match (button, button_state) {
-          (MouseButton::Left, MouseButtonState::Down) => {
-            log::info!("左键点击托盘图标");
-          }
-          _ => {}
-        },
         _ => {}
       })
       .show_menu_on_left_click(false)
