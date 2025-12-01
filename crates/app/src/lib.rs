@@ -1,6 +1,7 @@
 use tauri::Manager;
 
 mod logger;
+mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -28,10 +29,14 @@ pub fn run() {
     .plugin(tauri_plugin_autostart::Builder::new().build())
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_opener::init())
-    .plugin(tauri_plugin_global_shortcut::Builder::new().build());
+    .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+    .plugin(tauri_plugin_dialog::init());
 
   let app = builder
-    .setup(|app| Ok(()))
+    .setup(|app| {
+      crate::tray::Tray::init(app.handle())?;
+      Ok(())
+    })
     .build(ctx)
     .expect("error while running tauri application");
 
