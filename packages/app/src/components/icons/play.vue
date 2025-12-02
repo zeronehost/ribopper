@@ -4,6 +4,6 @@
 
 <script lang="ts">
 export default {
-  name: 'RiboPlay'
-}
+  name: "RiboPlay",
+};
 </script>
