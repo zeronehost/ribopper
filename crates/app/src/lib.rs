@@ -2,6 +2,8 @@ use tauri::Manager;
 
 mod logger;
 mod tray;
+mod window;
+mod utils;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

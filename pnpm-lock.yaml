@@ -14,12 +14,66 @@ importers:
       '@biomejs/biome':
         specifier: 2.3.8
         version: 2.3.8
+      '@tauri-apps/plugin-autostart':
+        specifier: ~2.5.1
+        version: 2.5.1
+      '@tauri-apps/plugin-clipboard-manager':
+        specifier: ~2.3.2
+        version: 2.3.2
+      '@tauri-apps/plugin-dialog':
+        specifier: ~2
+        version: 2.4.2
+      '@tauri-apps/plugin-global-shortcut':
+        specifier: ~2.3.1
+        version: 2.3.1
+      '@tauri-apps/plugin-log':
+        specifier: ~2.7.1
+        version: 2.7.1
+      '@tauri-apps/plugin-opener':
+        specifier: ~2.5.2
+        version: 2.5.2
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+      '@vue/tsconfig':
+        specifier: ^0.8.1
+        version: 0.8.1(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
       lefthook:
         specifier: ^2.0.4
         version: 2.0.4
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
+      pinia:
+        specifier: ^3.0.4
+        version: 3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
+      sass:
+        specifier: ^1.94.2
+        version: 1.94.2
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vite:
+        specifier: npm:rolldown-vite@7.2.5
+        version: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
+      vite-plugin-vue-devtools:
+        specifier: ^8.0.5
+        version: 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+      vue:
+        specifier: ^3.5.24
+        version: 3.5.25(typescript@5.9.3)
+      vue-router:
+        specifier: ^4.6.3
+        version: 4.6.3(vue@3.5.25(typescript@5.9.3))
+      vue-tsc:
+        specifier: ^3.1.4
+        version: 3.1.5(typescript@5.9.3)
 
   packages/api:
     dependencies:
