@@ -1,7 +1,19 @@
-export * as RiboClose from "./close.vue";
-export * as RiboDelete from "./delete.vue";
-export * as RiboEdit from "./edit.vue";
-export * as RiboPlay from "./play.vue";
-export * as RiboQrcode from "./qrcode.vue";
-export * as RiboStar from "./star.vue";
-export * as RiboStarActived from "./star-actived.vue";
+import riboIconClean from "./clean.vue";
+import riboIconClose from "./close.vue";
+import riboIconDelete from "./delete.vue";
+import riboIconEdit from "./edit.vue";
+import riboIcon from "./index.vue";
+import riboIconPlay from "./play.vue";
+import riboIconQrcode from "./qrcode.vue";
+import riboIconStar from "./star.vue";
+import riboIconStarActived from "./star-actived.vue";
+
+export const RiboIconClose = riboIconClose;
+export const RiboIconDelete = riboIconDelete;
+export const RiboIconEdit = riboIconEdit;
+export const RiboIconPlay = riboIconPlay;
+export const RiboIconQrcode = riboIconQrcode;
+export const RiboIconStar = riboIconStar;
+export const RiboIconStarActived = riboIconStarActived;
+export const RiboIconClean = riboIconClean;
+export const RiboIcon = riboIcon;

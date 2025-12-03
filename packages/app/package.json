@@ -11,6 +11,7 @@
   "dependencies": {
     "@ribo/api": "workspace:*",
     "pinia": "^3.0.4",
+    "sober": "^1.1.9",
     "vue": "^3.5.24",
     "vue-router": "^4.6.3"
   },

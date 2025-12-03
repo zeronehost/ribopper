@@ -1,7 +1,7 @@
 export const routes = [
   {
     path: "/",
-    name: "main",
+    name: "tray_pane",
     component: () => import("@/views/index.vue"),
   },
   {
@@ -10,13 +10,8 @@ export const routes = [
     component: () => import("@/views/setting.vue"),
   },
   {
-    path: "/tray",
-    name: "tray",
-    component: () => import("@/views/tray-pane.vue"),
-  },
-  {
     path: "/context",
-    name: "context",
+    name: "context_pane",
     component: () => import("@/views/context-pane.vue"),
   },
 ];

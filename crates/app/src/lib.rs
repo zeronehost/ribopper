@@ -4,6 +4,7 @@ mod logger;
 mod tray;
 mod window;
 mod utils;
+mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -35,6 +36,10 @@ pub fn run() {
     .plugin(tauri_plugin_dialog::init());
 
   let app = builder
+    .invoke_handler(tauri::generate_handler![
+      crate::commands::window::close_window,
+      crate::commands::db::clear_data,
+    ])
     .setup(|app| {
       crate::tray::Tray::init(app.handle())?;
       Ok(())
