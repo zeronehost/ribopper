@@ -64,6 +64,49 @@ TODO
 6. 显示剪贴板（当前鼠标位置）
 
 ----------------
+
+# 数据库设计
+
+## 剪贴板内容
+
+### 字段
+
+- id 条目 ID
+- content 剪贴板内容
+- type 类型
+- created_at 创建时间
+- updated_at 更新时间
+- is_favorite 是否收藏
+
+一下根据 type 字段，展示不同字段
+- deletable 是否可删除
+- editable 是否可编辑
+- executable 是否可执行
+- scannable 是否可扫描
+- starable 是否可收藏
+
+<!-- 1. 剪贴板内容
+
+    ```sql
+    CREATE TABLE clipboard (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT NOT NULL,
+        type: INTEGER DEFAULT 0, -- 类型
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_favorite INTEGER DEFAULT 0, -- 是否收藏
+        deletable INTEGER DEFAULT 0, -- 是否可删除
+        editable INTEGER DEFAULT 0, -- 是否可编辑
+        executable INTEGER DEFAULT 0, -- 是否可执行
+        scannable INTEGER DEFAULT 0, -- 是否可扫描
+        starable INTEGER DEFAULT 0, -- 是否可收藏
+    );
+    ``` -->
+
+
+
+-----------------------------------------------------
+
 # 依赖
 
 ## rust
@@ -107,3 +150,7 @@ TODO
 9. 更新
 
     https://tauri.app/zh-cn/plugin/updater/
+
+10. 组件库
+
+    https://soberjs.com/
