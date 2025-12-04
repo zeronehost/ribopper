@@ -17,7 +17,7 @@
       <RiboIconEdit />
     </s-icon-button>
     <!-- 删除 -->
-    <s-icon-button v-if="deletable" class="btn" slot="action" @click="deleteHandle">
+    <s-icon-button v-if="deletable" class="btn delete" slot="action" @click="deleteHandle">
       <RiboIconDelete />
     </s-icon-button>
     <!-- 收藏 -->
@@ -28,7 +28,7 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { RiboIconPlay, RiboIconDelete, RiboIconEdit, RiboIconQrcode, RiboIconStar, RiboIconStarActived } from "@/components/icons"
 
 defineOptions({
@@ -59,27 +59,33 @@ const emit = defineEmits<{
   (e: 'star', id: number): void,
 }>();
 
-const deleteHandle = () => {
+const deleteHandle = (e: Event) => {
+  e.preventDefault();
   emit('delete', props.id);
 };
 
-const playHandle = () => {
+const playHandle = (e: Event) => {
+  e.preventDefault();
   emit('play', props.id);
 }
 
-const editHandle = () => {
+const editHandle = (e: Event) => {
+  e.preventDefault();
   newContent.value = props.content;
   isEdit.value = true;
 }
 
-const qrcodeHandle = () => {
+const qrcodeHandle = (e: Event) => {
+  e.preventDefault();
   emit('qrcode', props.id);
 }
 
-const starHandle = () => {
+const starHandle = (e: Event) => {
+  e.preventDefault();
   emit('star', props.id);
 }
-const updateHandle = () => {
+const updateHandle = (e: Event) => {
+  e.preventDefault();
   isEdit.value = false;
   emit('edit', props.id, newContent.value);
 }
@@ -105,10 +111,14 @@ s-card.ribo-card {
   s-icon-button.btn {
     width: 1.2rem;
     height: 1.2rem;
+    color: var(--s-color-primary);
 
     svg {
       width: .8rem;
       height: .8rem;
+    }
+    &.delete {
+      color: var(--s-color-error);
     }
   }
 }
