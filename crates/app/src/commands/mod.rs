@@ -1,2 +1,3 @@
-pub mod window;
 pub mod db;
+pub mod window;
+pub mod store;

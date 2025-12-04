@@ -7,6 +7,18 @@ import riboIconPlay from "./play.vue";
 import riboIconQrcode from "./qrcode.vue";
 import riboIconStar from "./star.vue";
 import riboIconStarActived from "./star-actived.vue";
+import riboIconSetting from "./setting.vue";
+import riboIconTheme from "./theme.vue";
+import riboIconKeyboard from "./keyboard.vue";
+import riboIconHelper from "./helper.vue";
+import riboIconOption from "./option.vue";
+import riboIconBrghtnessLight from "./brightness-light.vue";
+import riboIconBrghtnessDark from "./brightness-dark.vue";
+import riboIconBrghtnessAuto from "./brightness-auto.vue";
+import riboIconBrghtnessLightActived from "./brightness-light-actived.vue";
+import riboIconBrghtnessDarkActived from "./brightness-dark-actived.vue";
+import riboIconBrghtnessAutoActived from "./brightness-auto-actived.vue";
+
 
 export const RiboIconClose = riboIconClose;
 export const RiboIconDelete = riboIconDelete;
@@ -16,4 +28,16 @@ export const RiboIconQrcode = riboIconQrcode;
 export const RiboIconStar = riboIconStar;
 export const RiboIconStarActived = riboIconStarActived;
 export const RiboIconClean = riboIconClean;
+export const RiboIconSetting = riboIconSetting;
+export const RiboIconTheme = riboIconTheme;
+export const RiboIconKeyboard = riboIconKeyboard;
+export const RiboIconHelper = riboIconHelper;
+export const RiboIconOption = riboIconOption;
+export const RiboIconBrightnessLight = riboIconBrghtnessLight;
+export const RiboIconBrightnessDark = riboIconBrghtnessDark;
+export const RiboIconBrightnessAuto = riboIconBrghtnessAuto;
+export const RiboIconBrightnessLightActived = riboIconBrghtnessLightActived;
+export const RiboIconBrightnessDarkActived = riboIconBrghtnessDarkActived;
+export const RiboIconBrightnessAutoActived = riboIconBrghtnessAutoActived;
+
 export const RiboIcon = riboIcon;

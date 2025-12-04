@@ -114,7 +114,10 @@ impl Tray {
           let pkg_info = app.package_info();
           app
             .dialog()
-            .message(format!("{APP_NAME}\n版本: {}", pkg_info.version.to_string()))
+            .message(format!(
+              "{APP_NAME}\n版本: {}",
+              pkg_info.version.to_string()
+            ))
             .kind(MessageDialogKind::Info)
             .title("关于")
             .buttons(MessageDialogButtons::Ok)

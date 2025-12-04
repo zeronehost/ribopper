@@ -1,10 +1,12 @@
 use tauri::Manager;
 
+mod commands;
 mod logger;
 mod tray;
-mod window;
 mod utils;
-mod commands;
+mod window;
+mod store;
+mod models;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -33,14 +35,22 @@ pub fn run() {
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_global_shortcut::Builder::new().build())
-    .plugin(tauri_plugin_dialog::init());
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_store::Builder::new().build());
 
   let app = builder
     .invoke_handler(tauri::generate_handler![
       crate::commands::window::close_window,
       crate::commands::db::clear_data,
+      //-------------------------------------------
+      // store commands
+      crate::commands::store::store_load,
+      crate::commands::store::store_set_theme,
+      //-------------------------------------------
     ])
     .setup(|app| {
+      crate::store::Store::init(app.handle())?;
+
       crate::tray::Tray::init(app.handle())?;
       Ok(())
     })

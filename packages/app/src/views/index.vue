@@ -1,5 +1,5 @@
 <template>
-  <s-page>
+  <s-page class="tray-pane" :theme="currentTheme">
     <s-appbar>
       <s-icon-button slot="navigation" @click="closeHandle">
         <s-icon name="close"></s-icon>
@@ -27,10 +27,15 @@ import { RiboIconClean } from "@/components/icons";
 import { RiboCard } from "@/components/card"
 import { clearData, closeWindow } from "@ribo/api";
 import { useRoute } from "vue-router";
+import { useSettingStore } from "@/stores/setting";
+import { computed } from "vue";
 
 defineOptions({
   name: "tray_pane",
 });
+
+const store = useSettingStore();
+const currentTheme = computed<"light" | "dark" | "auto">(() => store.theme);
 
 const route = useRoute();
 
@@ -42,7 +47,7 @@ const cleanHandle = async () => {
 };
 </script>
 <style lang="scss">
-s-page {
+s-page.tray-pane {
   display: flex;
   flex-direction: column;
   height: 100vh;

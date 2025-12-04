@@ -1,7 +1,11 @@
 #[cfg(debug_assertions)]
 use crate::utils::constant::WIN_URL_TRAY_PANE;
-use crate::utils::{constant::{WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING}, pos::calc_pane_pos};
-use tauri::{AppHandle, Manager, Runtime};
+use crate::utils::{
+  constant::{WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING},
+  pos::calc_pane_pos,
+};
+use serde_json::json;
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 
 pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
   log::info!("打开设置窗口");
@@ -46,7 +50,10 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
   }
 }
 
-pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>, pos: tauri::PhysicalPosition<f64>) -> tauri::Result<()> {
+pub fn open_tray_pane<R: Runtime>(
+  app: &AppHandle<R>,
+  pos: tauri::PhysicalPosition<f64>,
+) -> tauri::Result<()> {
   log::info!("打开主面板");
   match app.get_webview_window(WIN_LABEL_TRAY_PANE) {
     Some(win) => match win.is_visible() {
@@ -64,7 +71,7 @@ pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>, pos: tauri::PhysicalPositi
       _ => Ok(()),
     },
     None => {
-        log::info!("主面板不存在");
+      log::info!("主面板不存在");
       let win = tauri::WebviewWindowBuilder::new(
         app,
         WIN_LABEL_TRAY_PANE,
@@ -87,6 +94,8 @@ pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>, pos: tauri::PhysicalPositi
       .decorations(false)
       .skip_taskbar(true)
       .always_on_top(true)
+      .maximizable(false)
+      .resizable(false)
       .build()?;
       log::info!("获取当前屏幕");
       let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();

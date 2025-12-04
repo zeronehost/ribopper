@@ -1,4 +1,8 @@
-pub fn calc_pane_pos(pane: tauri::PhysicalSize<u32>, win: tauri::Monitor, cursor: tauri::PhysicalPosition<f64>) -> tauri::PhysicalPosition<f64> {
+pub fn calc_pane_pos(
+  pane: tauri::PhysicalSize<u32>,
+  win: tauri::Monitor,
+  cursor: tauri::PhysicalPosition<f64>,
+) -> tauri::PhysicalPosition<f64> {
   log::info!("获取屏幕尺寸");
   let size = win.size();
   log::info!("计算窗口位置");
