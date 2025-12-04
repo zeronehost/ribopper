@@ -33,8 +33,8 @@ export const routes = [
         path: "helper",
         name: "helper",
         component: () => import("@/views/setting/helper.vue"),
-      }
-    ]
+      },
+    ],
   },
   {
     path: "/context",

@@ -4,6 +4,6 @@
 
 <script lang="ts">
 export default {
-  name: 'RiBrightnessDarkActived'
-}
+  name: "RiBrightnessDarkActived",
+};
 </script>

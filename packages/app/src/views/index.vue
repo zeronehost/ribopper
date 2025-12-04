@@ -23,12 +23,12 @@
   </s-page>
 </template>
 <script setup lang="ts">
-import { RiboIconClean } from "@/components/icons";
-import { RiboCard } from "@/components/card"
 import { clearData, closeWindow } from "@ribo/api";
-import { useRoute } from "vue-router";
-import { useSettingStore } from "@/stores/setting";
 import { computed } from "vue";
+import { useRoute } from "vue-router";
+import { RiboCard } from "@/components/card";
+import { RiboIconClean } from "@/components/icons";
+import { useSettingStore } from "@/stores/setting";
 
 defineOptions({
   name: "tray_pane",

@@ -32,16 +32,14 @@
         帮助
       </s-menu-item>
     </s-menu>
-    <section class="container">
-      <router-view />
-    </section>
+    <router-view />
   </s-page>
 </template>
 <script setup lang="ts">
-import { RiboIconHelper, RiboIconKeyboard, RiboIconOption, RiboIconSetting, RiboIconTheme } from '@/components/icons';
-import { useSettingStore } from '@/stores/setting';
-import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { RiboIconHelper, RiboIconKeyboard, RiboIconOption, RiboIconSetting, RiboIconTheme } from "@/components/icons";
+import { useSettingStore } from "@/stores/setting";
 
 const route = useRoute();
 const currentRoute = computed(() => {
@@ -58,14 +56,10 @@ const gotoHandle = (e: MouseEvent) => {
   if (name) {
     router.push({ name });
   }
-}
+};
 </script>
 <style lang="scss">
 s-page.setting {
   display: flex;
-
-  section.container {
-    flex: 1;
-  }
 }
 </style>

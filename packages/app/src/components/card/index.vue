@@ -28,20 +28,27 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { RiboIconPlay, RiboIconDelete, RiboIconEdit, RiboIconQrcode, RiboIconStar, RiboIconStarActived } from "@/components/icons"
+import { ref } from "vue";
+import {
+  RiboIconDelete,
+  RiboIconEdit,
+  RiboIconPlay,
+  RiboIconQrcode,
+  RiboIconStar,
+  RiboIconStarActived,
+} from "@/components/icons";
 
 defineOptions({
-  name: 'RiboCard',
+  name: "RiboCard",
 });
 const props = defineProps({
   content: {
     type: String,
-    required: true
+    required: true,
   },
   id: {
     type: Number,
-    required: true
+    required: true,
   },
   isStar: Boolean,
   deletable: Boolean,
@@ -52,46 +59,46 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (e: 'delete', id: number): void,
-  (e: 'edit', id: number, content: string): void,
-  (e: 'play', id: number): void,
-  (e: 'qrcode', id: number): void,
-  (e: 'star', id: number): void,
+  (e: "delete", id: number): void;
+  (e: "edit", id: number, content: string): void;
+  (e: "play", id: number): void;
+  (e: "qrcode", id: number): void;
+  (e: "star", id: number): void;
 }>();
 
 const deleteHandle = (e: Event) => {
   e.preventDefault();
-  emit('delete', props.id);
+  emit("delete", props.id);
 };
 
 const playHandle = (e: Event) => {
   e.preventDefault();
-  emit('play', props.id);
-}
+  emit("play", props.id);
+};
 
 const editHandle = (e: Event) => {
   e.preventDefault();
   newContent.value = props.content;
   isEdit.value = true;
-}
+};
 
 const qrcodeHandle = (e: Event) => {
   e.preventDefault();
-  emit('qrcode', props.id);
-}
+  emit("qrcode", props.id);
+};
 
 const starHandle = (e: Event) => {
   e.preventDefault();
-  emit('star', props.id);
-}
+  emit("star", props.id);
+};
 const updateHandle = (e: Event) => {
   e.preventDefault();
   isEdit.value = false;
-  emit('edit', props.id, newContent.value);
-}
+  emit("edit", props.id, newContent.value);
+};
 
 const isEdit = ref(false);
-const newContent = ref('');
+const newContent = ref("");
 </script>
 <script lang="ts"></script>
 <style lang="scss">

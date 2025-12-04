@@ -1,24 +1,23 @@
+import riboIconBrghtnessAuto from "./brightness-auto.vue";
+import riboIconBrghtnessAutoActived from "./brightness-auto-actived.vue";
+import riboIconBrghtnessDark from "./brightness-dark.vue";
+import riboIconBrghtnessDarkActived from "./brightness-dark-actived.vue";
+import riboIconBrghtnessLight from "./brightness-light.vue";
+import riboIconBrghtnessLightActived from "./brightness-light-actived.vue";
 import riboIconClean from "./clean.vue";
 import riboIconClose from "./close.vue";
 import riboIconDelete from "./delete.vue";
 import riboIconEdit from "./edit.vue";
+import riboIconHelper from "./helper.vue";
 import riboIcon from "./index.vue";
+import riboIconKeyboard from "./keyboard.vue";
+import riboIconOption from "./option.vue";
 import riboIconPlay from "./play.vue";
 import riboIconQrcode from "./qrcode.vue";
+import riboIconSetting from "./setting.vue";
 import riboIconStar from "./star.vue";
 import riboIconStarActived from "./star-actived.vue";
-import riboIconSetting from "./setting.vue";
 import riboIconTheme from "./theme.vue";
-import riboIconKeyboard from "./keyboard.vue";
-import riboIconHelper from "./helper.vue";
-import riboIconOption from "./option.vue";
-import riboIconBrghtnessLight from "./brightness-light.vue";
-import riboIconBrghtnessDark from "./brightness-dark.vue";
-import riboIconBrghtnessAuto from "./brightness-auto.vue";
-import riboIconBrghtnessLightActived from "./brightness-light-actived.vue";
-import riboIconBrghtnessDarkActived from "./brightness-dark-actived.vue";
-import riboIconBrghtnessAutoActived from "./brightness-auto-actived.vue";
-
 
 export const RiboIconClose = riboIconClose;
 export const RiboIconDelete = riboIconDelete;

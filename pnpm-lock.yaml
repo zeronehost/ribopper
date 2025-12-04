@@ -10,10 +10,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@tauri-apps/plugin-store':
-        specifier: ~2
-        version: 2.4.1
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.8
@@ -36,12 +32,15 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ~2.5.2
         version: 2.5.2
+      '@tauri-apps/plugin-store':
+        specifier: ~2
+        version: 2.4.1
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
-        version: 6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+        version: 6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
       '@vue/tsconfig':
         specifier: ^0.8.1
         version: 0.8.1(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
@@ -68,7 +67,7 @@ importers:
         version: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
       vite-plugin-vue-devtools:
         specifier: ^8.0.5
-        version: 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+        version: 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
       vue:
         specifier: ^3.5.24
         version: 3.5.25(typescript@5.9.3)
@@ -102,6 +101,9 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ~2.5.2
         version: 2.5.2
+      '@tauri-apps/plugin-store':
+        specifier: ~2
+        version: 2.4.1
     devDependencies:
       tsup:
         specifier: ^8.5.1
@@ -136,7 +138,7 @@ importers:
         version: 24.10.1
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
-        version: 6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+        version: 6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
       '@vue/tsconfig':
         specifier: ^0.8.1
         version: 0.8.1(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
@@ -151,7 +153,7 @@ importers:
         version: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
       vite-plugin-vue-devtools:
         specifier: ^8.0.5
-        version: 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+        version: 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
       vue-tsc:
         specifier: ^3.1.4
         version: 3.1.5(typescript@5.9.3)
@@ -2315,7 +2317,7 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
-  '@vitejs/plugin-vue@6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.2(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.50
       vite: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
@@ -2398,14 +2400,14 @@ snapshots:
     dependencies:
       '@vue/devtools-kit': 7.7.9
 
-  '@vue/devtools-core@8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))':
+  '@vue/devtools-core@8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))':
     dependencies:
       '@vue/devtools-kit': 8.0.5
       '@vue/devtools-shared': 8.0.5
       mitt: 3.0.1
       nanoid: 5.1.6
       pathe: 2.0.3
-      vite-hot-client: 2.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))
+      vite-hot-client: 2.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))
       vue: 3.5.25(typescript@5.9.3)
     transitivePeerDependencies:
       - vite
@@ -3073,17 +3075,17 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  vite-dev-rpc@1.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)):
+  vite-dev-rpc@1.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2)):
     dependencies:
       birpc: 2.8.0
       vite: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
-      vite-hot-client: 2.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))
+      vite-hot-client: 2.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))
 
-  vite-hot-client@2.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)):
+  vite-hot-client@2.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2)):
     dependencies:
       vite: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
 
-  vite-plugin-inspect@11.3.3(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)):
+  vite-plugin-inspect@11.3.3(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2)):
     dependencies:
       ansis: 4.2.0
       debug: 4.4.3
@@ -3094,25 +3096,25 @@ snapshots:
       sirv: 3.0.2
       unplugin-utils: 0.3.1
       vite: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
-      vite-dev-rpc: 1.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))
+      vite-dev-rpc: 1.1.0(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3)):
+  vite-plugin-vue-devtools@8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3)):
     dependencies:
-      '@vue/devtools-core': 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+      '@vue/devtools-core': 8.0.5(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
       '@vue/devtools-kit': 8.0.5
       '@vue/devtools-shared': 8.0.5
       sirv: 3.0.2
       vite: rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)
-      vite-plugin-inspect: 11.3.3(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))
-      vite-plugin-vue-inspector: 5.3.2(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2))
+      vite-plugin-inspect: 11.3.3(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))
+      vite-plugin-vue-inspector: 5.3.2(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2))
     transitivePeerDependencies:
       - '@nuxt/kit'
       - supports-color
       - vue
 
-  vite-plugin-vue-inspector@5.3.2(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.27.0)(sass@1.94.2)):
+  vite-plugin-vue-inspector@5.3.2(rolldown-vite@7.2.5(@types/node@24.10.1)(sass@1.94.2)):
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-proposal-decorators': 7.28.0(@babel/core@7.28.5)

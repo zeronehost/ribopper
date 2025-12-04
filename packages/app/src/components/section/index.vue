@@ -10,16 +10,21 @@
 </template>
 <script setup lang="ts">
 defineProps<{
-  title: string,
+  title: string;
 }>();
 defineOptions({
-  name: 'RiboSection'
-})
+  name: "RiboSection",
+});
 </script>
 <style lang="scss">
 section {
   &.ribo-section {
+    flex: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     s-scroll-view {
+      flex: 1;
       display: flex;
       flex-direction: column;
     }

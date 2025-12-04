@@ -9,17 +9,17 @@ import { useSettingStore } from "@/stores/setting";
 const route = useRoute();
 const store = useSettingStore();
 
-storeLoad().then((data) => {
-  store.$state = data as any;
-})
+storeLoad().then((data: Any) => {
+  store.$state = data as Any;
+});
 
-initListener((event, data) => {
+initListener((event: string, data: Any) => {
   if (route.path.startsWith("/setting")) {
     return;
   }
   if (event === "update") {
     if (data.key === "theme") {
-      store.toggleTheme(data.value);
+      store.toggleTheme(data.value as "light" | "dark" | "auto");
     }
   }
 });

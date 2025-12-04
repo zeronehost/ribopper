@@ -21,22 +21,28 @@
   </RiboSection>
 </template>
 <script setup lang="ts">
-import { RiboIconBrightnessDark, RiboIconBrightnessLight, RiboIconBrightnessAuto, RiboIconBrightnessLightActived, RiboIconBrightnessDarkActived, RiboIconBrightnessAutoActived } from '@/components/icons';
-import { computed } from 'vue';
+import { computed } from "vue";
+import {
+  RiboIconBrightnessAuto,
+  RiboIconBrightnessAutoActived,
+  RiboIconBrightnessDark,
+  RiboIconBrightnessDarkActived,
+  RiboIconBrightnessLight,
+  RiboIconBrightnessLightActived,
+} from "@/components/icons";
+import { RiboSection } from "@/components/section";
 import { useSettingStore } from "@/stores/setting";
-import { RiboSection } from '@/components/section';
 
 const store = useSettingStore();
 
 const currentTheme = computed({
   get() {
-    return store.theme
+    return store.theme;
   },
   set(value: "light" | "dark" | "auto") {
-    store.toggleTheme(value)
-  }
-})
-
+    store.toggleTheme(value);
+  },
+});
 </script>
 <style lang="scss">
 .theme {
