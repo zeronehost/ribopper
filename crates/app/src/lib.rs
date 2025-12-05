@@ -6,7 +6,7 @@ mod tray;
 mod utils;
 mod window;
 mod store;
-mod models;
+mod events;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
