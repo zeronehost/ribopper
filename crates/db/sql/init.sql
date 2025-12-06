@@ -9,6 +9,9 @@ create table if not exists history (
   updated_at datetime default (DATETIME('now', 'localtime'))
 );
 
+-- 触发器
+DROP TRIGGER IF EXISTS trigger_update_timestamp;
+
 CREATE TRIGGER trigger_update_timestamp
   AFTER UPDATE
     ON history

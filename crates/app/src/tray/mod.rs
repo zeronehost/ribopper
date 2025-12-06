@@ -1,7 +1,7 @@
 use tauri::{
+  AppHandle, Runtime,
   menu::{MenuBuilder, MenuItem},
   tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-  AppHandle, Runtime,
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 

@@ -11,7 +11,7 @@ pub const WIN_LABEL_TRAY_PANE: &str = "tray_pane";
 pub const WIN_LABEL_CONTEXT_PANE: &str = "context_pane";
 
 /// 设置窗口URL
-pub const WIN_URL_SETTING: &str = "#/setting/index";
+pub const WIN_URL_SETTING: &str = "#/setting";
 /// 托盘窗口URL
 pub const WIN_URL_TRAY_PANE: &str = "#/";
 /// 上下文窗口URL

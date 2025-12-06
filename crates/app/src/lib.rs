@@ -1,12 +1,12 @@
 use tauri::Manager;
 
 mod commands;
+mod events;
 mod logger;
+mod store;
 mod tray;
 mod utils;
 mod window;
-mod store;
-mod events;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -45,7 +45,7 @@ pub fn run() {
       //-------------------------------------------
       // store commands
       crate::commands::store::store_load,
-      crate::commands::store::store_set_theme,
+      crate::commands::store::store_save,
       //-------------------------------------------
     ])
     .setup(|app| {
@@ -68,9 +68,6 @@ pub fn run() {
         w.hide().unwrap();
         api.prevent_close();
       }
-      // tauri::WindowEvent::Moved(_pos) => {
-      //   crate::window::set_window_pos(app, label.as_str()).unwrap();
-      // }
       _ => {}
     },
     _ => {}

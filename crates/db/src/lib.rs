@@ -1,4 +1,4 @@
-use std::{path::Path};
+use std::path::Path;
 
 use rusqlite::{Connection, Result, params};
 
@@ -117,13 +117,15 @@ impl Database {
 
   pub fn query_data(&self, index: usize, size: usize) -> Result<Vec<History>> {
     let mut stmt = self.0.prepare("select * from history limit ?1 offset ?2")?;
-    let list_iter = stmt.query_map(params![size, index * size], |row| Ok(History {
-      id: row.get(0)?,
-      content: row.get(1)?,
-      typ: row.get(2)?,
-      created_at: row.get(3)?,
-      updated_at: row.get(4)?,
-    }))?;
+    let list_iter = stmt.query_map(params![size, index * size], |row| {
+      Ok(History {
+        id: row.get(0)?,
+        content: row.get(1)?,
+        typ: row.get(2)?,
+        created_at: row.get(3)?,
+        updated_at: row.get(4)?,
+      })
+    })?;
 
     let mut list = vec![];
     for item in list_iter {
@@ -135,7 +137,7 @@ impl Database {
 
   pub fn query_total(&self) -> Result<usize> {
     let mut stmt = self.0.prepare("select count(*) from history;")?;
-    stmt.query_one(params![], |row| Ok(row.get::<usize, usize>(0)?))    
+    stmt.query_one(params![], |row| Ok(row.get::<usize, usize>(0)?))
   }
 
   pub fn clear_data(&self) -> Result<()> {

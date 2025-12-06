@@ -4,7 +4,7 @@ pub(crate) fn targets() -> Vec<tauri_plugin_log::Target> {
       tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
       // tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
       //   file_name: Some(format!(
-      //     "ribo-dashboard_dev-{}",
+      //     "ribopper-_dev-{}",
       //     chrono::Local::now().format("%Y-%m-%d")
       //   )),
       // }),
@@ -14,7 +14,7 @@ pub(crate) fn targets() -> Vec<tauri_plugin_log::Target> {
     vec![
       tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
         file_name: Some(format!(
-          "ribo-dashboard-{}",
+          "ribopper-{}",
           chrono::Local::now().format("%Y-%m-%d")
         )),
       }),

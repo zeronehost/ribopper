@@ -1,6 +1,6 @@
 
 <template>
-  <RiboSection title="快捷键设置" class="hot-key">
+  <RiboOptionSection title="快捷键设置" class="hot-key">
     <s-table>
       <s-thead>
         <s-tr>
@@ -15,10 +15,10 @@
         </s-tr>
       </s-tbody>
     </s-table>
-  </RiboSection>  
+  </RiboOptionSection>  
 </template>
 <script setup lang="ts">
-import { RiboSection } from "@/components/section";
+import { RiboOptionSection } from "@/components/section";
 </script>
 <style lang="scss">
 .hot-key {

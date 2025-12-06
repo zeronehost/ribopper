@@ -6,13 +6,11 @@ pub struct RiboEvent<D> {
 }
 
 impl<D> RiboEvent<D>
-where 
-D: serde::Serialize + Clone {
+where
+  D: serde::Serialize + Clone,
+{
   fn new(typ: EventType, payload: Option<D>) -> Self {
-    Self {
-      typ,
-      payload,
-    }
+    Self { typ, payload }
   }
 
   pub fn create_init_event(payload: Option<D>) -> Self {

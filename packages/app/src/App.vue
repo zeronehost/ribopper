@@ -1,26 +1,24 @@
 <template>
-  <RouterView />
+  <s-page :theme="currentTheme">
+    <RouterView />
+  </s-page>
 </template>
 <script setup lang="ts">
-// import { initListener, storeLoad } from "@ribo/api";
-// import { useRoute } from "vue-router";
-// import { useSettingStore } from "@/stores/setting";
+import { useSettingStore } from '@/stores/setting';
+import { computed } from 'vue';
+import { storeLoad, type Theme } from "@ribo/api"
 
-// const route = useRoute();
-// const store = useSettingStore();
+const store = useSettingStore();
+const currentTheme = computed<Theme>(() => store.theme);
 
-// storeLoad().then((data: Any) => {
-//   store.$state = data as Any;
-// });
-
-// initListener((event: string, data: Any) => {
-//   if (route.path.startsWith("/setting")) {
-//     return;
-//   }
-//   if (event === "update") {
-//     if (data.key === "theme") {
-//       store.toggleTheme(data.value as "light" | "dark" | "auto");
-//     }
-//   }
-// });
+storeLoad().then(res => {
+  if (res) {
+    console.log("storeLoad =>", res);
+    store.$patch({
+      config: res,
+      _initData: JSON.parse(JSON.stringify(res)),
+      isUpdate: false
+    })
+  }
+})
 </script>

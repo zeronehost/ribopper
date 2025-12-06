@@ -1,5 +1,5 @@
 <template>
-  <s-page class="tray-pane" :theme="currentTheme">
+  <section class="tray-pane">
     <s-appbar>
       <s-icon-button slot="navigation" @click="closeHandle">
         <s-icon name="close"></s-icon>
@@ -20,22 +20,17 @@
       <RiboCard :id="1" content="aaaa" editable deletable scannable starable />
       <s-empty>暂时没有内容</s-empty>
     </s-scroll-view>
-  </s-page>
+  </section>
 </template>
 <script setup lang="ts">
 import { clearData, closeWindow } from "@ribo/api";
-import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
-import { useSettingStore } from "@/stores/setting";
 
 defineOptions({
   name: "tray_pane",
 });
-
-const store = useSettingStore();
-const currentTheme = computed<"light" | "dark" | "auto">(() => store.theme);
 
 const route = useRoute();
 
@@ -47,7 +42,7 @@ const cleanHandle = async () => {
 };
 </script>
 <style lang="scss">
-s-page.tray-pane {
+section.tray-pane {
   display: flex;
   flex-direction: column;
   height: 100vh;

@@ -42,7 +42,9 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
       .inner_size(800., 600.)
       .center()
       .title(WIN_NANE)
+      .devtools(true)
       .build()?;
+
       win.show()?;
       win.set_focus()?;
       Ok(())
