@@ -41,7 +41,13 @@ pub fn run() {
   let app = builder
     .invoke_handler(tauri::generate_handler![
       crate::commands::window::close_window,
+      //-------------------------------------------
+      // db commands
       crate::commands::db::clear_data,
+      crate::commands::db::create_data,
+      crate::commands::db::update_data,
+      crate::commands::db::delete_data,
+      crate::commands::db::query_data,
       //-------------------------------------------
       // store commands
       crate::commands::store::store_load,

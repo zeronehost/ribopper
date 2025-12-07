@@ -23,10 +23,11 @@ section {
     width: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     s-scroll-view {
       flex: 1;
-      display: flex;
-      flex-direction: column;
+      height: 100%;
+      overflow: auto;
     }
   }
 }

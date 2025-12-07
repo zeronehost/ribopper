@@ -1,8 +1,8 @@
 <template>
-  <s-card class="ribo-card">
-    <div class="content">
+  <s-card class="ribo-card" @click="copyHandle" clickable>
+    <div class="content" @click.prevent.stop>
       <s-text-field v-if="isEdit" type="multiline" v-model="newContent" @blur="updateHandle"></s-text-field>
-      <pre v-else>{{ content }}</pre>
+      <pre v-else>{{ data.content }}</pre>
     </div>
     <!-- 执行 -->
     <s-icon-button v-if="executable" class="btn" slot="action" @click="playHandle">
@@ -28,7 +28,7 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, type PropType } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
@@ -37,17 +37,14 @@ import {
   RiboIconStar,
   RiboIconStarActived,
 } from "@/components/icons";
+import type { History } from "@ribo/api";
 
 defineOptions({
   name: "RiboCard",
 });
 const props = defineProps({
-  content: {
-    type: String,
-    required: true,
-  },
-  id: {
-    type: Number,
+  data: {
+    type: Object as PropType<History>,
     required: true,
   },
   isStar: Boolean,
@@ -64,38 +61,42 @@ const emit = defineEmits<{
   (e: "play", id: number): void;
   (e: "qrcode", id: number): void;
   (e: "star", id: number): void;
+  (e: "copy", id: number): void;
 }>();
 
-const deleteHandle = (e: Event) => {
-  e.preventDefault();
-  emit("delete", props.id);
+const deleteHandle = () => {
+  
+  emit("delete", props.data.id);
 };
 
-const playHandle = (e: Event) => {
-  e.preventDefault();
-  emit("play", props.id);
+const playHandle = () => {
+  
+  emit("play", props.data.id);
 };
 
-const editHandle = (e: Event) => {
-  e.preventDefault();
-  newContent.value = props.content;
+const editHandle = () => {
+  
+  newContent.value = props.data.content;
   isEdit.value = true;
 };
 
-const qrcodeHandle = (e: Event) => {
-  e.preventDefault();
-  emit("qrcode", props.id);
+const qrcodeHandle = () => {
+  
+  emit("qrcode", props.data.id);
 };
 
-const starHandle = (e: Event) => {
-  e.preventDefault();
-  emit("star", props.id);
+const starHandle = () => {
+  
+  emit("star", props.data.id);
 };
-const updateHandle = (e: Event) => {
-  e.preventDefault();
+const updateHandle = () => {
   isEdit.value = false;
-  emit("edit", props.id, newContent.value);
+  emit("edit", props.data.id, newContent.value);
 };
+
+const copyHandle = () => {
+  emit("copy", props.data.id);
+}
 
 const isEdit = ref(false);
 const newContent = ref("");
@@ -112,6 +113,9 @@ s-card.ribo-card {
     padding: .5rem;
     s-text-field {
       width: 100%;
+    }
+    pre {
+      margin: 0;
     }
   }
 

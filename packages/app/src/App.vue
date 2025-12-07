@@ -4,21 +4,21 @@
   </s-page>
 </template>
 <script setup lang="ts">
-import { useSettingStore } from '@/stores/setting';
-import { computed } from 'vue';
-import { storeLoad, type Theme } from "@ribo/api"
+import { storeLoad, type Theme } from "@ribo/api";
+import { computed } from "vue";
+import { useSettingStore } from "@/stores/setting";
 
 const store = useSettingStore();
 const currentTheme = computed<Theme>(() => store.theme);
 
-storeLoad().then(res => {
+storeLoad().then((res) => {
   if (res) {
     console.log("storeLoad =>", res);
     store.$patch({
       config: res,
       _initData: JSON.parse(JSON.stringify(res)),
-      isUpdate: false
-    })
+      isUpdate: false,
+    });
   }
-})
+});
 </script>

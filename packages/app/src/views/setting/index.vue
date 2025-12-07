@@ -69,41 +69,44 @@
   </section>
 </template>
 <script setup lang="ts">
+import { closeWindow } from "@ribo/api";
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import {
+  RiboIconCancel,
+  RiboIconCheck,
   RiboIconHelper,
   RiboIconKeyboard,
   RiboIconOption,
   RiboIconSetting,
   RiboIconTheme,
-  RiboIconCheck,
-  RiboIconCancel
 } from "@/components/icons";
+import { useSettingStore } from "@/stores/setting";
+import HelperPane from "./components/helper.vue";
+import HotkeyPane from "./components/hot-key.vue";
 import GeneralPane from "./components/index.vue";
 import OptionPane from "./components/options.vue";
 import ThemePane from "./components/theme.vue";
-import HotkeyPane from "./components/hot-key.vue";
-import HelperPane from "./components/helper.vue";
-import { useSettingStore } from "@/stores/setting";
-
-import { computed, ref } from "vue";
 
 const selected = ref("general");
-
+const route = useRoute();
 const store = useSettingStore();
 const isSubmit = computed(() => !store.isUpdate);
 
-const submitHandle = () => {
-  console.log(store)
-  store.saveConfig();
-}
+const submitHandle = async () => {
+  console.log(store);
+  await store.saveConfig();
+  await cancelHandle();
+};
 
-const confirmHandle = () => {
-  store.saveConfig();
-}
+const confirmHandle = async () => {
+  await store.saveConfig();
+  await cancelHandle();
+};
 
-const cancelHandle = () => {
-
-}
+const cancelHandle = async () => {
+  await closeWindow(route.name as string);
+};
 </script>
 <style lang="scss">
 .setting {
@@ -144,6 +147,5 @@ const cancelHandle = () => {
       padding: .5rem;
     }
   }
-  
 }
 </style>

@@ -2,7 +2,7 @@ use std::path::Path;
 
 use rusqlite::{Connection, Result, params};
 
-use crate::models::{History, NewHistory, UpdateHistory};
+use crate::models::{History, NewHistory, QueryHistory, UpdateHistory};
 
 pub mod models;
 mod schema;
@@ -25,6 +25,7 @@ impl Database {
 
   pub fn init(&self) -> Result<()> {
     let schema_version_exists = self.schema_version_exists()?;
+    println!("init => {schema_version_exists}");
     if !schema_version_exists {
       self.migrate_after_version(0)?;
     } else {
@@ -39,21 +40,25 @@ impl Database {
   fn get_schema_version(&self) -> Result<Option<u16>> {
     let mut stmt = self
       .0
-      .prepare("select version for ribo_schema order by version desc limit 1;")?;
+      .prepare("select version from ribo_schema order by version desc limit 1;")?;
     let version_iter = stmt.query_map(params![], |row| Ok(row.get::<usize, u16>(0)?))?;
 
     let mut versions = Vec::new();
     for version in version_iter {
       versions.push(version?);
     }
-
+    println!("get_schema_version => {:?}", versions);
     Ok(versions.first().copied())
   }
 
   fn schema_version_exists(&self) -> Result<bool> {
     match self.get_schema_version() {
       Ok(Some(_)) => Ok(true),
-      _ => Ok(false),
+      Ok(None) => Ok(false),
+      Err(e) => {
+        log::error!("schema_version_exists => {e:?}");
+        Ok(false)
+      }
     }
   }
 
@@ -92,11 +97,24 @@ impl Database {
 }
 
 impl Database {
-  pub fn create_data(&self, data: NewHistory) -> Result<()> {
+  pub fn create_data(&self, data: NewHistory, max: Option<usize>) -> Result<()> {
     self.0.execute(
       "insert into history (content, type) values (?1, ?2);",
       params![data.content, data.typ],
     )?;
+    match max {
+      Some(max) => {
+        if let Ok(total) = self.query_total() {
+          if total > max {
+            self.0.execute(
+              "DELETE from history where id not in (select id from history order by id desc limit ?1)",
+              params![max],
+            )?;
+          }
+        }
+      }
+      None => {}
+    }
     Ok(())
   }
 
@@ -115,7 +133,7 @@ impl Database {
     Ok(())
   }
 
-  pub fn query_data(&self, index: usize, size: usize) -> Result<Vec<History>> {
+  pub fn query_data_pagination(&self, index: usize, size: usize) -> Result<QueryHistory> {
     let mut stmt = self.0.prepare("select * from history limit ?1 offset ?2")?;
     let list_iter = stmt.query_map(params![size, index * size], |row| {
       Ok(History {
@@ -131,8 +149,30 @@ impl Database {
     for item in list_iter {
       list.push(item?);
     }
+    let total = self.query_total()?;
 
-    Ok(list)
+    Ok(QueryHistory { list, total })
+  }
+
+  pub fn query_data(&self) -> Result<QueryHistory> {
+    let mut stmt = self.0.prepare("select * from history")?;
+    let list_iter = stmt.query_map(params![], |row| {
+      Ok(History {
+        id: row.get(0)?,
+        content: row.get(1)?,
+        typ: row.get(2)?,
+        created_at: row.get(3)?,
+        updated_at: row.get(4)?,
+      })
+    })?;
+
+    let mut list = vec![];
+    for item in list_iter {
+      list.push(item?);
+    }
+    let total = list.len();
+
+    Ok(QueryHistory { list, total })
   }
 
   pub fn query_total(&self) -> Result<usize> {
@@ -153,6 +193,7 @@ mod tests {
   use crate::models::HistoryType;
 
   use super::*;
+  use rand::{Rng, distr::Alphanumeric, rng};
 
   fn init() -> anyhow::Result<Database> {
     let uri = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test.db");
@@ -160,6 +201,14 @@ mod tests {
     let db = Database::new(uri, None).unwrap();
 
     Ok(db)
+  }
+
+  fn gen_content() -> String {
+    rng()
+      .sample_iter(&Alphanumeric)
+      .take(30)
+      .map(char::from)
+      .collect()
   }
 
   #[test]
@@ -181,11 +230,33 @@ mod tests {
       typ: HistoryType::Text,
     };
 
-    let res = db.create_data(data);
+    let res = db.create_data(data, None);
 
     println!("{:?}", res);
 
     assert!(res.is_ok());
+  }
+
+  #[test]
+  fn test_create_datas() {
+    let db = init().unwrap();
+
+    for i in 0..100 {
+      let data = NewHistory {
+        content: gen_content(),
+        typ: HistoryType::Text,
+      };
+      let res = db.create_data(data, Some(20));
+      println!("{:?}", res);
+      assert!(res.is_ok());
+      let total = db.query_total();
+      println!("{i}/{:?}", total);
+      if i < 20 {
+        assert_eq!(total, Ok(i + 1));
+      } else {
+        assert_eq!(total, Ok(20));
+      }
+    }
   }
 
   #[test]
@@ -216,7 +287,16 @@ mod tests {
   fn test_query_data() {
     let db = init().unwrap();
 
-    let res = db.query_data(1, 1);
+    let res = db.query_data();
+    println!("{:?}", res);
+    assert!(res.is_ok());
+  }
+
+  #[test]
+  fn test_query_data_pagination() {
+    let db = init().unwrap();
+
+    let res = db.query_data_pagination(0, 20);
     println!("{:?}", res);
     assert!(res.is_ok());
   }

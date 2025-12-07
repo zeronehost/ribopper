@@ -4,6 +4,6 @@
 
 <script>
 export default {
-  name: 'RiboCheck'
-}
+  name: "RiboCheck",
+};
 </script>

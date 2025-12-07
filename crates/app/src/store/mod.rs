@@ -1,4 +1,8 @@
-use crate::utils::constant::{APP_NAME, STORE_DB_FILE, STORE_FILE};
+use crate::{
+  store::config::RiboConfig,
+  utils::constant::{APP_NAME, STORE_DB_FILE, STORE_FILE},
+};
+use serde_json::json;
 use tauri::{AppHandle, Manager, Runtime};
 use tauri_plugin_store::StoreExt;
 
@@ -9,7 +13,14 @@ pub struct Store;
 
 impl Store {
   pub fn init<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<()> {
-    let _store = app.store(STORE_FILE)?;
+    let store = app.store(STORE_FILE)?;
+    #[cfg(debug_assertions)]
+    {
+      store.delete("config");
+    }
+    if !store.has("config") {
+      store.set("config", json!(RiboConfig::default()));
+    }
 
     let p = crate::utils::path::get_ribo_db_path(app)?.join(STORE_DB_FILE);
 

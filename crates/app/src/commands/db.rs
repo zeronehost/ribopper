@@ -1,5 +1,5 @@
-use ribo_db::models::{History, NewHistory, UpdateHistory};
-use tauri::{AppHandle, Emitter, Runtime, State};
+use ribo_db::models::{NewHistory, QueryHistory, UpdateHistory};
+use tauri::{AppHandle, Runtime, State};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 
 use crate::store::db::Db;
@@ -27,15 +27,33 @@ pub async fn clear_data<R: Runtime>(app: AppHandle<R>, state: State<'_, Db>) -> 
 }
 
 #[tauri::command]
-pub async fn create_data(state: State<'_, Db>, data: NewHistory) -> Result<(), String> {
+pub fn create_data<R: Runtime>(
+  app: AppHandle<R>,
+  state: State<'_, Db>,
+  data: NewHistory,
+) -> Result<(), String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
-  db.create_data(data).map_err(|e| e.to_string())?;
+  let config = super::store::store_load(app)?;
+  match config {
+    Some(config) => match config.general {
+      Some(general) => {
+        db.create_data(data, general.max)
+          .map_err(|e| e.to_string())?;
+      }
+      None => {
+        db.create_data(data, None).map_err(|e| e.to_string())?;
+      }
+    },
+    None => {
+      db.create_data(data, None).map_err(|e| e.to_string())?;
+    }
+  }
   // 通知刷新
   Ok(())
 }
 
 #[tauri::command]
-pub async fn update_data(state: State<'_, Db>, data: UpdateHistory) -> Result<(), String> {
+pub fn update_data(state: State<'_, Db>, data: UpdateHistory) -> Result<(), String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
   db.update_data(data).map_err(|e| e.to_string())?;
   // 通知刷新
@@ -43,7 +61,7 @@ pub async fn update_data(state: State<'_, Db>, data: UpdateHistory) -> Result<()
 }
 
 #[tauri::command]
-pub async fn delete_data(state: State<'_, Db>, id: usize) -> Result<(), String> {
+pub fn delete_data(state: State<'_, Db>, id: usize) -> Result<(), String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
   db.delete_data(id).map_err(|e| e.to_string())?;
   // 通知刷新
@@ -51,19 +69,9 @@ pub async fn delete_data(state: State<'_, Db>, id: usize) -> Result<(), String> 
 }
 
 #[tauri::command]
-pub async fn query_data(
-  state: State<'_, Db>,
-  index: usize,
-  size: usize,
-) -> Result<Vec<History>, String> {
+pub fn query_data(state: State<'_, Db>) -> Result<QueryHistory, String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
-  let data = db.query_data(index, size).map_err(|e| e.to_string())?;
-  Ok(data)
-}
-
-#[tauri::command]
-pub async fn query_total(state: State<'_, Db>) -> Result<usize, String> {
-  let db = state.0.lock().map_err(|e| e.to_string())?;
-  let data = db.query_total().map_err(|e| e.to_string())?;
+  let data = db.query_data().map_err(|e| e.to_string())?;
+  println!("query_data =>{:?}", data);
   Ok(data)
 }

@@ -31,6 +31,13 @@ pub struct UpdateHistory {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct QueryHistory {
+  pub list: Vec<History>,
+  pub total: usize,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum HistoryType {
   Text,
   Image,
