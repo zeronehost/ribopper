@@ -82,11 +82,11 @@ import {
   RiboIconTheme,
 } from "@/components/icons";
 import { useSettingStore } from "@/stores/setting";
-import HelperPane from "./components/helper.vue";
-import HotkeyPane from "./components/hot-key.vue";
-import GeneralPane from "./components/index.vue";
-import OptionPane from "./components/options.vue";
-import ThemePane from "./components/theme.vue";
+import HelperPane from "./pane/helper.vue";
+import HotkeyPane from "./pane/hot-key.vue";
+import GeneralPane from "./pane/index.vue";
+import OptionPane from "./pane/options.vue";
+import ThemePane from "./pane/theme.vue";
 
 const selected = ref("general");
 const route = useRoute();

@@ -62,7 +62,7 @@ const cleanHandle = async () => {
 
 onMounted(async () => {
   await store.query();
-})
+});
 </script>
 <style lang="scss">
 section.tray-pane {

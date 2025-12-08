@@ -6,14 +6,19 @@
         <s-text-field v-model="max" type="number" placeholder="请输入最大历史记录数据量"></s-text-field>
       </RiboFieldItem>
     </RiboField>
+    <RiboTypeOption title="文本" v-model.lazy="options.text" /> 
+    <RiboTypeOption title="图片" v-model="options.image" /> 
+    <RiboTypeOption title="文件" v-model="options.file" /> 
+    <RiboTypeOption title="路径" v-model="options.dir" /> 
   </RiboOptionSection>  
 </template>
 <script setup lang="ts">
-import type { GeneralOptions } from "@ribo/api";
+import type { GeneralOptions, HistoryType, TypeOptions } from "@ribo/api";
 import { computed } from "vue";
-import { RiboOptionSection } from "@/components/section";
 import { RiboField, RiboFieldItem } from "@/components/field";
+import { RiboOptionSection } from "@/components/section";
 import { useSettingStore } from "@/stores/setting";
+import RiboTypeOption from "../components/type-option.vue";
 
 const store = useSettingStore();
 
@@ -25,6 +30,15 @@ const max = computed({
     store.setMax(value as GeneralOptions["max"]);
   },
 });
+
+const options = computed<Record<HistoryType, TypeOptions>>({
+  get() {
+    return store.typeOptions as unknown as Record<HistoryType, TypeOptions>;
+  },
+  set(value) {
+    store.setTypeOptions(value as Record<HistoryType, TypeOptions>);
+  }
+})
 </script>
 <style lang="scss">
   .options-panel {

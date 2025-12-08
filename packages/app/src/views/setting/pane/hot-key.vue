@@ -22,9 +22,17 @@ import { RiboOptionSection } from "@/components/section";
 </script>
 <style lang="scss">
 .hot-key {
+  &.ribo-option-section {
+    s-scroll-view {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  }
   s-table {
     margin: .5rem;
     overflow: auto;
+    display: block;
 
     .index {
       width: 3rem;

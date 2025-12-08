@@ -54,6 +54,8 @@ const currentTheme = computed({
 </script>
 <style lang="scss">
 .theme {
-
+  s-card {
+    display: block;
+  }
 }
 </style>

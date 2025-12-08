@@ -28,7 +28,8 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import { ref, type PropType } from "vue";
+import type { History } from "@ribo/api";
+import { type PropType, ref } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
@@ -37,7 +38,6 @@ import {
   RiboIconStar,
   RiboIconStarActived,
 } from "@/components/icons";
-import type { History } from "@ribo/api";
 
 defineOptions({
   name: "RiboCard",
@@ -65,28 +65,23 @@ const emit = defineEmits<{
 }>();
 
 const deleteHandle = () => {
-  
   emit("delete", props.data.id);
 };
 
 const playHandle = () => {
-  
   emit("play", props.data.id);
 };
 
 const editHandle = () => {
-  
   newContent.value = props.data.content;
   isEdit.value = true;
 };
 
 const qrcodeHandle = () => {
-  
   emit("qrcode", props.data.id);
 };
 
 const starHandle = () => {
-  
   emit("star", props.data.id);
 };
 const updateHandle = () => {
@@ -96,7 +91,7 @@ const updateHandle = () => {
 
 const copyHandle = () => {
   emit("copy", props.data.id);
-}
+};
 
 const isEdit = ref(false);
 const newContent = ref("");

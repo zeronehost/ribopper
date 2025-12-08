@@ -1,4 +1,5 @@
 import { createPinia } from "pinia";
+import { isEqual } from "@/utils/types";
 import { useSettingStore } from "./setting";
 
 export const store = createPinia();
@@ -19,8 +20,7 @@ export const useSubscribe = {
     const settingStore = useSettingStore();
     settingStore.$subscribe((mutation, state) => {
       if (mutation.type === "direct") {
-        console.log(state);
-        // TODO 比较两对象是否相等
+        state.isUpdate = !isEqual(state.config, state._initData);
       }
     });
   },

@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 
 export const useSettingStore = defineStore("setting", {
   state: (): {
-    config: Config;
+    config: Partial<Config>;
     _initData: Config;
     isUpdate: boolean;
   } => ({
@@ -24,6 +24,9 @@ export const useSettingStore = defineStore("setting", {
     max(): GeneralOptions["max"] | "" {
       return this.config?.general?.max ?? "";
     },
+    typeOptions(): GeneralOptions["options"] {
+      return this.config?.general?.options;
+    },
   },
   actions: {
     toggleTheme(name: Config["theme"]) {
@@ -34,6 +37,13 @@ export const useSettingStore = defineStore("setting", {
         this.config.general = {};
       }
       this.config.general.max = typeof max === "number" && max > 0 ? max : null;
+    },
+
+    setTypeOptions(options: GeneralOptions["options"]) {
+      if (!this.config.general) {
+        this.config.general = {};
+      }
+      this.config.general.options = options;
     },
 
     saveConfig() {

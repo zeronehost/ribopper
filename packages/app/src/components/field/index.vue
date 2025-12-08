@@ -5,12 +5,12 @@
   </s-card>
 </template>
 <script setup lang="ts">
-  defineOptions({
-    name: "RiboField"
-  });
-  defineProps({
-    title: String,
-  })
+defineOptions({
+  name: "RiboField",
+});
+defineProps({
+  title: String,
+});
 </script>
 <style lang="scss">
   .ribo-field {

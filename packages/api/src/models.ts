@@ -1,16 +1,17 @@
 export interface Config {
   theme?: Theme;
   general?: GeneralOptions;
-  options: Array<Record<HistoryType, Options>>;
+  options: Array<Record<string, string>>;
   hotkey: Array<Record<string, Array<string>>>;
 }
 
 export type Theme = "light" | "dark" | "auto";
 export interface GeneralOptions {
   max?: number | null;
+  options?: Record<HistoryType, Partial<TypeOptions>>;
 }
 
-export interface Options {
+export interface TypeOptions {
   editable: boolean;
   deletable: boolean;
   scannable: boolean;

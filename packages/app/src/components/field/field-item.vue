@@ -9,14 +9,14 @@
   </div>
 </template>
 <script setup lang="ts">
-  defineOptions({
-    name: "RiboFieldItem"
-  });
+defineOptions({
+  name: "RiboFieldItem",
+});
 
-  defineProps({
-    title: String,
-    content: String,
-  })
+defineProps({
+  title: String,
+  content: String,
+});
 </script>
 <style lang="scss">
   .ribo-field-item {
