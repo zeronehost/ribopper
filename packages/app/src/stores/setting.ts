@@ -4,17 +4,11 @@ import { defineStore } from "pinia";
 export const useSettingStore = defineStore("setting", {
   state: (): {
     config: Partial<Config>;
-    _initData: Config;
+    _initData: Partial<Config>;
     isUpdate: boolean;
   } => ({
-    config: {
-      options: [],
-      hotkey: [],
-    },
-    _initData: {
-      options: [],
-      hotkey: [],
-    },
+    config: {},
+    _initData: {},
     isUpdate: false,
   }),
   getters: {
@@ -33,17 +27,11 @@ export const useSettingStore = defineStore("setting", {
       this.config.theme = name;
     },
     setMax(max?: GeneralOptions["max"]) {
-      if (!this.config.general) {
-        this.config.general = {};
-      }
-      this.config.general.max = typeof max === "number" && max > 0 ? max : null;
+      (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? max : null;
     },
 
     setTypeOptions(options: GeneralOptions["options"]) {
-      if (!this.config.general) {
-        this.config.general = {};
-      }
-      this.config.general.options = options;
+      (this.config.general as GeneralOptions).options = options;
     },
 
     saveConfig() {

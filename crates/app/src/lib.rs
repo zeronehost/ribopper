@@ -49,6 +49,9 @@ pub fn run() {
       crate::commands::db::delete_data,
       crate::commands::db::query_data,
       //-------------------------------------------
+      // func commands
+      crate::commands::func::copy_data,
+      //-------------------------------------------
       // store commands
       crate::commands::store::store_load,
       crate::commands::store::store_save,

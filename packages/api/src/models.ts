@@ -1,6 +1,7 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: 忽略 */
 export interface Config {
-  theme?: Theme;
-  general?: GeneralOptions;
+  theme: Theme;
+  general: GeneralOptions;
   options: Array<Record<string, string>>;
   hotkey: Array<Record<string, Array<string>>>;
 }
@@ -8,6 +9,7 @@ export interface Config {
 export type Theme = "light" | "dark" | "auto";
 export interface GeneralOptions {
   max?: number | null;
+  autoStart: boolean;
   options?: Record<HistoryType, Partial<TypeOptions>>;
 }
 
@@ -34,3 +36,10 @@ export interface Historys {
   list: History[];
   total: number;
 }
+
+export interface RiboEvent {
+  type: RiboEventType;
+  payload?: any|null;
+}
+
+export type RiboEventType = "init" | "update" | "refresh"

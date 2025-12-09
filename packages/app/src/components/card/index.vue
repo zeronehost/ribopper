@@ -1,27 +1,27 @@
 <template>
   <s-card class="ribo-card" @click="copyHandle" clickable>
-    <div class="content" @click.prevent.stop>
+    <div class="content">
       <s-text-field v-if="isEdit" type="multiline" v-model="newContent" @blur="updateHandle"></s-text-field>
       <pre v-else>{{ data.content }}</pre>
     </div>
     <!-- 执行 -->
-    <s-icon-button v-if="executable" class="btn" slot="action" @click="playHandle">
+    <s-icon-button v-if="executable" class="btn" slot="action" @click.prevent.stop="playHandle">
       <RiboIconPlay />
     </s-icon-button>
     <!-- 二维码 -->
-    <s-icon-button v-if="scannable" class="btn" slot="action" @click="qrcodeHandle">
+    <s-icon-button v-if="scannable" class="btn" slot="action" @click.prevent.stop="qrcodeHandle">
       <RiboIconQrcode />
     </s-icon-button>
     <!-- 编辑 -->
-    <s-icon-button v-if="editable" class="btn" slot="action" @click="editHandle">
+    <s-icon-button v-if="editable" class="btn" slot="action" @click.prevent.stop="editHandle">
       <RiboIconEdit />
     </s-icon-button>
     <!-- 删除 -->
-    <s-icon-button v-if="deletable" class="btn delete" slot="action" @click="deleteHandle">
+    <s-icon-button v-if="deletable" class="btn delete" slot="action" @click.prevent.stop="deleteHandle">
       <RiboIconDelete />
     </s-icon-button>
     <!-- 收藏 -->
-    <s-icon-button v-if="starable" class="btn" slot="action" @click="starHandle">
+    <s-icon-button v-if="starable" class="btn" slot="action" @click.prevent.stop="starHandle">
       <RiboIconStarActived v-if="isStar" />
       <RiboIconStar v-else />
     </s-icon-button>

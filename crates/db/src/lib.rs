@@ -102,18 +102,8 @@ impl Database {
       "insert into history (content, type) values (?1, ?2);",
       params![data.content, data.typ],
     )?;
-    match max {
-      Some(max) => {
-        if let Ok(total) = self.query_total() {
-          if total > max {
-            self.0.execute(
-              "DELETE from history where id not in (select id from history order by id desc limit ?1)",
-              params![max],
-            )?;
-          }
-        }
-      }
-      None => {}
+    if let Some(max) = max {
+      self.clear_overflow_data(max)?;
     }
     Ok(())
   }
@@ -155,7 +145,7 @@ impl Database {
   }
 
   pub fn query_data(&self) -> Result<QueryHistory> {
-    let mut stmt = self.0.prepare("select * from history")?;
+    let mut stmt = self.0.prepare("select * from history order by id desc;")?;
     let list_iter = stmt.query_map(params![], |row| {
       Ok(History {
         id: row.get(0)?,
@@ -181,7 +171,9 @@ impl Database {
   }
 
   pub fn query_datas_by_content(&self, content: &str) -> Result<QueryHistory> {
-    let mut stmt = self.0.prepare("select * from history order by content=?1;")?;
+    let mut stmt = self
+      .0
+      .prepare("select * from history order by content=?1;")?;
     let list_iter = stmt.query_map(params![content], |row| {
       Ok(History {
         id: row.get(0)?,
@@ -200,11 +192,31 @@ impl Database {
     Ok(QueryHistory { list, total })
   }
 
+  pub fn query_data_by_id(&self, id: usize) -> Result<History> {
+    let mut stmt = self.0.prepare("select * from history where id=?1;")?;
+    stmt.query_one(params![id], |row| {
+      Ok(History {
+        id: row.get(0)?,
+        content: row.get(1)?,
+        typ: row.get(2)?,
+        created_at: row.get(3)?,
+        updated_at: row.get(4)?,
+      })
+    })
+  }
+
   pub fn clear_data(&self) -> Result<()> {
     match self.0.execute_batch("BEGIN TRANSACTION; DELETE FROM history; DELETE FROM sqlite_sequence WHERE name = 'history'; COMMIT;") {
       Ok(_) => Ok(()),
       Err(e) => Err(e),
     }
+  }
+
+  pub fn clear_overflow_data(&self, max: usize) -> Result<usize> {
+    self.0.execute(
+      "DELETE from history where id not in (select id from history order by id desc limit ?1)",
+      params![max],
+    )
   }
 }
 

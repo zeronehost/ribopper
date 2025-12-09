@@ -11,6 +11,7 @@ impl Default for RiboConfig {
     Self {
       general: Some(RiboGeneral {
         max: None,
+        auto_start: false,
         options: RiboTypeOptions::default(),
       }),
       options: None,
@@ -29,8 +30,10 @@ pub enum RiboTheme {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RiboGeneral {
   pub max: Option<usize>,
+  pub auto_start: bool,
   pub options: RiboTypeOptions,
 }
 

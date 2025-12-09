@@ -4,23 +4,16 @@
       <div slot="headline">内置主题</div>
       <s-segmented-button v-model.lazy="currentTheme" mode="fixed">
         <s-segmented-button-item value="light">
-          <s-icon slot="start">
-            <RiboIconBrightnessLightActived v-if="currentTheme === 'light'" />
-            <RiboIconBrightnessLight v-else />
-          </s-icon>
+          <s-icon slot="start" name="light_mode"></s-icon>
           <span>浅色</span>
         </s-segmented-button-item>
         <s-segmented-button-item value="dark">
-          <s-icon slot="start">
-            <RiboIconBrightnessDarkActived v-if="currentTheme === 'dark'" />
-            <RiboIconBrightnessDark v-else />
-          </s-icon>
+          <s-icon slot="start" name="dark_mode"></s-icon>
           <span>深色</span>
         </s-segmented-button-item>
         <s-segmented-button-item value="auto">
           <s-icon slot="start">
-            <RiboIconBrightnessAutoActived v-if="currentTheme === 'auto'" />
-            <RiboIconBrightnessAuto v-else />
+            <RiboIconBrightnessAuto />
           </s-icon>
           <span>给随系统</span>
         </s-segmented-button-item>
@@ -32,11 +25,6 @@
 import { computed } from "vue";
 import {
   RiboIconBrightnessAuto,
-  RiboIconBrightnessAutoActived,
-  RiboIconBrightnessDark,
-  RiboIconBrightnessDarkActived,
-  RiboIconBrightnessLight,
-  RiboIconBrightnessLightActived,
 } from "@/components/icons";
 import { RiboOptionSection } from "@/components/section";
 import { useSettingStore } from "@/stores/setting";
