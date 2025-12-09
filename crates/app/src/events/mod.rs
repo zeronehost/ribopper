@@ -15,7 +15,11 @@ where
   D: serde::Serialize + Clone,
 {
   fn new(typ: EventType, payload: Option<D>, label: &str) -> Self {
-    Self { typ, payload, label: label.to_string()}
+    Self {
+      typ,
+      payload,
+      label: label.to_string(),
+    }
   }
 
   pub fn create_init_event(payload: Option<D>, label: &str) -> Self {

@@ -1,5 +1,6 @@
 use tauri::Manager;
 
+mod clipboard;
 mod commands;
 mod events;
 mod logger;
@@ -59,7 +60,7 @@ pub fn run() {
     ])
     .setup(|app| {
       crate::store::Store::init(app.handle())?;
-
+      crate::clipboard::Clipboard::new(app.handle()).init()?;
       crate::tray::Tray::init(app.handle())?;
       Ok(())
     })

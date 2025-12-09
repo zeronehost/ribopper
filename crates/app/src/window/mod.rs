@@ -95,6 +95,7 @@ pub fn open_tray_pane<R: Runtime>(
       .always_on_top(true)
       .maximizable(false)
       .resizable(false)
+      .devtools(true)
       .build()?;
       log::info!("获取当前屏幕");
       let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();

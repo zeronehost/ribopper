@@ -21,7 +21,11 @@ pub fn store_load<R: Runtime>(app: AppHandle<R>) -> Result<Option<RiboConfig>, S
 }
 
 #[tauri::command]
-pub fn store_save<R: Runtime>(app: AppHandle<R>, state: State<'_, Db>, config: RiboConfig) -> Result<(), String> {
+pub fn store_save<R: Runtime>(
+  app: AppHandle<R>,
+  state: State<'_, Db>,
+  config: RiboConfig,
+) -> Result<(), String> {
   log::info!("保存配置 => {:?}", config);
   let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
   store.set("config", json!(config));
