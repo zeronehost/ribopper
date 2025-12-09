@@ -6,6 +6,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+defineOptions({
+  name: "RiboIcon",
+});
 const props = defineProps({
   size: {
     type: [String, Number],

@@ -24,8 +24,8 @@ impl Database {
   }
 
   pub fn init(&self) -> Result<()> {
+    log::info!("初始化数据库...");
     let schema_version_exists = self.schema_version_exists()?;
-    println!("init => {schema_version_exists}");
     if !schema_version_exists {
       self.migrate_after_version(0)?;
     } else {
@@ -47,7 +47,7 @@ impl Database {
     for version in version_iter {
       versions.push(version?);
     }
-    println!("get_schema_version => {:?}", versions);
+    log::info!("当前数据库版本：{:?}", versions.first().copied());
     Ok(versions.first().copied())
   }
 
@@ -56,7 +56,7 @@ impl Database {
       Ok(Some(_)) => Ok(true),
       Ok(None) => Ok(false),
       Err(e) => {
-        log::error!("schema_version_exists => {e:?}");
+        log::warn!("数据库不存在：{e}");
         Ok(false)
       }
     }
@@ -178,6 +178,26 @@ impl Database {
   pub fn query_total(&self) -> Result<usize> {
     let mut stmt = self.0.prepare("select count(*) from history;")?;
     stmt.query_one(params![], |row| Ok(row.get::<usize, usize>(0)?))
+  }
+
+  pub fn query_datas_by_content(&self, content: &str) -> Result<QueryHistory> {
+    let mut stmt = self.0.prepare("select * from history order by content=?1;")?;
+    let list_iter = stmt.query_map(params![content], |row| {
+      Ok(History {
+        id: row.get(0)?,
+        content: row.get(1)?,
+        typ: row.get(2)?,
+        created_at: row.get(3)?,
+        updated_at: row.get(4)?,
+      })
+    })?;
+    let mut list = vec![];
+    for item in list_iter {
+      list.push(item?);
+    }
+    let total = list.len();
+
+    Ok(QueryHistory { list, total })
   }
 
   pub fn clear_data(&self) -> Result<()> {

@@ -58,7 +58,7 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: "delete", id: number): void;
   (e: "edit", id: number, content: string): void;
-  (e: "play", id: number): void;
+  (e: "exec", id: number): void;
   (e: "qrcode", id: number): void;
   (e: "star", id: number): void;
   (e: "copy", id: number): void;
@@ -69,7 +69,7 @@ const deleteHandle = () => {
 };
 
 const playHandle = () => {
-  emit("play", props.data.id);
+  emit("exec", props.data.id);
 };
 
 const editHandle = () => {

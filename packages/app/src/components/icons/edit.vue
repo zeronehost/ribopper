@@ -5,8 +5,8 @@
   </svg>
 </template>
 
-<script lang="ts">
-export default {
+<script setup lang="ts">
+defineOptions({
   name: "RiboEdit",
-};
+});
 </script>

@@ -9,7 +9,7 @@
 </template>
 <script setup lang="ts">
 import type { TypeOptions } from "@ribo/api";
-import { ref, watch, type PropType } from "vue";
+import { type PropType, ref, watch } from "vue";
 import { RiboField, RiboFieldItem } from "@/components/field";
 
 defineOptions({
@@ -26,20 +26,32 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-const innerValue = ref<TypeOptions>({
-  editable: false,
-  deletable: false,
-  scannable: false,
-  starable: false,
-});
-  watch(() => props.modelValue, (newVal) => {
-  innerValue.value = newVal ?? {};
-}, { deep: true });
+const innerValue = ref<TypeOptions>(
+  Object.assign(
+    {},
+    {
+      editable: false,
+      deletable: false,
+      scannable: false,
+      starable: false,
+    },
+    props.modelValue,
+  ),
+);
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    innerValue.value = newVal ?? {};
+  },
+  { deep: true },
+);
 
-watch(() => innerValue.value, (newVal) => {
-  console.log('watch -> innerValue =>', newVal);
-  emit("update:modelValue", newVal ?? {});
-}, { deep: true });
-
-
+watch(
+  () => innerValue.value,
+  (newVal) => {
+    console.log("watch -> innerValue =>", newVal);
+    emit("update:modelValue", newVal ?? {});
+  },
+  { deep: true },
+);
 </script>

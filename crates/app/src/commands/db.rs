@@ -55,7 +55,8 @@ pub fn create_data<R: Runtime>(
 #[tauri::command]
 pub fn update_data(state: State<'_, Db>, data: UpdateHistory) -> Result<(), String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
-  db.update_data(data).map_err(|e| e.to_string())?;
+  db.update_data(data.clone()).map_err(|e| e.to_string())?;
+  log::info!("更新 {} 成功", data.id);
   // 通知刷新
   Ok(())
 }
@@ -64,6 +65,7 @@ pub fn update_data(state: State<'_, Db>, data: UpdateHistory) -> Result<(), Stri
 pub fn delete_data(state: State<'_, Db>, id: usize) -> Result<(), String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
   db.delete_data(id).map_err(|e| e.to_string())?;
+  log::info!("删除 {id} 成功");
   // 通知刷新
   Ok(())
 }
@@ -72,6 +74,6 @@ pub fn delete_data(state: State<'_, Db>, id: usize) -> Result<(), String> {
 pub fn query_data(state: State<'_, Db>) -> Result<QueryHistory, String> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
   let data = db.query_data().map_err(|e| e.to_string())?;
-  println!("query_data =>{:?}", data);
+  log::info!("总条数 {}", data.total);
   Ok(data)
 }

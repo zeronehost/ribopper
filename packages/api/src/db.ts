@@ -5,6 +5,6 @@ export const clearData = async () => await invoke("clear_data");
 
 export const getData = async () => await invoke<Historys>("query_data");
 
-export const updateData = async (history: UpdateHistory) => await invoke<void>("update_data", { history });
+export const updateData = async (data: UpdateHistory) => await invoke<void>("update_data", { data });
 
 export const deleteData = async (id: number) => await invoke<void>("delete_data", { id });

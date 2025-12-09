@@ -1,11 +1,8 @@
-#[cfg(debug_assertions)]
-use crate::utils::constant::WIN_URL_TRAY_PANE;
 use crate::utils::{
-  constant::{WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING},
+  constant::{WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING, WIN_URL_TRAY_PANE},
   pos::calc_pane_pos,
 };
-use serde_json::json;
-use tauri::{AppHandle, Emitter, Manager, Runtime};
+use tauri::{AppHandle, Manager, Runtime};
 
 pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
   log::info!("打开设置窗口");
@@ -36,7 +33,7 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
             .unwrap(),
         ),
         #[cfg(not(debug_assertions))]
-        tauri::WebviewUrl::Url(format!("index.html{}", WIN_URL_SETTING)),
+        tauri::WebviewUrl::App(format!("index.html{}", WIN_URL_SETTING).into()),
       )
       .visible(false)
       .inner_size(800., 600.)
@@ -65,7 +62,7 @@ pub fn open_tray_pane<R: Runtime>(
         let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();
         log::info!("主面板存在且是隐藏状态");
         log::info!("设置主面板位置");
-        win.set_position(calc_pane_pos(win.outer_size()?, monitor, pos))?;
+        win.set_position(calc_pane_pos(win.outer_size()?, monitor))?;
         log::info!("主面板显示");
         win.show()?;
         win.set_focus()
@@ -89,7 +86,7 @@ pub fn open_tray_pane<R: Runtime>(
             .unwrap(),
         ),
         #[cfg(not(debug_assertions))]
-        tauri::WebviewUrl::Url(format!("index.html{}", WIN_URL_TRAY_PANE)),
+        tauri::WebviewUrl::App(format!("index.html{}", WIN_URL_TRAY_PANE).into()),
       )
       .visible(false)
       .inner_size(350., 600.)
@@ -102,7 +99,7 @@ pub fn open_tray_pane<R: Runtime>(
       log::info!("获取当前屏幕");
       let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();
       log::info!("设置主面板位置");
-      win.set_position(calc_pane_pos(win.outer_size()?, monitor, pos))?;
+      win.set_position(calc_pane_pos(win.outer_size()?, monitor))?;
       win.show()?;
       win.set_focus()?;
       Ok(())

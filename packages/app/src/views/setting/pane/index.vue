@@ -37,8 +37,8 @@ const options = computed<Record<HistoryType, TypeOptions>>({
   },
   set(value) {
     store.setTypeOptions(value as Record<HistoryType, TypeOptions>);
-  }
-})
+  },
+});
 </script>
 <style lang="scss">
   .options-panel {

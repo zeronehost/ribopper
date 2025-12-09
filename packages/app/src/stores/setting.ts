@@ -51,7 +51,6 @@ export const useSettingStore = defineStore("setting", {
       storeSave(this.config).then(() => {
         this._initData = JSON.parse(JSON.stringify(this.config));
       });
-      // TODO: save to local storage
     },
   },
 });

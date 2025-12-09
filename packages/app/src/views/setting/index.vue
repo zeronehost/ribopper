@@ -94,9 +94,7 @@ const store = useSettingStore();
 const isSubmit = computed(() => !store.isUpdate);
 
 const submitHandle = async () => {
-  console.log(store);
   await store.saveConfig();
-  await cancelHandle();
 };
 
 const confirmHandle = async () => {
