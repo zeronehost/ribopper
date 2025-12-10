@@ -10,6 +10,7 @@ export type Theme = "light" | "dark" | "auto";
 export interface GeneralOptions {
   max?: number | null;
   autoStart: boolean;
+  duration: number,
   options?: Record<HistoryType, Partial<TypeOptions>>;
 }
 
@@ -39,6 +40,7 @@ export interface Historys {
 
 export interface RiboEvent {
   type: RiboEventType;
+  label: string;
   payload?: any|null;
 }
 

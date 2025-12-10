@@ -19,16 +19,17 @@ impl<R: Runtime> Clipboard<R> {
   pub async fn init(&self) -> anyhow::Result<()> {
     let config = self.app.store(STORE_FILE)?.get("config").unwrap();
     let config: RiboConfig = serde_json::from_value(config)?;
-    let max = match config.general {
-      Some(g) => g.max,
-      None => None,
+    let (max, duration) = match config.general {
+      Some(g) => (g.max, g.duration),
+      None => (None, 500),
     };
     let clipboard = self.app.clipboard();
     let p = crate::utils::path::get_ribo_db_path(&self.app)?.join(STORE_DB_FILE);
     let db = Db::new(p, Some(APP_NAME.to_string()))?;
     log::info!("clipboard thread start");
     loop {
-      tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+      tokio::time::sleep(tokio::time::Duration::from_millis(duration)).await;
+      log::debug!("clipboard thread duration {duration}");
       if let Ok(content) = clipboard.read_text() {
         log::debug!("read clipboard content: {}", content);
         let db = db.0.lock().unwrap();

@@ -5,6 +5,9 @@
       <RiboFieldItem title="历史记录数量">
         <s-text-field v-model="max" type="number" placeholder="请输入最大历史记录数据量"></s-text-field>
       </RiboFieldItem>
+      <!-- <RiboFieldItem title="查询剪贴板间隔时间">
+        <s-text-field v-model="duration" type="number" placeholder="请输入查询剪贴板间隔时间"></s-text-field>
+      </RiboFieldItem> -->
     </RiboField>
     <RiboTypeOption title="文本" v-model.lazy="options.text" /> 
     <RiboTypeOption title="图片" v-model="options.image" /> 
@@ -30,6 +33,15 @@ const max = computed({
     store.setMax(value as GeneralOptions["max"]);
   },
 });
+
+const duration = computed({
+  get() {
+    return store.duration;
+  },
+  set(value) {
+    store.setDuration(value as GeneralOptions["duration"])
+  }
+})
 
 const options = computed<Record<HistoryType, TypeOptions>>({
   get() {

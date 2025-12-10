@@ -12,6 +12,7 @@ impl Default for RiboConfig {
       general: Some(RiboGeneral {
         max: None,
         auto_start: false,
+        duration: 500,
         options: RiboTypeOptions::default(),
       }),
       options: None,
@@ -34,6 +35,7 @@ pub enum RiboTheme {
 pub struct RiboGeneral {
   pub max: Option<usize>,
   pub auto_start: bool,
+  pub duration: u64,
   pub options: RiboTypeOptions,
 }
 
