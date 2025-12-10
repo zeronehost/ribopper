@@ -173,7 +173,7 @@ impl Database {
   pub fn query_datas_by_content(&self, content: &str) -> Result<QueryHistory> {
     let mut stmt = self
       .0
-      .prepare("select * from history order by content=?1;")?;
+      .prepare("select * from history where content=?1;")?;
     let list_iter = stmt.query_map(params![content], |row| {
       Ok(History {
         id: row.get(0)?,
