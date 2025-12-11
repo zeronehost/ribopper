@@ -5,6 +5,7 @@ create table if not exists history (
   id integer primary key autoincrement,
   content text not null,
   type interger not null,
+  favorites interger default 0,
   created_at datetime default (DATETIME('now', 'localtime')),
   updated_at datetime default (DATETIME('now', 'localtime'))
 );

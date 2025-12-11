@@ -25,6 +25,7 @@ export interface History {
   id: number;
   content: string;
   type: HistoryType;
+  favorites: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

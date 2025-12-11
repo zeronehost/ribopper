@@ -14,6 +14,11 @@ export const useDbStore = defineStore("db", {
     total: 0,
     list: [],
   }),
+  getters: {
+    favorites() {
+      return this.list.filter((item) => item.favorites);
+    }
+  },
   actions: {
     async query() {
       const data = await getData();
@@ -30,6 +35,20 @@ export const useDbStore = defineStore("db", {
         const data: UpdateHistory = {
           id,
           content,
+          favorites: item?.favorites ?? false,
+          type: item?.type as HistoryType,
+        };
+        await updateData(data);
+        await this.query();
+      }
+    },
+    async ToggleFavorites(id: number) {
+      const item = this.list.find((item) => item.id === id);
+      if (item) {
+        const data: UpdateHistory = {
+          id,
+          content: item.content,
+          favorites: !(item?.favorites ?? false),
           type: item?.type as HistoryType,
         };
         await updateData(data);
@@ -37,8 +56,8 @@ export const useDbStore = defineStore("db", {
       }
     },
     async clear() {
-      await clearData();
-      await this.query();
+        await clearData();
+        await this.query();
+      },
     },
-  },
-});
+  });

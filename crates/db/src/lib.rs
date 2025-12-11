@@ -110,8 +110,8 @@ impl Database {
 
   pub fn update_data(&self, data: UpdateHistory) -> Result<()> {
     self.0.execute(
-      "update history set content = ?1 where id = ?2;",
-      params![data.content, data.id],
+      "update history set content = ?1, favorites = ?2 where id = ?3;",
+      params![data.content, data.favorites, data.id],
     )?;
     Ok(())
   }
@@ -130,8 +130,10 @@ impl Database {
         id: row.get(0)?,
         content: row.get(1)?,
         typ: row.get(2)?,
-        created_at: row.get(3)?,
-        updated_at: row.get(4)?,
+        favorites: row.get(3)?,
+        created_at: row.get(4)?,
+        updated_at: row.get(5)?,
+        
       })
     })?;
 
@@ -151,8 +153,9 @@ impl Database {
         id: row.get(0)?,
         content: row.get(1)?,
         typ: row.get(2)?,
-        created_at: row.get(3)?,
-        updated_at: row.get(4)?,
+        favorites: row.get(3)?,
+        created_at: row.get(4)?,
+        updated_at: row.get(5)?,
       })
     })?;
 
@@ -179,8 +182,9 @@ impl Database {
         id: row.get(0)?,
         content: row.get(1)?,
         typ: row.get(2)?,
-        created_at: row.get(3)?,
-        updated_at: row.get(4)?,
+        favorites: row.get(3)?,
+        created_at: row.get(4)?,
+        updated_at: row.get(5)?,
       })
     })?;
     let mut list = vec![];
@@ -199,8 +203,9 @@ impl Database {
         id: row.get(0)?,
         content: row.get(1)?,
         typ: row.get(2)?,
-        created_at: row.get(3)?,
-        updated_at: row.get(4)?,
+        favorites: row.get(3)?,
+        created_at: row.get(4)?,
+        updated_at: row.get(5)?,
       })
     })
   }
@@ -299,6 +304,7 @@ mod tests {
       id: 1,
       content: "test1".to_string(),
       typ: HistoryType::Text,
+      favorites: true,
     };
 
     let res = db.update_data(data);

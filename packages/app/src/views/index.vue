@@ -19,6 +19,7 @@
       <template v-else>
         <RiboCard v-for="history in historys" :key="history.id" :data="history" :editable="editabled(history.type)"
           :deletable="deletabled(history.type)" :scannable="scannabled(history.type)"
+          :is-star="history.favorites"
           :starable="starabled(history.type)" @edit="editHandle" @delete="deleteHandle" @scan="scanHandle"
           @star="starHandle" @copy="copyHandle" @exec="execHandle" />
       </template>
@@ -78,8 +79,8 @@ const deleteHandle = async (id: number) => {
 const scanHandle = (id: number) => {
   console.log("scanHandle =>", id);
 };
-const starHandle = (id: number) => {
-  console.log("starHandle =>", id);
+const starHandle = async (id: number) => {
+  await store.ToggleFavorites(id);
 };
 const copyHandle = (id: number) => {
   console.log("复制数据 =>", id);

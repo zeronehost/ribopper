@@ -13,6 +13,7 @@ pub struct History {
   pub updated_at: DateTime<Local>,
   #[serde(rename = "type")]
   pub typ: HistoryType,
+  pub favorites: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -28,6 +29,7 @@ pub struct UpdateHistory {
   pub content: String,
   #[serde(rename = "type")]
   pub typ: HistoryType,
+  pub favorites: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
