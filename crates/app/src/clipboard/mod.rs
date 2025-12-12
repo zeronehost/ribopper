@@ -1,9 +1,8 @@
 use crate::{
-  store::{config::RiboConfig, db::Db},
-  utils::constant::{APP_NAME, STORE_DB_FILE, STORE_FILE},
+  events::RiboEvent, store::{config::RiboConfig, db::Db}, utils::constant::{APP_NAME, STORE_DB_FILE, STORE_FILE, WIN_LABEL_TRAY_PANE}
 };
 use ribo_db::models::{HistoryType, NewHistory};
-use tauri::{AppHandle, Runtime};
+use tauri::{AppHandle, Emitter, Runtime};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_store::StoreExt;
 
@@ -33,7 +32,7 @@ impl<R: Runtime> Clipboard<R> {
       if let Ok(content) = clipboard.read_text() {
         log::debug!("read clipboard content: {}", content);
         let db = db.0.lock().unwrap();
-        let res = db.query_datas_by_content(&content).unwrap();
+        let res = db.query_datas_by_content(&content)?;
         log::debug!("data total: {}", res.total);
         if res.total == 0 {
           log::debug!("data not exist, create new data: {}", content);
@@ -41,7 +40,9 @@ impl<R: Runtime> Clipboard<R> {
             content,
             typ: HistoryType::Text,
           };
-          db.create_data(data, max).unwrap();
+          db.create_data(data, max)?;
+          RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+            .emit(&self.app)?;
         }
       }
     }

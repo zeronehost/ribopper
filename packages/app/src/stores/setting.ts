@@ -18,12 +18,6 @@ export const useSettingStore = defineStore("setting", {
     max(): GeneralOptions["max"] | "" {
       return this.config?.general?.max ?? "";
     },
-    typeOptions(): GeneralOptions["options"] {
-      return this.config?.general?.options;
-    },
-    duration(): GeneralOptions["duration"] {
-      return this.config?.general?.duration ?? 500;
-    }
   },
   actions: {
     toggleTheme(name: Config["theme"]) {
@@ -31,13 +25,6 @@ export const useSettingStore = defineStore("setting", {
     },
     setMax(max?: GeneralOptions["max"]) {
       (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? max : null;
-    },
-
-    setTypeOptions(options: GeneralOptions["options"]) {
-      (this.config.general as GeneralOptions).options = options;
-    },
-    setDuration(duration: GeneralOptions["duration"]) {
-      (this.config.general as GeneralOptions).duration = duration < 500 ? 500 : duration;
     },
 
     saveConfig() {

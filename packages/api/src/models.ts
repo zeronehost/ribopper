@@ -10,15 +10,6 @@ export type Theme = "light" | "dark" | "auto";
 export interface GeneralOptions {
   max?: number | null;
   autoStart: boolean;
-  duration: number,
-  options?: Record<HistoryType, Partial<TypeOptions>>;
-}
-
-export interface TypeOptions {
-  editable: boolean;
-  deletable: boolean;
-  scannable: boolean;
-  starable: boolean;
 }
 
 export interface History {
@@ -42,7 +33,7 @@ export interface Historys {
 export interface RiboEvent {
   type: RiboEventType;
   label: string;
-  payload?: any|null;
+  payload?: any | null;
 }
 
-export type RiboEventType = "init" | "update" | "refresh"
+export type RiboEventType = "init" | "update" | "refresh";

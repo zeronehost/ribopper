@@ -21,8 +21,8 @@
       <RiboIconDelete />
     </s-icon-button>
     <!-- 收藏 -->
-    <s-icon-button v-if="starable" class="btn" slot="action" @click.prevent.stop="starHandle">
-      <RiboIconStarActived v-if="isStar" />
+    <s-icon-button v-if="collectible" class="btn" slot="action" @click.prevent.stop="favoritesHandle">
+      <RiboIconStarActived v-if="data.favorites" />
       <RiboIconStar v-else />
     </s-icon-button>
   </s-card>
@@ -47,12 +47,11 @@ const props = defineProps({
     type: Object as PropType<History>,
     required: true,
   },
-  isStar: Boolean,
+  collectible: Boolean,
   deletable: Boolean,
   editable: Boolean,
   executable: Boolean,
   scannable: Boolean,
-  starable: Boolean,
 });
 
 const emit = defineEmits<{
@@ -60,7 +59,7 @@ const emit = defineEmits<{
   (e: "edit", id: number, content: string): void;
   (e: "exec", id: number): void;
   (e: "qrcode", id: number): void;
-  (e: "star", id: number): void;
+  (e: "favorites", id: number): void;
   (e: "copy", id: number): void;
 }>();
 
@@ -81,8 +80,8 @@ const qrcodeHandle = () => {
   emit("qrcode", props.data.id);
 };
 
-const starHandle = () => {
-  emit("star", props.data.id);
+const favoritesHandle = () => {
+  emit("favorites", props.data.id);
 };
 const updateHandle = () => {
   isEdit.value = false;
@@ -111,6 +110,8 @@ s-card.ribo-card {
     }
     pre {
       margin: 0;
+      max-height: 5rem;
+      overflow: hidden;
     }
   }
 

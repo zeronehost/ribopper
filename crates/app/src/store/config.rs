@@ -13,7 +13,6 @@ impl Default for RiboConfig {
         max: None,
         auto_start: false,
         duration: 500,
-        options: RiboTypeOptions::default(),
       }),
       options: None,
       theme: Some(RiboTheme::Light),
@@ -36,38 +35,10 @@ pub struct RiboGeneral {
   pub max: Option<usize>,
   pub auto_start: bool,
   pub duration: u64,
-  pub options: RiboTypeOptions,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RiboOptions {}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct RiboTypeOptions {
-  pub text: TypeOption,
-  pub image: TypeOption,
-  pub file: TypeOption,
-  pub dir: TypeOption,
-}
-
-impl Default for RiboTypeOptions {
-  fn default() -> Self {
-    Self {
-      text: TypeOption::default(),
-      image: TypeOption::default(),
-      file: TypeOption::default(),
-      dir: TypeOption::default(),
-    }
-  }
-}
-
-#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
-pub struct TypeOption {
-  pub editable: bool,
-  pub deletable: bool,
-  pub scannable: bool,
-  pub starable: bool,
-}
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

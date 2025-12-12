@@ -2,6 +2,7 @@ import {
   clearData,
   deleteData,
   getData,
+  type History,
   type Historys,
   type HistoryType,
   type UpdateHistory,
@@ -15,9 +16,9 @@ export const useDbStore = defineStore("db", {
     list: [],
   }),
   getters: {
-    favorites() {
-      return this.list.filter((item) => item.favorites);
-    }
+    favorites(): History[] {
+      return this.list.filter((item: History) => item.favorites);
+    },
   },
   actions: {
     async query() {
@@ -56,8 +57,8 @@ export const useDbStore = defineStore("db", {
       }
     },
     async clear() {
-        await clearData();
-        await this.query();
-      },
+      await clearData();
+      await this.query();
     },
-  });
+  },
+});

@@ -6,9 +6,9 @@
 <script setup lang="ts">
 import { listenNotify, storeLoad, type Theme } from "@ribo/api";
 import { computed, onMounted } from "vue";
-import { useSettingStore } from "@/stores/setting";
-import { useDbStore } from "@/stores/db";
 import { useRoute } from "vue-router";
+import { useDbStore } from "@/stores/db";
+import { useSettingStore } from "@/stores/setting";
 
 const store = useSettingStore();
 const currentTheme = computed<Theme>(() => store.theme);
@@ -24,19 +24,21 @@ const init = () => {
       });
     }
   });
-}
+};
 
 onMounted(() => {
   init();
-})
+});
 
 const route = useRoute();
 const dbStore = useDbStore();
 listenNotify((data) => {
+  console.log("listenNotify =>", data, route.name);
   if (data.type === "refresh" && data.label === route.name) {
     init();
-  } if (data.type === "update" && data.label !== "setting") {
-    dbStore.query().catch(e => {
+  }
+  if (data.type === "update" && data.label !== "setting") {
+    dbStore.query().catch((e) => {
       console.error(e);
     });
   }

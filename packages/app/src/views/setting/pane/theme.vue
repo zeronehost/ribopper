@@ -23,9 +23,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import {
-  RiboIconBrightnessAuto,
-} from "@/components/icons";
+import { RiboIconBrightnessAuto } from "@/components/icons";
 import { RiboOptionSection } from "@/components/section";
 import { useSettingStore } from "@/stores/setting";
 

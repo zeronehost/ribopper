@@ -14,10 +14,6 @@ pub struct Store;
 impl Store {
   pub fn init<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<()> {
     let store = app.store(STORE_FILE)?;
-    #[cfg(debug_assertions)]
-    {
-      store.delete("config");
-    }
     if !store.has("config") {
       store.set("config", json!(RiboConfig::default()));
     }

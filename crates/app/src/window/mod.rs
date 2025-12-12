@@ -92,10 +92,10 @@ pub fn open_tray_pane<R: Runtime>(
       .inner_size(350., 600.)
       .decorations(false)
       .skip_taskbar(true)
-      .always_on_top(true)
+      .always_on_top(if cfg!(debug_assertions){false}else{true})
       .maximizable(false)
       .resizable(false)
-      .devtools(true)
+      .devtools(cfg!(debug_assertions))
       .build()?;
       log::info!("获取当前屏幕");
       let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();
