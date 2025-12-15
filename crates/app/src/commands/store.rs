@@ -36,12 +36,12 @@ pub fn store_save<R: Runtime>(
   if let Some(c) = config.general {
     if let Some(max) = c.max {
       let db = state.0.lock().map_err(|e| e.to_string())?;
-      let len = db.clear_overflow_data(max).map_err(|e| e.to_string())?;
-      if len > 0 {
-        RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
-          .emit(&app)
-          .map_err(|e| e.to_string())?;
-      }
+      // let len = db.clear_overflow_data(max).map_err(|e| e.to_string())?;
+      // if len > 0 {
+      //   RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+      //     .emit(&app)
+      //     .map_err(|e| e.to_string())?;
+      // }
     }
   }
   Ok(())

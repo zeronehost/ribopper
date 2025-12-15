@@ -14,6 +14,10 @@
         </s-icon>
       </s-icon-button>
     </s-appbar>
+    <s-tab v-if="hasFavorites" mode="fixed" v-model.lazy="selected">
+      <s-tab-item value="all"><span slot="text">全部</span></s-tab-item>
+      <s-tab-item value="favorites"><span slot="text">仅收藏</span></s-tab-item>
+    </s-tab>
     <s-scroll-view>
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
       <template v-else>
@@ -41,13 +45,16 @@ defineOptions({
 const route = useRoute();
 const store = useDbStore();
 const searchReg = ref();
-
 const isEmpty = computed(() => store.total === 0);
+const hasFavorites = computed(() => store.favorites.length > 0);
+const selected = ref("all");
+
+const list = computed(() => selected.value === "favorites" ? store.favorites : store.list)
 const historys = computed(() => {
   if (searchReg.value) {
-    return store.list.filter((item) => searchReg.value.test(item.content));
+    return list.value.filter((item) => searchReg.value.test(item.content));
   }
-  return store.list;
+  return list.value;
 });
 
 const closeHandle = async () => {

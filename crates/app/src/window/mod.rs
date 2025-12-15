@@ -92,7 +92,7 @@ pub fn open_tray_pane<R: Runtime>(
       .inner_size(350., 600.)
       .decorations(false)
       .skip_taskbar(true)
-      .always_on_top(if cfg!(debug_assertions){false}else{true})
+      .always_on_top(if cfg!(debug_assertions) { false } else { true })
       .maximizable(false)
       .resizable(false)
       .devtools(cfg!(debug_assertions))

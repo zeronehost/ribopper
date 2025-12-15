@@ -5,23 +5,23 @@
       <pre v-else>{{ data.content }}</pre>
     </div>
     <!-- 执行 -->
-    <s-icon-button v-if="executable" class="btn" slot="action" @click.prevent.stop="playHandle">
+    <s-icon-button class="btn" slot="action" @click.prevent.stop="playHandle">
       <RiboIconPlay />
     </s-icon-button>
     <!-- 二维码 -->
-    <s-icon-button v-if="scannable" class="btn" slot="action" @click.prevent.stop="qrcodeHandle">
+    <s-icon-button class="btn" slot="action" @click.prevent.stop="qrcodeHandle">
       <RiboIconQrcode />
     </s-icon-button>
     <!-- 编辑 -->
-    <s-icon-button v-if="editable" class="btn" slot="action" @click.prevent.stop="editHandle">
+    <s-icon-button class="btn" slot="action" @click.prevent.stop="editHandle">
       <RiboIconEdit />
     </s-icon-button>
     <!-- 删除 -->
-    <s-icon-button v-if="deletable" class="btn delete" slot="action" @click.prevent.stop="deleteHandle">
+    <s-icon-button class="btn delete" slot="action" @click.prevent.stop="deleteHandle">
       <RiboIconDelete />
     </s-icon-button>
     <!-- 收藏 -->
-    <s-icon-button v-if="collectible" class="btn" slot="action" @click.prevent.stop="favoritesHandle">
+    <s-icon-button class="btn" slot="action" @click.prevent.stop="favoritesHandle">
       <RiboIconStarActived v-if="data.favorites" />
       <RiboIconStar v-else />
     </s-icon-button>
@@ -89,6 +89,9 @@ const updateHandle = () => {
 };
 
 const copyHandle = () => {
+  if (isEdit.value) {
+    return;
+  }
   emit("copy", props.data.id);
 };
 

@@ -1,0 +1,19 @@
+[package]
+name = "ribo-clipboard"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "clipboard utilities for ribopper"
+license = ""
+repository = ""
+
+[dependencies]
+serde_json.workspace = true
+serde.workspace = true
+log.workspace = true
+thiserror.workspace = true
+clipboard-master = "4.0.0"
+arboard = { version = "3.6.1", features = []}
+image = "0.25.9"
+
+ribo-db = { path = "../db" }

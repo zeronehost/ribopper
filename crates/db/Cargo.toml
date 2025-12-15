@@ -8,6 +8,7 @@ authors.workspace = true
 [dependencies]
 rusqlite = { version = "0.37.0", features = ["bundled", "chrono"]}
 serde_json.workspace = true
+thiserror.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
 serde.workspace = true

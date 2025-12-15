@@ -20,7 +20,7 @@ impl Store {
 
     let p = crate::utils::path::get_ribo_db_path(app)?.join(STORE_DB_FILE);
 
-    app.manage(self::db::Db::new(p, Some(APP_NAME.to_string()))?);
+    app.manage(self::db::Db::new(p, Some(APP_NAME))?);
     // TODO 通知页面刷新
     Ok(())
   }
