@@ -4,6 +4,7 @@ mod clipboard;
 mod commands;
 mod events;
 mod logger;
+mod models;
 mod store;
 mod tray;
 mod utils;
@@ -44,11 +45,6 @@ pub fn run() {
       crate::commands::window::close_window,
       //-------------------------------------------
       // db commands
-      // crate::commands::db::clear_data,
-      // crate::commands::db::create_data,
-      // crate::commands::db::update_data,
-      // crate::commands::db::delete_data,
-      // crate::commands::db::query_data,
       crate::commands::clipboard::get_records,
       crate::commands::clipboard::get_record,
       crate::commands::clipboard::delete_record,

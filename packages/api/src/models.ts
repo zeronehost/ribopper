@@ -12,24 +12,6 @@ export interface GeneralOptions {
   autoStart: boolean;
 }
 
-export interface History {
-  id: number;
-  content: string;
-  type: HistoryType;
-  favorites: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export type UpdateHistory = Omit<History, "createdAt" | "updatedAt">;
-
-export type HistoryType = "text" | "image" | "file" | "dir";
-
-export interface Historys {
-  list: History[];
-  total: number;
-}
-
 export interface RiboEvent {
   type: RiboEventType;
   label: string;

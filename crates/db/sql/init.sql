@@ -47,7 +47,7 @@ create table if not exists record_target (
     target_id integer not null,
     record_id integer not null,
     created_at datetime default (DATETIME('now', 'localtime')),
-    updated_at datetime default (DATETIME('now', 'localtime'))--,
+    updated_at datetime default (DATETIME('now', 'localtime')),
     
     -- 添加外键约束
     foreign key (target_id) references target(id) 
