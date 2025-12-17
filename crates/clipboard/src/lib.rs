@@ -2,4 +2,4 @@ mod clipboard;
 mod error;
 mod manager;
 
-pub use self::manager::{Content, Manager};
+pub use self::manager::{Content, FormatContent, Manager};

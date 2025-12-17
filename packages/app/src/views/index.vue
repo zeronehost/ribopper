@@ -37,7 +37,8 @@ import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
 import { useDbStore } from "@/stores/db";
 import { debounce } from "@/utils/helper";
-
+import { getRecords } from "@ribo/api";
+window.getRecords = getRecords;
 defineOptions({
   name: "tray_pane",
 });

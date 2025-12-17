@@ -49,6 +49,7 @@ pub fn run() {
       crate::commands::clipboard::get_record,
       crate::commands::clipboard::delete_record,
       crate::commands::clipboard::create_record,
+      crate::commands::clipboard::update_record,
       crate::commands::clipboard::get_targets,
       crate::commands::clipboard::create_target,
       crate::commands::clipboard::delete_target,

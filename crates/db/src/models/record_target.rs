@@ -16,7 +16,7 @@ pub struct RecordWithTargets {
 impl FromRow for RecordWithTargets {
   fn from_row(row: &rusqlite::Row) -> crate::error::Result<Self> {
     let value: String = row.get(5)?;
-    let target_names: Vec<String> = if value.is_empty() || value == "null" {
+    let target_names: Vec<String> = if value.is_empty() || value == "null" || value == "[null]" {
       vec![]
     } else {
       serde_json::from_str(&value)?

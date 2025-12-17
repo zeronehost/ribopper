@@ -1,4 +1,5 @@
 export { version } from "../package.json";
+export * from "./clipboard";
 export * from "./db";
 export * from "./event";
 export * from "./func";
