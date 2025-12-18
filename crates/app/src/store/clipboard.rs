@@ -8,35 +8,20 @@ pub struct Clipboard(
 impl Clipboard {
   pub fn new<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<Self> {
     let app_handle = app.clone();
-    let callback: Box<dyn Fn(ribo_clipboard::Content) + Send + 'static> = Box::new(move |c: ribo_clipboard::Content| {
-      log::info!("clipboard content: {:?}", c);
-      let db = app_handle.state::<crate::store::db::Db>();
-      match db.0
-        .lock()
-        .unwrap()
-        .create_record(c.try_into().unwrap())
-        {
+    let callback: Box<dyn Fn(ribo_clipboard::Content) + Send + 'static> =
+      Box::new(move |c: ribo_clipboard::Content| {
+        log::debug!("clipboard content: {:?}", c);
+        let db = app_handle.state::<crate::store::db::Db>();
+        match db.0.lock().unwrap().create_record(c.try_into().unwrap()) {
           Ok(_) => {
-            crate::events::RiboEvent::<()>::create_refresh_event(None, WIN_LABEL_TRAY_PANE).emit(&app_handle).unwrap();
-          },
+            crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+              .emit(&app_handle)
+              .unwrap();
+          }
           Err(e) => log::error!("failed to create record: {}", e),
         }
-    });
+      });
 
     Ok(Self(ribo_clipboard::Manager::new(callback)?))
   }
-  // pub fn init<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<()> {
-  //   let app_handle = app.clone();
-  //   let cm = ribo_clipboard::Manager::new(move |c: ribo_clipboard::Content| {
-  //     log::info!("clipboard content: {:?}", c);
-  //     let db = app_handle.state::<crate::store::db::Db>();
-  //     db.0
-  //       .lock()
-  //       .unwrap()
-  //       .create_record(c.try_into().unwrap())
-  //       .unwrap();
-  //   })?;
-  //   app.manage(cm);
-  //   Ok(())
-  // }
 }

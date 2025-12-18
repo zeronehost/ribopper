@@ -2,11 +2,13 @@ use std::path::PathBuf;
 
 use ribo_db::models::{NewRecord, RecordQuery};
 use tauri::{AppHandle, Manager, Runtime, State};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 
 use super::CommandResult;
 use crate::{
   models::{Record, RecordWithTargets, UpdateRecord},
   store::db::Db,
+  utils::constant::WIN_LABEL_TRAY_PANE,
 };
 
 #[tauri::command]
@@ -40,37 +42,99 @@ pub fn get_record(state: State<'_, Db>, id: u64) -> CommandResult<Record> {
 }
 
 #[tauri::command]
-pub fn delete_record(state: State<'_, Db>, id: u64) -> CommandResult<bool> {
+pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bool> {
+  let state = app.state::<crate::store::db::Db>();
   let db = state.0.lock().map_err(|e| e.to_string())?;
 
-  db.delete_record(id).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub fn create_record(state: State<'_, Db>, clipboard: NewRecord) -> CommandResult<Record> {
-  let db = state.0.lock().map_err(|e| e.to_string())?;
-
-  let data = db.create_record(clipboard).map_err(|e| e.to_string())?;
-  data
-    .try_into()
-    .map_err(|e: serde_json::Error| e.to_string())
-}
-
-#[tauri::command]
-pub fn update_record(state: State<'_, Db>, record: UpdateRecord) -> CommandResult<bool> {
-  let db = state.0.lock().map_err(|e| e.to_string())?;
-  match record.try_into() {
-    Ok((id, content)) => db
-      .update_record_content(id, content)
-      .map_err(|e| e.to_string()),
+  match db.delete_record(id) {
+    Ok(success) => {
+      if success {
+        crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+          .emit(&app)
+          .map_err(|e| e.to_string())?;
+      }
+      Ok(success)
+    }
     Err(e) => Err(e.to_string()),
   }
 }
 
 #[tauri::command]
-pub fn clear_records(state: State<'_, Db>) -> CommandResult<()> {
+pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> CommandResult<Record> {
+  let state = app.state::<crate::store::db::Db>();
   let db = state.0.lock().map_err(|e| e.to_string())?;
-  db.clear_records().map_err(|e| e.to_string())
+
+  let data = db.create_record(clipboard).map_err(|e| e.to_string())?;
+  match data.try_into() {
+    Ok(data) => {
+      crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+        .emit(&app)
+        .map_err(|e| e.to_string())?;
+      Ok(data)
+    }
+    Err(e) => Err(e.to_string()),
+  }
+}
+
+#[tauri::command]
+pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> CommandResult<bool> {
+  let state = app.state::<crate::store::db::Db>();
+  let db = state.0.lock().map_err(|e| e.to_string())?;
+  match record.try_into() {
+    Ok((id, content)) => match db.update_record_content(id, content) {
+      Ok(success) => {
+        if success {
+          crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+            .emit(&app)
+            .map_err(|e| e.to_string())?;
+        }
+        Ok(success)
+      }
+      Err(e) => Err(e.to_string()),
+    },
+    Err(e) => Err(e.to_string()),
+  }
+}
+
+#[tauri::command]
+pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
+  log::info!("清楚历史记录");
+  let app_handle = app.clone();
+  app
+    .dialog()
+    .message("确认要清空历史记录？")
+    .title("温馨提示")
+    .buttons(MessageDialogButtons::OkCancelCustom(
+      "确定".to_string(),
+      "取消".to_string(),
+    ))
+    .show(move |result| match result {
+      true => {
+        log::info!("确认清空历史记录");
+        // 通知刷新
+        let state = app_handle.state::<crate::store::db::Db>();
+        let db = state.0.lock().unwrap();
+        match db.clear_records() {
+          Ok(_) => {
+            match crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+              .emit(&app_handle)
+            {
+              Ok(_) => {
+                log::info!("通知刷新成功");
+              }
+              Err(e) => {
+                log::error!("通知刷新失败: {e}");
+              }
+            };
+          }
+          Err(e) => {
+            log::error!("清空历史记录失败: {e}");
+          }
+        };
+      }
+      false => {}
+    });
+  Ok(())
 }
 
 #[tauri::command]

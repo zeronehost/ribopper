@@ -6,9 +6,9 @@ use serde_json::json;
 use tauri::{AppHandle, Manager, Runtime};
 use tauri_plugin_store::StoreExt;
 
+pub(crate) mod clipboard;
 pub mod config;
 pub mod db;
-pub(crate) mod clipboard;
 
 pub struct Store;
 

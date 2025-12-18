@@ -1,8 +1,8 @@
 use ribo_db::models::{NewTarget, Target};
 use tauri::State;
 
-use crate::store::db::Db;
 use super::CommandResult;
+use crate::store::db::Db;
 
 #[tauri::command]
 pub fn get_targets(state: State<'_, Db>) -> CommandResult<Vec<Target>> {

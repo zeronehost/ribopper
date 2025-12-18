@@ -75,7 +75,8 @@ impl Tray {
         }
         "quit" => {
           log::info!("退出应用");
-          let answer = app
+          let app_handle = app.clone();
+          app
             .dialog()
             .message("确认要退出应用？")
             .title("温馨提示")
@@ -83,27 +84,17 @@ impl Tray {
               "退出".to_string(),
               "取消".to_string(),
             ))
-            .blocking_show();
-          if answer {
-            log::info!("确认退出应用");
-            app.exit(0);
-          }
+            .show(move |result| match result {
+              true => {
+                log::info!("确认退出应用");
+                app_handle.exit(0);
+              }
+              false => {}
+            });
         }
         "clear" => {
           log::info!("清空历史记录");
-          let answer = app
-            .dialog()
-            .message("确认要清空历史记录？")
-            .title("温馨提示")
-            .buttons(MessageDialogButtons::OkCancelCustom(
-              "确定".to_string(),
-              "取消".to_string(),
-            ))
-            .blocking_show();
-          if answer {
-            log::info!("确认清空历史记录");
-            log::debug!("暂未实现");
-          }
+          crate::commands::record::clear_records(app.clone()).unwrap();
         }
         "setting" => {
           log::info!("打开设置窗口");

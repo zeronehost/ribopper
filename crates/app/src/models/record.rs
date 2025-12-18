@@ -112,6 +112,7 @@ pub(crate) struct UpdateRecord {
   text: Option<String>,
   image: Option<Vec<u8>>,
   files: Option<Vec<PathBuf>>,
+  #[serde(rename = "type")]
   pub(crate) typ: ribo_db::models::RecordType,
 }
 
@@ -119,10 +120,7 @@ impl TryInto<(u64, String)> for UpdateRecord {
   type Error = serde_json::Error;
   fn try_into(self) -> Result<(u64, String), Self::Error> {
     match self.typ {
-      ribo_db::models::RecordType::Text => Ok((
-        self.id,
-        serde_json::to_string(&self.text.unwrap_or_default())?,
-      )),
+      ribo_db::models::RecordType::Text => Ok((self.id, self.text.unwrap_or_default())),
       ribo_db::models::RecordType::Image => Ok((
         self.id,
         serde_json::to_string(&self.image.unwrap_or_default())?,
@@ -130,7 +128,7 @@ impl TryInto<(u64, String)> for UpdateRecord {
       ribo_db::models::RecordType::Files => Ok((
         self.id,
         serde_json::to_string(&self.files.unwrap_or_default())?,
-      ))
+      )),
     }
   }
 }

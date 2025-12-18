@@ -13,7 +13,6 @@ pub struct Record {
   pub updated_at: DateTime<Local>,
 }
 
-
 impl FromRow for Record {
   fn from_row(row: &rusqlite::Row) -> crate::error::Result<Self> {
     Ok(Self {
@@ -26,7 +25,6 @@ impl FromRow for Record {
     })
   }
 }
-
 
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,30 +1,34 @@
 <template>
-  <s-card class="ribo-card" @click="copyHandle" clickable>
+  <s-card class="ribo-card" :class="{'is-edit': isEdit}" @click="copyHandle" clickable>
     <div class="content">
-      <s-text-field v-if="isEdit && data.type === 'text'" type="multiline" v-model="newContent" @blur="updateHandle"></s-text-field>
+      <s-text-field v-if="isEdit && data.type === 'text'" type="multiline" v-model="newContent"
+        @blur="updateHandle"></s-text-field>
       <pre v-else>{{ content }}</pre>
     </div>
-    <!-- 执行 -->
-    <s-icon-button class="btn" slot="action" @click.prevent.stop="playHandle">
-      <RiboIconPlay />
-    </s-icon-button>
-    <!-- 二维码 -->
-    <s-icon-button class="btn" slot="action" @click.prevent.stop="qrcodeHandle">
-      <RiboIconQrcode />
-    </s-icon-button>
-    <!-- 编辑 -->
-    <s-icon-button v-if="data.type === 'text'" class="btn" slot="action" @click.prevent.stop="editHandle">
-      <RiboIconEdit />
-    </s-icon-button>
-    <!-- 删除 -->
-    <s-icon-button class="btn delete" slot="action" @click.prevent.stop="deleteHandle">
-      <RiboIconDelete />
-    </s-icon-button>
-    <!-- 收藏 -->
-    <!-- <s-icon-button class="btn" slot="action" @click.prevent.stop="favoritesHandle">
-      <RiboIconStarActived v-if="data.favorites" />
-      <RiboIconStar v-else />
-    </s-icon-button> -->
+    <div class="ribo-card__option">
+      <!-- 执行 -->
+      <!-- <s-icon-button class="btn" @click.prevent.stop="playHandle">
+        <RiboIconPlay />
+      </s-icon-button> -->
+      <!-- 二维码 -->
+      <!-- <s-icon-button class="btn" @click.prevent.stop="qrcodeHandle">
+        <RiboIconQrcode />
+      </s-icon-button> -->
+      <!-- 编辑 -->
+      <s-icon-button v-if="data.type === 'text'" class="btn" @click.prevent.stop="editHandle">
+        <RiboIconEdit />
+      </s-icon-button>
+      <!-- 删除 -->
+      <s-icon-button class="btn delete" @click.prevent.stop="deleteHandle">
+        <RiboIconDelete />
+      </s-icon-button>
+      <!-- 收藏 -->
+      <!-- <s-icon-button class="btn" @click.prevent.stop="favoritesHandle">
+        <RiboIconStarActived v-if="data.favorites" />
+        <RiboIconStar v-else />
+      </s-icon-button> -->
+    </div>
+
   </s-card>
 </template>
 <script lang="ts" setup>
@@ -33,8 +37,8 @@ import { computed, type PropType, ref } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
-  RiboIconPlay,
-  RiboIconQrcode,
+  // RiboIconPlay,
+  // RiboIconQrcode,
   // RiboIconStar,
   // RiboIconStarActived,
 } from "@/components/icons";
@@ -70,18 +74,18 @@ const deleteHandle = () => {
   emit("delete", id.value);
 };
 
-const playHandle = () => {
-  emit("exec", id.value);
-};
+// const playHandle = () => {
+//   emit("exec", id.value);
+// };
 
 const editHandle = () => {
   newContent.value = content.value;
   isEdit.value = true;
 };
 
-const qrcodeHandle = () => {
-  emit("qrcode", id.value);
-};
+// const qrcodeHandle = () => {
+//   emit("qrcode", id.value);
+// };
 
 // const favoritesHandle = () => {
 //   emit("favorites", props.data.id);
@@ -108,16 +112,37 @@ s-card.ribo-card {
   max-width: unset;
   margin: 1rem;
   position: relative;
-  padding-bottom: .5rem;
+
   .content {
     padding: .5rem;
+
     s-text-field {
       width: 100%;
     }
+
     pre {
       margin: 0;
       max-height: 5rem;
       overflow: hidden;
+    }
+  }
+
+  .ribo-card {
+    &__option {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0.5rem 1rem 0.5rem 1.5rem;
+      background: linear-gradient(to right, #0000, var(--s-color-background) 10%, var(--s-color-background));
+      display: none;
+    }
+  }
+  &:not(.is-edit):hover {
+    .ribo-card__option {
+      display: flex;
     }
   }
 
@@ -130,6 +155,7 @@ s-card.ribo-card {
       width: .8rem;
       height: .8rem;
     }
+
     &.delete {
       color: var(--s-color-error);
     }
