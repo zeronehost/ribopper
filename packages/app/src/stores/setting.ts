@@ -1,4 +1,4 @@
-import { type Config, type GeneralOptions, storeSave, type Theme } from "@ribo/api";
+import { type Config, type GeneralOptions, configSave, type Theme } from "@ribo/api";
 import { defineStore } from "pinia";
 
 export const useSettingStore = defineStore("setting", {
@@ -29,9 +29,9 @@ export const useSettingStore = defineStore("setting", {
 
     saveConfig() {
       this.isUpdate = false;
-      storeSave(this.config).then(() => {
+      configSave(this.config as Config).then(() => {
         this._initData = JSON.parse(JSON.stringify(this.config));
-      });
+      }).catch(() => {});
     },
   },
 });

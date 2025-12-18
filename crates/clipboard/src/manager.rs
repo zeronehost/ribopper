@@ -122,6 +122,12 @@ pub struct Content {
   pub data: Vec<FormatContent>,
 }
 
+impl Content {
+  fn get_type(&self) -> ribo_db::models::RecordType {
+    self.content.get_type()
+  }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum FormatContent {
   Text(String),
@@ -129,12 +135,29 @@ pub enum FormatContent {
   Files(Vec<PathBuf>),
 }
 
+impl FormatContent {
+  fn get_type(&self) -> ribo_db::models::RecordType {
+    match self {
+      Self::Text(_) => ribo_db::models::RecordType::Text,
+      Self::Image(_) => ribo_db::models::RecordType::Image,
+      Self::Files(_) => ribo_db::models::RecordType::Files,
+    }
+  }
+}
+
 impl TryFrom<Content> for ribo_db::models::NewRecord {
   type Error = serde_json::Error;
   fn try_from(value: Content) -> Result<Self, Self::Error> {
+    let typ = value.get_type();
+    let content = match value.content {
+      FormatContent::Text(data) => data,
+      FormatContent::Image(data) => serde_json::to_string(&data)?,
+      FormatContent::Files(data) => serde_json::to_string(&data)?,
+    };
     Ok(ribo_db::models::NewRecord {
-      content: serde_json::to_string(&(value.content.clone()))?,
+      content,
       data: serde_json::to_string(&value.data)?,
+      typ,
     })
   }
 }

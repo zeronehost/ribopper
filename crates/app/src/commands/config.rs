@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[tauri::command]
-pub fn store_load<R: Runtime>(app: AppHandle<R>) -> Result<Option<RiboConfig>, String> {
+pub fn config_load<R: Runtime>(app: AppHandle<R>) -> Result<Option<RiboConfig>, String> {
   let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
   match store.get("config") {
     Some(config) => {
@@ -21,7 +21,7 @@ pub fn store_load<R: Runtime>(app: AppHandle<R>) -> Result<Option<RiboConfig>, S
 }
 
 #[tauri::command]
-pub fn store_save<R: Runtime>(
+pub fn config_save<R: Runtime>(
   app: AppHandle<R>,
   state: State<'_, Db>,
   config: RiboConfig,

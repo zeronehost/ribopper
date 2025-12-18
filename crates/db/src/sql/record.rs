@@ -7,8 +7,8 @@ use rusqlite::{ToSql, params};
 
 impl Database {
   pub fn create_record(&self, record: models::NewRecord) -> Result<models::Record> {
-    let mut stmt = self.conn().prepare("insert into record (content, data) values (?1, ?2) RETURNING id, content, data, created_at, updated_at")?;
-    let res = stmt.query_row(params![record.content, record.data], |row| {
+    let mut stmt = self.conn().prepare("insert into record (content, data, type) values (?1, ?2, ?3) RETURNING id, content, data, type, created_at, updated_at")?;
+    let res = stmt.query_row(params![record.content, record.data, record.typ], |row| {
       Ok(models::Record::from_row(row))
     })?;
     Ok(res?)
@@ -45,6 +45,7 @@ impl Database {
           c.id as record_id,
           c.content,
           c.data,
+          c.type,
           c.created_at as record_created,
           c.updated_at as record_updated,
           COALESCE(json_group_array(t.name), '[]') as target_names,
@@ -159,6 +160,7 @@ mod tests {
     let record = db.create_record(models::NewRecord {
       content: "test content".to_string(),
       data: "test data".to_string(),
+      typ: models::RecordType::Text,
     });
 
     println!("record: {:?}", record);
@@ -177,6 +179,7 @@ mod tests {
       .create_record(models::NewRecord {
         content: "test content".to_string(),
         data: "test data".to_string(),
+        typ: models::RecordType::Text,
       })
       .unwrap();
 
@@ -201,6 +204,7 @@ mod tests {
       .create_record(models::NewRecord {
         content: "original content".to_string(),
         data: "test data".to_string(),
+        typ: models::RecordType::Text,
       })
       .unwrap();
 
@@ -226,6 +230,7 @@ mod tests {
       .create_record(models::NewRecord {
         content: "to be deleted".to_string(),
         data: "test data".to_string(),
+        typ: models::RecordType::Text,
       })
       .unwrap();
 
@@ -249,6 +254,7 @@ mod tests {
       db.create_record(models::NewRecord {
         content: format!("content {}", i),
         data: format!("data {}", i),
+        typ: models::RecordType::Text,
       })
       .unwrap();
     }
@@ -270,6 +276,7 @@ mod tests {
       .map(|i| models::NewRecord {
         content: format!("batch content {}", i),
         data: format!("batch data {}", i),
+        typ: models::RecordType::Text,
       })
       .collect();
 

@@ -7,9 +7,12 @@ pub struct Record {
   pub id: u64,
   pub content: String,
   pub data: String,
+  #[serde(rename = "type")]
+  pub typ: RecordType,
   pub created_at: DateTime<Local>,
   pub updated_at: DateTime<Local>,
 }
+
 
 impl FromRow for Record {
   fn from_row(row: &rusqlite::Row) -> crate::error::Result<Self> {
@@ -17,9 +20,43 @@ impl FromRow for Record {
       id: row.get(0)?,
       content: row.get(1)?,
       data: row.get(2)?,
-      created_at: row.get(3)?,
-      updated_at: row.get(4)?,
+      typ: row.get(3)?,
+      created_at: row.get(4)?,
+      updated_at: row.get(5)?,
     })
+  }
+}
+
+
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RecordType {
+  Text,
+  Image,
+  Files,
+}
+
+impl rusqlite::types::FromSql for RecordType {
+  fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
+    match value.as_str()? {
+      "text" => Ok(RecordType::Text),
+      "image" => Ok(RecordType::Image),
+      "files" => Ok(RecordType::Files),
+      _ => Err(rusqlite::types::FromSqlError::InvalidType),
+    }
+  }
+}
+
+impl rusqlite::types::ToSql for RecordType {
+  fn to_sql(&self) -> rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
+    Ok(rusqlite::types::ToSqlOutput::Owned(
+      match self {
+        RecordType::Text => "text".to_string(),
+        RecordType::Image => "image".to_string(),
+        RecordType::Files => "files".to_string(),
+      }
+      .into(),
+    ))
   }
 }
 
@@ -27,6 +64,8 @@ impl FromRow for Record {
 pub struct NewRecord {
   pub content: String,
   pub data: String,
+  #[serde(rename = "type")]
+  pub typ: RecordType,
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]

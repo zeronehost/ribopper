@@ -14,87 +14,84 @@
         </s-icon>
       </s-icon-button>
     </s-appbar>
-    <s-tab v-if="hasFavorites" mode="fixed" v-model.lazy="selected">
+    <!-- <s-tab v-if="hasFavorites" mode="fixed" v-model.lazy="selected">
       <s-tab-item value="all"><span slot="text">全部</span></s-tab-item>
       <s-tab-item value="favorites"><span slot="text">仅收藏</span></s-tab-item>
-    </s-tab>
+    </s-tab> -->
     <s-scroll-view>
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
       <template v-else>
-        <RiboCard v-for="history in historys" :key="history.id" :data="history"
+        <RiboCard v-for="record in list" :key="record.id" :data="record"
           @edit="editHandle" @delete="deleteHandle" @scan="scanHandle"
-          @favorites="favoritesHandle" @copy="copyHandle" @exec="execHandle" />
+          @copy="copyHandle" @exec="execHandle" />
       </template>
     </s-scroll-view>
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, copyData } from "@ribo/api";
-import { Snackbar } from "sober";
+import { closeWindow } from "@ribo/api";
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
-import { useDbStore } from "@/stores/db";
+import { useRecordStore } from "@/stores/record";
 import { debounce } from "@/utils/helper";
-import { getRecords } from "@ribo/api";
-window.getRecords = getRecords;
+
 defineOptions({
   name: "tray_pane",
 });
 
 const route = useRoute();
-const store = useDbStore();
+const recordStore = useRecordStore();
 const searchReg = ref();
-const isEmpty = computed(() => store.total === 0);
-const hasFavorites = computed(() => store.favorites.length > 0);
-const selected = ref("all");
+const isEmpty = computed(() => recordStore.total === 0);
+// const selected = ref("all");
 
-const list = computed(() => selected.value === "favorites" ? store.favorites : store.list)
-const historys = computed(() => {
-  if (searchReg.value) {
-    return list.value.filter((item) => searchReg.value.test(item.content));
-  }
-  return list.value;
-});
+const list = computed(() => recordStore.list)
+// const historys = computed(() => {
+//   if (searchReg.value) {
+//     return list.value.filter((item) => searchReg.value.test(item.content));
+//   }
+//   return list.value;
+// });
 
 const closeHandle = async () => {
   await closeWindow(route.name as string);
 };
 const cleanHandle = async () => {
-  await store.clear();
+  await recordStore.clearRecord();
 };
 
 const editHandle = async (id: number, content: string) => {
-  await store.updateData(id, content);
+  await recordStore.updateRecord(id, content);
 };
 const deleteHandle = async (id: number) => {
-  await store.delete(id);
+  await recordStore.deleteRecord(id);
 };
 const scanHandle = (id: number) => {
   console.log("scanHandle =>", id);
 };
-const favoritesHandle = async (id: number) => {
-  await store.ToggleFavorites(id);
-};
+// const favoritesHandle = async (id: number) => {
+//   await store.ToggleFavorites(id);
+// };
 const copyHandle = (id: number) => {
   console.log("复制数据 =>", id);
-  copyData(id)
-    .then(() => {
-      Snackbar.builder({
-        text: "复制成功",
-        duration: 1000,
-        type: "success",
-      });
-    })
-    .catch((e) => {
-      console.error(e);
-      Snackbar.builder({
-        text: "复制失败",
-        duration: 1000,
-        type: "error",
-      });
-    });
+  // copyData(id)
+  //   .then(() => {
+  //     Snackbar.builder({
+  //       text: "复制成功",
+  //       duration: 1000,
+  //       type: "success",
+  //     });
+  //   })
+  //   .catch((e) => {
+  //     console.error(e);
+  //     Snackbar.builder({
+  //       text: "复制失败",
+  //       duration: 1000,
+  //       type: "error",
+  //     });
+  //   });
 };
 const execHandle = (id: number) => {
   console.log("execHandle =>", id);
@@ -110,8 +107,8 @@ const clearSearchHandle = debounce(() => {
 });
 const searchHandle = fn;
 
-onMounted(async () => {
-  await store.query();
+onMounted(() => {
+  recordStore.getRecords();
 });
 </script>
 <style lang="scss">

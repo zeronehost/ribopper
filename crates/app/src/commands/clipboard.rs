@@ -39,13 +39,10 @@ pub fn get_record(state: State<'_, Db>, id: u64) -> CommandResult<Record> {
 }
 
 #[tauri::command]
-pub fn delete_record(state: State<'_, Db>, id: u64) -> CommandResult<()> {
+pub fn delete_record(state: State<'_, Db>, id: u64) -> CommandResult<bool> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
 
-  match db.delete_record(id) {
-    Ok(_) => Ok(()),
-    Err(e) => Err(e.to_string()),
-  }
+  db.delete_record(id).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -59,9 +56,9 @@ pub fn create_record(state: State<'_, Db>, clipboard: NewRecord) -> CommandResul
 }
 
 #[tauri::command]
-pub fn update_record(state: State<'_, Db>, clipboard: UpdateRecord) -> CommandResult<bool> {
+pub fn update_record(state: State<'_, Db>, record: UpdateRecord) -> CommandResult<bool> {
   let db = state.0.lock().map_err(|e| e.to_string())?;
-  match clipboard.try_into() {
+  match record.try_into() {
     Ok((id, content)) => db
       .update_record_content(id, content)
       .map_err(|e| e.to_string()),

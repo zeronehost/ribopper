@@ -2,7 +2,7 @@
   <s-card class="ribo-card" @click="copyHandle" clickable>
     <div class="content">
       <s-text-field v-if="isEdit" type="multiline" v-model="newContent" @blur="updateHandle"></s-text-field>
-      <pre v-else>{{ data.content }}</pre>
+      <pre v-else>{{ content }}</pre>
     </div>
     <!-- 执行 -->
     <s-icon-button class="btn" slot="action" @click.prevent.stop="playHandle">
@@ -21,22 +21,22 @@
       <RiboIconDelete />
     </s-icon-button>
     <!-- 收藏 -->
-    <s-icon-button class="btn" slot="action" @click.prevent.stop="favoritesHandle">
+    <!-- <s-icon-button class="btn" slot="action" @click.prevent.stop="favoritesHandle">
       <RiboIconStarActived v-if="data.favorites" />
       <RiboIconStar v-else />
-    </s-icon-button>
+    </s-icon-button> -->
   </s-card>
 </template>
 <script lang="ts" setup>
-import type { History } from "@ribo/api";
-import { type PropType, ref } from "vue";
+import type { RiboRecordWithTargets } from "@ribo/api";
+import { computed, type PropType, ref } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
   RiboIconPlay,
   RiboIconQrcode,
-  RiboIconStar,
-  RiboIconStarActived,
+  // RiboIconStar,
+  // RiboIconStarActived,
 } from "@/components/icons";
 
 defineOptions({
@@ -44,7 +44,7 @@ defineOptions({
 });
 const props = defineProps({
   data: {
-    type: Object as PropType<History>,
+    type: Object as PropType<RiboRecordWithTargets>,
     required: true,
   },
   collectible: Boolean,
@@ -53,6 +53,9 @@ const props = defineProps({
   executable: Boolean,
   scannable: Boolean,
 });
+
+const content = computed(() => props.data.type === "text" ? props.data.text : "");
+const id = computed(() => props.data.id);
 
 const emit = defineEmits<{
   (e: "delete", id: number): void;
@@ -64,35 +67,35 @@ const emit = defineEmits<{
 }>();
 
 const deleteHandle = () => {
-  emit("delete", props.data.id);
+  emit("delete", id.value);
 };
 
 const playHandle = () => {
-  emit("exec", props.data.id);
+  emit("exec", id.value);
 };
 
 const editHandle = () => {
-  newContent.value = props.data.content;
+  newContent.value = content.value;
   isEdit.value = true;
 };
 
 const qrcodeHandle = () => {
-  emit("qrcode", props.data.id);
+  emit("qrcode", id.value);
 };
 
-const favoritesHandle = () => {
-  emit("favorites", props.data.id);
-};
+// const favoritesHandle = () => {
+//   emit("favorites", props.data.id);
+// };
 const updateHandle = () => {
   isEdit.value = false;
-  emit("edit", props.data.id, newContent.value);
+  emit("edit", id.value, newContent.value);
 };
 
 const copyHandle = () => {
   if (isEdit.value) {
     return;
   }
-  emit("copy", props.data.id);
+  emit("copy", id.value);
 };
 
 const isEdit = ref(false);

@@ -82,6 +82,7 @@ mod tests {
       db.create_record(models::NewRecord {
         content: format!("record {}", i),
         data: format!("record data {}", i),
+        typ: models::RecordType::Text,
       })
       .unwrap();
       db.create_target(models::NewTarget {

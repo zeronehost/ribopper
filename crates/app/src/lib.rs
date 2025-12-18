@@ -34,7 +34,6 @@ pub fn run() {
         .build(),
     )
     .plugin(tauri_plugin_autostart::Builder::new().build())
-    .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_global_shortcut::Builder::new().build())
     .plugin(tauri_plugin_dialog::init())
@@ -58,8 +57,8 @@ pub fn run() {
       // crate::commands::func::copy_data,
       //-------------------------------------------
       // store commands
-      crate::commands::store::store_load,
-      crate::commands::store::store_save,
+      crate::commands::config::config_load,
+      crate::commands::config::config_save,
       //-------------------------------------------
     ])
     .setup(|app| {

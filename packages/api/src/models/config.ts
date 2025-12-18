@@ -12,10 +12,10 @@ export interface GeneralOptions {
   autoStart: boolean;
 }
 
-export interface RiboEvent {
+export interface RiboEvent<T> {
   type: RiboEventType;
   label: string;
-  payload?: any | null;
+  payload?: T | null;
 }
 
 export type RiboEventType = "init" | "update" | "refresh";
