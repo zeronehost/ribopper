@@ -19,6 +19,7 @@ where
       inner: Arc::new(Mutex::new(InnerManager {
         handler: Box::new(handler),
         clipboard: crate::clipboard::Clipboard::new()?,
+        flag: false,
       })),
     };
 
@@ -64,6 +65,7 @@ impl ClipboardHandler for Handler {
 struct InnerManager<F> {
   handler: Box<F>,
   clipboard: crate::clipboard::Clipboard,
+  flag: bool,
 }
 
 impl<F> InnerManager<F>
@@ -71,6 +73,10 @@ where
   F: Fn(Content) + Send + 'static,
 {
   fn get_content(&mut self) -> Option<Content> {
+    if self.flag {
+      self.flag = false;
+      return None;
+    }
     let mut data: Vec<FormatContent> = vec![];
     let mut content = None;
 
@@ -112,6 +118,7 @@ where
         }
       }
     }
+    self.flag = true;
     Ok(())
   }
 }
