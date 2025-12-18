@@ -1,6 +1,5 @@
 use tauri::Manager;
 
-mod clipboard;
 mod commands;
 mod events;
 mod logger;
@@ -44,17 +43,16 @@ pub fn run() {
       crate::commands::window::close_window,
       //-------------------------------------------
       // db commands
-      crate::commands::clipboard::get_records,
-      crate::commands::clipboard::get_record,
-      crate::commands::clipboard::delete_record,
-      crate::commands::clipboard::create_record,
-      crate::commands::clipboard::update_record,
-      crate::commands::clipboard::get_targets,
-      crate::commands::clipboard::create_target,
-      crate::commands::clipboard::delete_target,
-      //-------------------------------------------
-      // func commands
-      // crate::commands::func::copy_data,
+      crate::commands::record::get_records,
+      crate::commands::record::get_record,
+      crate::commands::record::delete_record,
+      crate::commands::record::create_record,
+      crate::commands::record::update_record,
+      crate::commands::record::clear_records,
+      crate::commands::record::copy_record,
+      crate::commands::target::get_targets,
+      crate::commands::target::create_target,
+      crate::commands::target::delete_target,
       //-------------------------------------------
       // store commands
       crate::commands::config::config_load,
@@ -64,8 +62,6 @@ pub fn run() {
     .setup(|app| {
       crate::store::Store::init(app.handle())?;
       crate::tray::Tray::init(app.handle())?;
-      // tauri::async_runtime::spawn(crate::clipboard::init(app.handle().clone()));
-      crate::clipboard::Clipboard::new(app.handle().clone()).init()?;
       Ok(())
     })
     .build(ctx)

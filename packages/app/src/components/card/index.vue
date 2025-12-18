@@ -1,7 +1,7 @@
 <template>
   <s-card class="ribo-card" @click="copyHandle" clickable>
     <div class="content">
-      <s-text-field v-if="isEdit" type="multiline" v-model="newContent" @blur="updateHandle"></s-text-field>
+      <s-text-field v-if="isEdit && data.type === 'text'" type="multiline" v-model="newContent" @blur="updateHandle"></s-text-field>
       <pre v-else>{{ content }}</pre>
     </div>
     <!-- 执行 -->
@@ -13,7 +13,7 @@
       <RiboIconQrcode />
     </s-icon-button>
     <!-- 编辑 -->
-    <s-icon-button class="btn" slot="action" @click.prevent.stop="editHandle">
+    <s-icon-button v-if="data.type === 'text'" class="btn" slot="action" @click.prevent.stop="editHandle">
       <RiboIconEdit />
     </s-icon-button>
     <!-- 删除 -->

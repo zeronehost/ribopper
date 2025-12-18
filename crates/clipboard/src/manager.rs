@@ -117,6 +117,7 @@ where
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Content {
   pub content: FormatContent,
   pub data: Vec<FormatContent>,
@@ -129,6 +130,7 @@ impl Content {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum FormatContent {
   Text(String),
   Image(Vec<u8>),

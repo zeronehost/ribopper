@@ -29,13 +29,14 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow } from "@ribo/api";
+import { closeWindow, copyRecord } from "@ribo/api";
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
 import { useRecordStore } from "@/stores/record";
 import { debounce } from "@/utils/helper";
+import { Snackbar } from "sober";
 
 defineOptions({
   name: "tray_pane",
@@ -75,23 +76,23 @@ const scanHandle = (id: number) => {
 //   await store.ToggleFavorites(id);
 // };
 const copyHandle = (id: number) => {
-  console.log("复制数据 =>", id);
-  // copyData(id)
-  //   .then(() => {
-  //     Snackbar.builder({
-  //       text: "复制成功",
-  //       duration: 1000,
-  //       type: "success",
-  //     });
-  //   })
-  //   .catch((e) => {
-  //     console.error(e);
-  //     Snackbar.builder({
-  //       text: "复制失败",
-  //       duration: 1000,
-  //       type: "error",
-  //     });
-  //   });
+  console.log("复制数据 =>", id, recordStore);
+  copyRecord(id)
+    .then(() => {
+      Snackbar.builder({
+        text: "复制成功",
+        duration: 1000,
+        type: "success",
+      });
+    })
+    .catch((e) => {
+      console.error(e);
+      Snackbar.builder({
+        text: "复制失败",
+        duration: 1000,
+        type: "error",
+      });
+    });
 };
 const execHandle = (id: number) => {
   console.log("execHandle =>", id);

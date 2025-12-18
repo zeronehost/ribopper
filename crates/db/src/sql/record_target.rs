@@ -67,6 +67,20 @@ impl Database {
     }
     Ok(record_targets)
   }
+
+  pub fn clear_records(&self) -> Result<()> {
+    self.conn().execute_batch(
+      r#"
+    begin transaction;
+    delete from record_target;
+    delete from record;
+    delete from sqlite_sequence where name = 'record_target';
+    delete from sqlite_sequence where name = 'record';
+    commit"#,
+    )?;
+
+    Ok(())
+  }
 }
 
 #[cfg(test)]

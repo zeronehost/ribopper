@@ -8,4 +8,4 @@ export const CONFIG_LOAD = "config_load";
 export const CONFIG_SAVE = "config_save";
 
 export const CLOSE_WINDOW = "close_window";
-export const RECORD_COPY = "copy_record";
+export const COPY_RECORD = "copy_record";
