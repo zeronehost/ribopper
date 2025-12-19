@@ -21,7 +21,6 @@ pub fn get_records(
   data
     .iter()
     .map(|i| i.try_into().map_err(|e: serde_json::Error| e.to_string()))
-    .into_iter()
     .collect()
 }
 
@@ -108,31 +107,28 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
       "确定".to_string(),
       "取消".to_string(),
     ))
-    .show(move |result| match result {
-      true => {
-        log::info!("确认清空历史记录");
-        // 通知刷新
-        let state = app_handle.state::<crate::store::db::Db>();
-        let db = state.0.lock().unwrap();
-        match db.clear_records() {
-          Ok(_) => {
-            match crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
-              .emit(&app_handle)
-            {
-              Ok(_) => {
-                log::info!("通知刷新成功");
-              }
-              Err(e) => {
-                log::error!("通知刷新失败: {e}");
-              }
-            };
-          }
-          Err(e) => {
-            log::error!("清空历史记录失败: {e}");
-          }
-        };
-      }
-      false => {}
+    .show(move |result| if result {
+      log::info!("确认清空历史记录");
+      // 通知刷新
+      let state = app_handle.state::<crate::store::db::Db>();
+      let db = state.0.lock().unwrap();
+      match db.clear_records() {
+        Ok(_) => {
+          match crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+            .emit(&app_handle)
+          {
+            Ok(_) => {
+              log::info!("通知刷新成功");
+            }
+            Err(e) => {
+              log::error!("通知刷新失败: {e}");
+            }
+          };
+        }
+        Err(e) => {
+          log::error!("清空历史记录失败: {e}");
+        }
+      };
     });
   Ok(())
 }

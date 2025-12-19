@@ -16,10 +16,10 @@ impl Database {
     RETURNING id, name, description, created_at, updated_at
     "#,
     )?;
-    let res = stmt.query_row(params![target.name, target.description], |row| {
+    
+    stmt.query_row(params![target.name, target.description], |row| {
       Ok(models::Target::from_row(row))
-    })?;
-    Ok(res?)
+    })?
   }
 
   pub fn get_target_by_name(&self, name: &str) -> Result<Option<models::Target>> {

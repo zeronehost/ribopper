@@ -1,4 +1,4 @@
-use tauri::{AppHandle, Emitter, EventTarget, Runtime};
+use tauri::{AppHandle, Emitter, Runtime};
 
 use crate::utils::constant::RIBO_EVENT;
 

@@ -55,18 +55,15 @@ impl Tray {
     TrayIconBuilder::new()
       .icon(app.default_window_icon().unwrap().clone())
       .menu(&menu)
-      .on_tray_icon_event(|icon, ev| match ev {
-        TrayIconEvent::Click {
+      .on_tray_icon_event(|icon, ev| if let TrayIconEvent::Click {
           button: MouseButton::Left,
           button_state: MouseButtonState::Down,
           position,
           ..
-        } => {
-          log::info!("左键点击托盘图标");
-          let app = icon.app_handle();
-          crate::window::open_tray_pane(app, position).unwrap();
-        }
-        _ => {}
+        } = ev {
+        log::info!("左键点击托盘图标");
+        let app = icon.app_handle();
+        crate::window::open_tray_pane(app, position).unwrap();
       })
       .on_menu_event(|app, ev| match ev.id().as_ref() {
         "main" => {
@@ -84,12 +81,9 @@ impl Tray {
               "退出".to_string(),
               "取消".to_string(),
             ))
-            .show(move |result| match result {
-              true => {
-                log::info!("确认退出应用");
-                app_handle.exit(0);
-              }
-              false => {}
+            .show(move |result| if result {
+              log::info!("确认退出应用");
+              app_handle.exit(0);
             });
         }
         "clear" => {
@@ -107,7 +101,7 @@ impl Tray {
             .dialog()
             .message(format!(
               "{APP_NAME}\n版本: {}",
-              pkg_info.version.to_string()
+              pkg_info.version
             ))
             .kind(MessageDialogKind::Info)
             .title("关于")

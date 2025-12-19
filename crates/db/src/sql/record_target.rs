@@ -17,11 +17,11 @@ impl Database {
       RETURNING id, target_id, record_id, created_at, updated_at
       "#,
     )?;
-    let record_target = stmt.query_row(
+    
+    stmt.query_row(
       params![record_target.target_id, record_target.record_id],
       |row| Ok(models::RecordTarget::from_row(row)),
-    )?;
-    Ok(record_target?)
+    )?
   }
 
   pub fn delete_record_target(&self, id: u64) -> Result<bool> {

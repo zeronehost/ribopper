@@ -6,7 +6,7 @@ impl Database {
     let mut stmt = self
       .0
       .prepare("select version from schema_version order by version desc limit 1;")?;
-    let rows = stmt.query_map(params![], |row| Ok(row.get::<usize, u16>(0)?))?;
+    let rows = stmt.query_map(params![], |row| row.get::<usize, u16>(0))?;
 
     let mut versions = Vec::new();
     for version in rows {

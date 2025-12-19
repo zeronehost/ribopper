@@ -22,7 +22,7 @@ impl Store {
     let p = crate::utils::path::get_ribo_db_path(app)?.join(STORE_DB_FILE);
 
     app.manage(self::db::Db::new(p, Some(APP_NAME))?);
-    let clipboard = self::clipboard::Clipboard::new(&app)?;
+    let clipboard = self::clipboard::Clipboard::new(app)?;
     app.manage(clipboard);
     // TODO 通知页面刷新
     Ok(())

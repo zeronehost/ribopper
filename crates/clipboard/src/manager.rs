@@ -44,7 +44,7 @@ where
   }
 
   pub fn paste(&self, content: Content) -> crate::error::Result<()> {
-    self.inner.lock().unwrap().paste(content.into())
+    self.inner.lock().unwrap().paste(content)
   }
 }
 
@@ -94,7 +94,7 @@ where
       data.push(FormatContent::Files(files));
     }
 
-    if content.is_none() || data.len() == 0 {
+    if content.is_none() || data.is_empty() {
       return None;
     }
 

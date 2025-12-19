@@ -67,19 +67,13 @@ pub fn run() {
     .build(ctx)
     .expect("error while running tauri application");
 
-  app.run(|app, event| match event {
-    tauri::RunEvent::WindowEvent {
+  app.run(|app, event| if let tauri::RunEvent::WindowEvent {
       label,
       event: win_e,
       ..
-    } => match win_e {
-      tauri::WindowEvent::CloseRequested { api, .. } => {
-        let w = app.get_webview_window(label.as_str()).unwrap();
-        w.hide().unwrap();
-        api.prevent_close();
-      }
-      _ => {}
-    },
-    _ => {}
+    } = event && let tauri::WindowEvent::CloseRequested { api, .. } = win_e {
+    let w = app.get_webview_window(label.as_str()).unwrap();
+    w.hide().unwrap();
+    api.prevent_close();
   })
 }
