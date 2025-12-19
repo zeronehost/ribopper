@@ -8,7 +8,7 @@ use super::CommandResult;
 use crate::{
   models::{Record, RecordWithTargets, UpdateRecord},
   store::db::Db,
-  utils::{constant::WIN_LABEL_TRAY_PANE, qrcode::create_qrcode},
+  utils::constant::WIN_LABEL_TRAY_PANE,
 };
 
 #[tauri::command]
@@ -183,25 +183,3 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
   }
   Ok(())
 }
-
-// #[tauri::command]
-// pub fn qrcode_record<R: Runtime>(app: AppHandle<R>, id: u64, channel: tauri::ipc::Channel) -> CommandResult<()> {
-//   let state = app.state::<crate::store::db::Db>();
-//   let record = get_record(state, id)?;
-//   match record.typ {
-//     ribo_db::models::RecordType::Text => {
-//       if let Some(data) = record.text {
-//         let data = create_qrcode(data.as_bytes()).map_err(|e: anyhow::Error| e.to_string())?;
-//         channel.send(data).map_err(|e| e.to_string());
-//       }
-//     }
-//     ribo_db::models::RecordType::Image => {
-//       if let Some(data) = record.image {
-//         let data = create_qrcode(data).map_err(|e: anyhow::Error| e.to_string())?;
-//         channel.send(data).map_err(|e| e.to_string())?;
-//       }
-//     }
-//     ribo_db::models::RecordType::Files => {}
-//   }
-//   Ok(())
-// }

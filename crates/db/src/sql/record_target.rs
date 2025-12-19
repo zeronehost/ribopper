@@ -17,7 +17,7 @@ impl Database {
       RETURNING id, target_id, record_id, created_at, updated_at
       "#,
     )?;
-    
+
     stmt.query_row(
       params![record_target.target_id, record_target.record_id],
       |row| Ok(models::RecordTarget::from_row(row)),

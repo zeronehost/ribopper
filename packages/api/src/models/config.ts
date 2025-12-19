@@ -4,6 +4,7 @@ export interface Config {
   general: GeneralOptions;
   options: Array<Record<string, string>>;
   hotkey: Array<Record<string, Array<string>>>;
+  schema: string;
 }
 
 export type Theme = "light" | "dark" | "auto";

@@ -1,4 +1,3 @@
-use image::EncodableLayout;
 use tauri::Manager;
 
 use crate::utils::{constant::RIBO_SCHEME, qrcode::create_qrcode};
@@ -43,55 +42,90 @@ pub fn run() {
     .register_uri_scheme_protocol(RIBO_SCHEME, |ctx, req| {
       let path = req.uri().path();
       if path == "/qrcode" {
-        let id = req.uri().query().unwrap();
-        let id = id.parse::<u64>().unwrap();
-        let app = ctx.app_handle();
-        let state = app.try_state::<crate::store::db::Db>().unwrap();
-        let record = crate::commands::record::get_record(state, id).unwrap();
-        match record.typ {
-          ribo_db::models::RecordType::Text => {
-            return tauri::http::Response::builder()
-              .status(tauri::http::StatusCode::OK)
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(tauri::http::header::CACHE_CONTROL, "application/octet-stream")
-              .body(create_qrcode(record.text.unwrap_or_default().as_bytes()).unwrap_or(
-                create_qrcode(b"text too long".as_bytes()).unwrap()
-              ))
-              .unwrap();
-          }
-          ribo_db::models::RecordType::Image => {
+        let id = match req.uri().query() {
+          Some(id) => id,
+          None => {
             return tauri::http::Response::builder()
               .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(tauri::http::header::CACHE_CONTROL, "application/octet-stream")
-              .status(tauri::http::StatusCode::OK)
-              .body(create_qrcode(record.image.unwrap_or_default()).unwrap())
-              .unwrap();
-          }
-          ribo_db::models::RecordType::Files => {
-            return tauri::http::Response::builder()
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(tauri::http::header::CACHE_CONTROL, "application/octet-stream")
-              .status(tauri::http::StatusCode::OK)
-              .body(
-                create_qrcode(
-                  record
-                    .files
-                    .unwrap_or_default()
-                    .iter()
-                    .map(|i| i.display().to_string())
-                    .collect::<Vec<_>>()
-                    .join("\n")
-                    .as_bytes(),
-                )
-                .unwrap(),
+              .header(
+                tauri::http::header::CACHE_CONTROL,
+                "application/octet-stream",
               )
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body(b"".to_vec())
               .unwrap();
           }
-        }
+        };
+        let id = match id.parse::<u64>() {
+          Ok(id) => id,
+          Err(e) => {
+            return tauri::http::Response::builder()
+              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+              .header(
+                tauri::http::header::CACHE_CONTROL,
+                "application/octet-stream",
+              )
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body(format!("{}", e.to_string()).into_bytes())
+              .unwrap();
+          }
+        };
+        let app = ctx.app_handle();
+        let state = match app.try_state::<crate::store::db::Db>() {
+          Some(state) => state,
+          None => {
+            return tauri::http::Response::builder()
+              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+              .header(
+                tauri::http::header::CACHE_CONTROL,
+                "application/octet-stream",
+              )
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body(b"".to_vec())
+              .unwrap();
+          }
+        };
+        let record = match crate::commands::record::get_record(state, id) {
+          Ok(record) => record,
+          Err(e) => {
+            return tauri::http::Response::builder()
+              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+              .header(
+                tauri::http::header::CACHE_CONTROL,
+                "application/octet-stream",
+              )
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body(format!("{}", e.to_string()).into_bytes())
+              .unwrap();
+          }
+        };
+        let qrcode = match create_qrcode(record) {
+          Ok(qrcode) => qrcode,
+          Err(e) => {
+            return tauri::http::Response::builder()
+              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+              .header(
+                tauri::http::header::CACHE_CONTROL,
+                "application/octet-stream",
+              )
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body(format!("{}", e.to_string()).into_bytes())
+              .unwrap();
+          }
+        };
+        return tauri::http::Response::builder()
+          .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+          .header(
+            tauri::http::header::CACHE_CONTROL,
+            "application/octet-stream",
+          )
+          .status(tauri::http::StatusCode::OK)
+          .body(qrcode)
+          .unwrap();
       }
       tauri::http::Response::builder()
         .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-        .status(tauri::http::StatusCode::BAD_REQUEST)
+        .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
         .body(b"".to_vec())
         .unwrap()
     });

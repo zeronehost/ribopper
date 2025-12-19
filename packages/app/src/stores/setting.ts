@@ -18,6 +18,9 @@ export const useSettingStore = defineStore("setting", {
     max(): GeneralOptions["max"] | "" {
       return this.config?.general?.max ?? "";
     },
+    schema(): string {
+      return this.config.schema as string
+    }
   },
   actions: {
     toggleTheme(name: Config["theme"]) {

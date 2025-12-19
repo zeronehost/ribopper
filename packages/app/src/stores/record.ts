@@ -1,4 +1,4 @@
-import { getRecords, deleteRecord, clearRecord, type RiboRecordWithTargets, type RiboTextRecord, type UpdateRecord } from "@ribo/api"
+import { getRecords, deleteRecord, clearRecord, type RiboRecordWithTargets } from "@ribo/api"
 import { defineStore } from "pinia"
 
 export const useRecordStore = defineStore('record', {

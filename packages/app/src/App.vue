@@ -15,6 +15,7 @@ const currentTheme = computed<Theme>(() => store.theme);
 
 const init = () => {
   configLoad().then((res) => {
+    console.log("configLoad =>", res);
     if (res) {
       store.$patch({
         config: res,

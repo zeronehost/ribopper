@@ -6,7 +6,7 @@ export const routes = [
     children: [
       {
         path: "",
-        name: "trayPane",
+        name: "tray_pane", // 请勿修改
         component: () => import("@/views/tray-pane/index.vue"),
       },
       {
@@ -28,7 +28,7 @@ export const routes = [
   },
   {
     path: "/context",
-    name: "contextPane",
+    name: "context_pane", // 请勿修改
     component: () => import("@/views/context-pane.vue"),
   },
 ];

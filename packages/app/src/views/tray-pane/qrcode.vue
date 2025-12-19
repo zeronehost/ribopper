@@ -5,7 +5,13 @@
         <s-icon name="arrow_back"></s-icon>
       </s-icon-button>
     </s-appbar>
-    <s-card>
+    <s-empty v-if="error">
+      <s-icon slot="icon">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" class="icon-error"><path d="M24,4 C35.045695,4 44,12.954305 44,24 C44,35.045695 35.045695,44 24,44 C12.954305,44 4,35.045695 4,24 C4,12.954305 12.954305,4 24,4 Z M32.57818,15.42182 C32.0157534,14.8593933 31.1038797,14.8593933 30.541453,15.42182 L30.541453,15.42182 L24.0006789,21.9625941 L17.458547,15.42182 C16.8961203,14.8593933 15.9842466,14.8593933 15.42182,15.42182 C14.8593933,15.9842466 14.8593933,16.8961203 15.42182,17.458547 L15.42182,17.458547 L21.9639519,23.9993211 L15.42182,30.541453 C14.8593933,31.1038797 14.8593933,32.0157534 15.42182,32.57818 C15.9842466,33.1406067 16.8961203,33.1406067 17.458547,32.57818 L17.458547,32.57818 L24.0006789,26.0360481 L30.541453,32.57818 C31.1038797,33.1406067 32.0157534,33.1406067 32.57818,32.57818 C33.1406067,32.0157534 33.1406067,31.1038797 32.57818,30.541453 L32.57818,30.541453 L26.0374059,23.9993211 L32.57818,17.458547 C33.1406067,16.8961203 33.1406067,15.9842466 32.57818,15.42182 Z"></path></svg>
+      </s-icon>
+      无法获取二维码
+    </s-empty>
+    <s-card v-else>
       <img :src="src" />
     </s-card>
   </section>
@@ -14,6 +20,7 @@
 import { ref } from 'vue';
 import { qrcodeRecord } from "@ribo/api";
 import { useRouter, useRoute } from 'vue-router';
+import { useSettingStore } from "@/stores/setting";
 
 const router = useRouter();
 const route = useRoute();
@@ -23,9 +30,12 @@ const goback = () => router.back();
 const id = route.query.id;
 
 const src = ref('');
+const error = ref(false);
 
 if (id) {
-  qrcodeRecord(Number(id)).then((res) => {
+  const setting = useSettingStore();
+  error.value = false;
+  qrcodeRecord(Number(id), setting.schema).then((res) => {
     // src.value = res;
     console.log(res);
     // const buf = Uint8Array.from(res);
@@ -34,9 +44,12 @@ if (id) {
     reader.onload = (e) => {
       src.value = (e.target?.result as string) ?? "";
     }
+  }).catch((err) => {
+    console.warn(err);
+    error.value = true;
   })
 } else {
-  goback();
+  error.value = true;
 }
 </script>
 <style lang="scss">
@@ -53,6 +66,14 @@ section.qrcode-pane {
 
     img {
       width: 100%;
+    }
+  }
+  s-empty {
+    color: var(--s-color-error);
+    font-weight: bold;
+    s-icon {
+      width: 6em;
+      height: 6em;
     }
   }
 }

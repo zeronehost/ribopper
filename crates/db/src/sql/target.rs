@@ -16,7 +16,7 @@ impl Database {
     RETURNING id, name, description, created_at, updated_at
     "#,
     )?;
-    
+
     stmt.query_row(params![target.name, target.description], |row| {
       Ok(models::Target::from_row(row))
     })?

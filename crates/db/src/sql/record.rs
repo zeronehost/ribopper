@@ -8,7 +8,7 @@ use rusqlite::{ToSql, params};
 impl Database {
   pub fn create_record(&self, record: models::NewRecord) -> Result<models::Record> {
     let mut stmt = self.conn().prepare("insert into record (content, data, type) values (?1, ?2, ?3) RETURNING id, content, data, type, created_at, updated_at")?;
-    
+
     stmt.query_row(params![record.content, record.data, record.typ], |row| {
       Ok(models::Record::from_row(row))
     })?

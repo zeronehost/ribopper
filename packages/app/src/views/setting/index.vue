@@ -1,7 +1,7 @@
 <template>
   <section class="setting">
     <s-navigation mode="rail" v-model.lazy="selected">
-      <s-navigation-item value="general">
+      <s-navigation-item v-if="false" value="general">
         <s-icon slot="icon">
           <RiboIconSetting />
         </s-icon>
@@ -9,7 +9,7 @@
           通用
         </div>
       </s-navigation-item>
-      <s-navigation-item value="options">
+      <s-navigation-item v-if="false" value="options">
         <s-icon slot="icon">
           <RiboIconOption />
         </s-icon>
@@ -25,7 +25,7 @@
           主题
         </div>
       </s-navigation-item>
-      <s-navigation-item value="hotkey">
+      <s-navigation-item v-if="false" value="hotkey">
         <s-icon slot="icon">
           <RiboIconKeyboard />
         </s-icon>
@@ -33,7 +33,7 @@
           快捷键
         </div>
       </s-navigation-item>
-      <s-navigation-item value="helper">
+      <s-navigation-item v-if="false" value="helper">
         <s-icon slot="icon">
           <RiboIconHelper />
         </s-icon>
@@ -88,7 +88,8 @@ import GeneralPane from "./pane/index.vue";
 import OptionPane from "./pane/options.vue";
 import ThemePane from "./pane/theme.vue";
 
-const selected = ref("general");
+// const selected = ref("general");
+const selected = ref("theme");
 const route = useRoute();
 const store = useSettingStore();
 const isSubmit = computed(() => !store.isUpdate);
