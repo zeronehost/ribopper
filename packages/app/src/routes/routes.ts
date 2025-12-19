@@ -1,8 +1,25 @@
 export const routes = [
   {
-    path: "/",
-    name: "tray_pane",
-    component: () => import("@/views/index.vue"),
+    path: "/tray-pane",
+    // name: "trayPane",
+    component: () => import("@/views/tray-pane/container.vue"),
+    children: [
+      {
+        path: "",
+        name: "trayPane",
+        component: () => import("@/views/tray-pane/index.vue"),
+      },
+      {
+        path: "edit",
+        name: "trayPaneEdit",
+        component: () => import("@/views/tray-pane/edit.vue"),
+      },
+      {
+        path: "qrcode",
+        name: "trayPaneQrcode",
+        component: () => import("@/views/tray-pane/qrcode.vue"),
+      }
+    ]
   },
   {
     path: "/setting",
@@ -11,7 +28,7 @@ export const routes = [
   },
   {
     path: "/context",
-    name: "context_pane",
+    name: "contextPane",
     component: () => import("@/views/context-pane.vue"),
   },
 ];

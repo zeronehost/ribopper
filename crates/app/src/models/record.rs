@@ -6,11 +6,11 @@ use chrono::{DateTime, Local};
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Record {
   id: u64,
-  text: Option<String>,
-  image: Option<Vec<u8>>,
-  files: Option<Vec<PathBuf>>,
+  pub(crate) text: Option<String>,
+  pub(crate) image: Option<Vec<u8>>,
+  pub(crate) files: Option<Vec<PathBuf>>,
   #[serde(rename = "type")]
-  typ: ribo_db::models::RecordType,
+  pub(crate) typ: ribo_db::models::RecordType,
   created_at: DateTime<Local>,
   updated_at: DateTime<Local>,
 }
@@ -21,7 +21,7 @@ impl TryInto<Record> for ribo_db::models::Record {
     Ok(match self.typ {
       ribo_db::models::RecordType::Text => Record {
         id: self.id,
-        text: Some(serde_json::from_str(&self.content)?),
+        text: Some(self.content.clone()),
         image: None,
         files: None,
         typ: self.typ,

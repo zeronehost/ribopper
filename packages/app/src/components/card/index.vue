@@ -1,19 +1,17 @@
 <template>
-  <s-card class="ribo-card" :class="{'is-edit': isEdit}" @click="copyHandle" clickable>
+  <s-card class="ribo-card" @click="copyHandle" clickable>
     <div class="content">
-      <s-text-field v-if="isEdit && data.type === 'text'" type="multiline" v-model="newContent"
-        @blur="updateHandle"></s-text-field>
-      <pre v-else>{{ content }}</pre>
+      <pre>{{ content }}</pre>
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
-      <!-- <s-icon-button class="btn" @click.prevent.stop="playHandle">
+      <s-icon-button v-if="false" class="btn" @click.prevent.stop="playHandle">
         <RiboIconPlay />
-      </s-icon-button> -->
+      </s-icon-button>
       <!-- 二维码 -->
-      <!-- <s-icon-button class="btn" @click.prevent.stop="qrcodeHandle">
+      <s-icon-button class="btn" @click.prevent.stop="qrcodeHandle">
         <RiboIconQrcode />
-      </s-icon-button> -->
+      </s-icon-button>
       <!-- 编辑 -->
       <s-icon-button v-if="data.type === 'text'" class="btn" @click.prevent.stop="editHandle">
         <RiboIconEdit />
@@ -33,12 +31,12 @@
 </template>
 <script lang="ts" setup>
 import type { RiboRecordWithTargets } from "@ribo/api";
-import { computed, type PropType, ref } from "vue";
+import { computed, type PropType } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
-  // RiboIconPlay,
-  // RiboIconQrcode,
+  RiboIconPlay,
+  RiboIconQrcode,
   // RiboIconStar,
   // RiboIconStarActived,
 } from "@/components/icons";
@@ -62,48 +60,30 @@ const content = computed(() => props.data.type === "text" ? props.data.text : ""
 const id = computed(() => props.data.id);
 
 const emit = defineEmits<{
-  (e: "delete", id: number): void;
-  (e: "edit", id: number, content: string): void;
-  (e: "exec", id: number): void;
-  (e: "qrcode", id: number): void;
-  (e: "favorites", id: number): void;
-  (e: "copy", id: number): void;
+  (e: "option", option: "delete" | "edit" | "exec" | "copy" | "qrcode", id: number): void;
 }>();
 
 const deleteHandle = () => {
-  emit("delete", id.value);
+  emit("option", "delete", id.value);
 };
 
-// const playHandle = () => {
-//   emit("exec", id.value);
-// };
+const playHandle = () => {
+  emit("option", "exec", id.value);
+};
+
+
+const qrcodeHandle = () => {
+  emit("option", "qrcode", id.value);
+};
 
 const editHandle = () => {
-  newContent.value = content.value;
-  isEdit.value = true;
+  emit("option", "edit", id.value);
 };
 
-// const qrcodeHandle = () => {
-//   emit("qrcode", id.value);
-// };
-
-// const favoritesHandle = () => {
-//   emit("favorites", props.data.id);
-// };
-const updateHandle = () => {
-  isEdit.value = false;
-  emit("edit", id.value, newContent.value);
-};
 
 const copyHandle = () => {
-  if (isEdit.value) {
-    return;
-  }
-  emit("copy", id.value);
+  emit("option", "copy", id.value);
 };
-
-const isEdit = ref(false);
-const newContent = ref("");
 </script>
 <script lang="ts"></script>
 <style lang="scss">
@@ -140,7 +120,7 @@ s-card.ribo-card {
       display: none;
     }
   }
-  &:not(.is-edit):hover {
+  &:hover {
     .ribo-card__option {
       display: flex;
     }

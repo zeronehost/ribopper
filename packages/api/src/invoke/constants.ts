@@ -3,6 +3,7 @@ export const GET_RECORD = "get_record";
 export const UPDATE_RECORD = "update_record";
 export const DELETE_RECORD = "delete_record";
 export const CLEAR_RECORD = "clear_records";
+export const QRCODE_RECORD = "qrcode_record";
 
 export const CONFIG_LOAD = "config_load";
 export const CONFIG_SAVE = "config_save";

@@ -8,7 +8,7 @@ use super::CommandResult;
 use crate::{
   models::{Record, RecordWithTargets, UpdateRecord},
   store::db::Db,
-  utils::constant::WIN_LABEL_TRAY_PANE,
+  utils::{constant::WIN_LABEL_TRAY_PANE, qrcode::create_qrcode},
 };
 
 #[tauri::command]
@@ -107,34 +107,36 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
       "确定".to_string(),
       "取消".to_string(),
     ))
-    .show(move |result| if result {
-      log::info!("确认清空历史记录");
-      // 通知刷新
-      let state = app_handle.state::<crate::store::db::Db>();
-      let db = state.0.lock().unwrap();
-      match db.clear_records() {
-        Ok(_) => {
-          match crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
-            .emit(&app_handle)
-          {
-            Ok(_) => {
-              log::info!("通知刷新成功");
-            }
-            Err(e) => {
-              log::error!("通知刷新失败: {e}");
-            }
-          };
-        }
-        Err(e) => {
-          log::error!("清空历史记录失败: {e}");
-        }
-      };
+    .show(move |result| {
+      if result {
+        log::info!("确认清空历史记录");
+        // 通知刷新
+        let state = app_handle.state::<crate::store::db::Db>();
+        let db = state.0.lock().unwrap();
+        match db.clear_records() {
+          Ok(_) => {
+            match crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+              .emit(&app_handle)
+            {
+              Ok(_) => {
+                log::info!("通知刷新成功");
+              }
+              Err(e) => {
+                log::error!("通知刷新失败: {e}");
+              }
+            };
+          }
+          Err(e) => {
+            log::error!("清空历史记录失败: {e}");
+          }
+        };
+      }
     });
   Ok(())
 }
 
 #[tauri::command]
-pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<(), String> {
+pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> {
   log::info!("复制数据: {id}");
   let db = app.state::<crate::store::db::Db>();
   let clipboard = app.state::<crate::store::clipboard::Clipboard>();
@@ -181,3 +183,25 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<(), String>
   }
   Ok(())
 }
+
+// #[tauri::command]
+// pub fn qrcode_record<R: Runtime>(app: AppHandle<R>, id: u64, channel: tauri::ipc::Channel) -> CommandResult<()> {
+//   let state = app.state::<crate::store::db::Db>();
+//   let record = get_record(state, id)?;
+//   match record.typ {
+//     ribo_db::models::RecordType::Text => {
+//       if let Some(data) = record.text {
+//         let data = create_qrcode(data.as_bytes()).map_err(|e: anyhow::Error| e.to_string())?;
+//         channel.send(data).map_err(|e| e.to_string());
+//       }
+//     }
+//     ribo_db::models::RecordType::Image => {
+//       if let Some(data) = record.image {
+//         let data = create_qrcode(data).map_err(|e: anyhow::Error| e.to_string())?;
+//         channel.send(data).map_err(|e| e.to_string())?;
+//       }
+//     }
+//     ribo_db::models::RecordType::Files => {}
+//   }
+//   Ok(())
+// }
