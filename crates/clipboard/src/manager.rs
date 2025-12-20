@@ -20,6 +20,7 @@ where
         handler: Box::new(handler),
         clipboard: crate::clipboard::Clipboard::new()?,
         flag: false,
+        current: None,
       })),
     };
 
@@ -66,6 +67,7 @@ struct InnerManager<F> {
   handler: Box<F>,
   clipboard: crate::clipboard::Clipboard,
   flag: bool,
+  current: Option<FormatContent>,
 }
 
 impl<F> InnerManager<F>
@@ -93,10 +95,14 @@ where
       content = Some(FormatContent::Files(files.clone()));
       data.push(FormatContent::Files(files));
     }
-
     if content.is_none() || data.is_empty() {
       return None;
     }
+    if self.current.is_some() && self.current == content {
+      self.current = None;
+      return None;
+    }
+    self.current = content.clone();
 
     Some(Content {
       content: content.unwrap(),
@@ -136,7 +142,7 @@ impl Content {
   }
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FormatContent {
   Text(String),
