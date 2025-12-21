@@ -1,6 +1,6 @@
 {
   "identifier": "desktop-capability",
   "platforms": ["macOS", "windows", "linux"],
-  "windows": ["main"],
+  "windows": ["setting", "tray_pane"],
   "permissions": ["global-shortcut:default", "autostart:default"]
 }

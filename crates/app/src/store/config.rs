@@ -16,6 +16,13 @@ impl RiboConfig {
     }
     Ok(None)
   }
+
+  pub(crate) fn get_autostart(&self) -> bool {
+    if let Some(conf) = &self.general {
+      return conf.auto_start;
+    }
+    false
+  }
 }
 
 impl Default for RiboConfig {
@@ -24,7 +31,6 @@ impl Default for RiboConfig {
       general: Some(RiboGeneral {
         max: None,
         auto_start: false,
-        duration: 500,
       }),
       options: None,
       theme: Some(RiboTheme::Light),
@@ -51,7 +57,6 @@ pub enum RiboTheme {
 pub struct RiboGeneral {
   pub max: Option<usize>,
   pub auto_start: bool,
-  pub duration: u64,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

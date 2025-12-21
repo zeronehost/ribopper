@@ -14,9 +14,7 @@ mod window;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   let ctx = tauri::generate_context!();
-  let mut builder = tauri::Builder::default();
-
-  builder = builder
+  let mut builder = tauri::Builder::default()
     .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
     .plugin(
       tauri_plugin_log::Builder::new()
@@ -33,8 +31,9 @@ pub fn run() {
           ))
         })
         .build(),
-    )
-    .plugin(tauri_plugin_autostart::Builder::new().build())
+    );
+
+  builder = builder
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_global_shortcut::Builder::new().build())
     .plugin(tauri_plugin_dialog::init())
@@ -155,6 +154,14 @@ pub fn run() {
     .setup(|app| {
       crate::store::Store::init(app.handle())?;
       crate::tray::Tray::init(app.handle())?;
+      #[cfg(desktop)]
+      {
+        use tauri_plugin_autostart::MacosLauncher;
+        app.handle().plugin(tauri_plugin_autostart::init(
+          MacosLauncher::LaunchAgent,
+          Some(vec!["--flag1", "--flag2"]),
+        ))?;
+      }
       Ok(())
     })
     .build(ctx)

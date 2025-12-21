@@ -11,7 +11,8 @@
     "build:app": "pnpm --filter=@ribo/app build",
     "build:api": "pnpm --filter=@ribo/api build",
     "lint": "oxlint --type-aware --fix",
-    "r-init": "lefthook install"
+    "r-init": "lefthook install",
+    "postinstall": "pnpm build:api"
   },
   "pnpm": {
     "overrides": {

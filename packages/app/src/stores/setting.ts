@@ -20,6 +20,9 @@ export const useSettingStore = defineStore("setting", {
     },
     schema(): string {
       return this.config.schema as string
+    },
+    autoStart(): boolean {
+      return this.config?.general?.autoStart as boolean
     }
   },
   actions: {
@@ -27,7 +30,10 @@ export const useSettingStore = defineStore("setting", {
       this.config.theme = name;
     },
     setMax(max?: GeneralOptions["max"]) {
-      (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? max : null;
+      (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? (max < 1000 ? max : 1000): null;
+    },
+    setAutoStart(autoStart: boolean) {
+      (this.config.general as GeneralOptions).autoStart = autoStart;
     },
 
     saveConfig() {

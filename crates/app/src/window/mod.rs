@@ -39,7 +39,6 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
       .inner_size(800., 600.)
       .center()
       .title(WIN_NANE)
-      .devtools(true)
       .build()?;
 
       win.show()?;
@@ -59,7 +58,9 @@ pub fn open_tray_pane<R: Runtime>(
       Ok(true) => win.hide(),
       Ok(false) => {
         log::info!("获取当前屏幕");
-        let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();
+        let monitor = win
+          .current_monitor()?
+          .unwrap_or(app.monitor_from_point(pos.x, pos.y).unwrap().unwrap());
         log::info!("主面板存在且是隐藏状态");
         log::info!("设置主面板位置");
         win.set_position(calc_pane_pos(win.outer_size()?, monitor))?;
@@ -98,11 +99,14 @@ pub fn open_tray_pane<R: Runtime>(
       .devtools(cfg!(debug_assertions))
       .build()?;
       log::info!("获取当前屏幕");
-      let monitor = app.monitor_from_point(pos.x, pos.y).unwrap().unwrap();
+      let monitor = win
+        .current_monitor()?
+        .unwrap_or(app.monitor_from_point(pos.x, pos.y).unwrap().unwrap());
       log::info!("设置主面板位置");
       win.set_position(calc_pane_pos(win.outer_size()?, monitor))?;
       win.show()?;
       win.set_focus()?;
+      // log::debug!("{:?}", win.outer_position());
       Ok(())
     }
   }

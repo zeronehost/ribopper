@@ -88,8 +88,7 @@ import GeneralPane from "./pane/index.vue";
 import OptionPane from "./pane/options.vue";
 import ThemePane from "./pane/theme.vue";
 
-// const selected = ref("general");
-const selected = ref("theme");
+const selected = ref("general");
 const route = useRoute();
 const store = useSettingStore();
 const isSubmit = computed(() => !store.isUpdate);
