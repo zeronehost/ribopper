@@ -6,7 +6,17 @@ use crate::{
 use rusqlite::{ToSql, params};
 
 impl Database {
-  pub fn create_record(&self, record: models::NewRecord) -> Result<models::Record> {
+  pub fn create_record(
+    &self,
+    record: models::NewRecord,
+    limit: Option<i64>,
+  ) -> Result<models::Record> {
+    if let Some(max) = limit {
+      self.0.execute(
+        "DELETE from record where id not in (select id from record order by id desc limit ?1)",
+        params![max],
+      )?;
+    }
     let mut stmt = self.conn().prepare("insert into record (content, data, type) values (?1, ?2, ?3) RETURNING id, content, data, type, created_at, updated_at")?;
 
     stmt.query_row(params![record.content, record.data, record.typ], |row| {
@@ -129,11 +139,15 @@ impl Database {
     Ok(results)
   }
 
-  pub fn batch_inset_record(&self, records: Vec<models::NewRecord>) -> Result<Vec<models::Record>> {
+  pub fn batch_inset_record(
+    &self,
+    records: Vec<models::NewRecord>,
+    max: Option<i64>,
+  ) -> Result<Vec<models::Record>> {
     let mut results = Vec::with_capacity(records.len());
 
     for record in records {
-      let result = self.create_record(record)?;
+      let result = self.create_record(record, max)?;
       results.push(result);
     }
 
@@ -157,11 +171,14 @@ mod tests {
     let db = Database::new(uri, None).unwrap();
     init_data(&db);
 
-    let record = db.create_record(models::NewRecord {
-      content: "test content".to_string(),
-      data: "test data".to_string(),
-      typ: models::RecordType::Text,
-    });
+    let record = db.create_record(
+      models::NewRecord {
+        content: "test content".to_string(),
+        data: "test data".to_string(),
+        typ: models::RecordType::Text,
+      },
+      None,
+    );
 
     println!("record: {:?}", record);
 
@@ -176,11 +193,14 @@ mod tests {
 
     // 创建测试数据
     let created = db
-      .create_record(models::NewRecord {
-        content: "test content".to_string(),
-        data: "test data".to_string(),
-        typ: models::RecordType::Text,
-      })
+      .create_record(
+        models::NewRecord {
+          content: "test content".to_string(),
+          data: "test data".to_string(),
+          typ: models::RecordType::Text,
+        },
+        None,
+      )
       .unwrap();
 
     // 测试获取存在的记录
@@ -201,11 +221,14 @@ mod tests {
 
     // 创建测试数据
     let created = db
-      .create_record(models::NewRecord {
-        content: "original content".to_string(),
-        data: "test data".to_string(),
-        typ: models::RecordType::Text,
-      })
+      .create_record(
+        models::NewRecord {
+          content: "original content".to_string(),
+          data: "test data".to_string(),
+          typ: models::RecordType::Text,
+        },
+        None,
+      )
       .unwrap();
 
     // 更新内容
@@ -227,11 +250,14 @@ mod tests {
 
     // 创建测试数据
     let created = db
-      .create_record(models::NewRecord {
-        content: "to be deleted".to_string(),
-        data: "test data".to_string(),
-        typ: models::RecordType::Text,
-      })
+      .create_record(
+        models::NewRecord {
+          content: "to be deleted".to_string(),
+          data: "test data".to_string(),
+          typ: models::RecordType::Text,
+        },
+        None,
+      )
       .unwrap();
 
     // 删除记录
@@ -251,11 +277,14 @@ mod tests {
 
     // 创建多个测试记录
     for i in 0..5 {
-      db.create_record(models::NewRecord {
-        content: format!("content {}", i),
-        data: format!("data {}", i),
-        typ: models::RecordType::Text,
-      })
+      db.create_record(
+        models::NewRecord {
+          content: format!("content {}", i),
+          data: format!("data {}", i),
+          typ: models::RecordType::Text,
+        },
+        None,
+      )
       .unwrap();
     }
 
@@ -281,7 +310,7 @@ mod tests {
       .collect();
 
     // 执行批量插入
-    let results = db.batch_inset_record(records).unwrap();
+    let results = db.batch_inset_record(records, None).unwrap();
     assert_eq!(results.len(), 3);
 
     // 验证插入结果

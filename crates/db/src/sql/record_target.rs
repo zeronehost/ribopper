@@ -93,11 +93,14 @@ mod tests {
     db.conn().execute_batch("BEGIN TRANSACTION; DELETE FROM target; DELETE FROM sqlite_sequence WHERE name = 'target'; DELETE FROM record; DELETE FROM sqlite_sequence WHERE name = 'record'; delete from record_target; commit").unwrap();
 
     for i in 0..10 {
-      db.create_record(models::NewRecord {
-        content: format!("record {}", i),
-        data: format!("record data {}", i),
-        typ: models::RecordType::Text,
-      })
+      db.create_record(
+        models::NewRecord {
+          content: format!("record {}", i),
+          data: format!("record data {}", i),
+          typ: models::RecordType::Text,
+        },
+        None,
+      )
       .unwrap();
       db.create_target(models::NewTarget {
         name: format!("target_{}", i),

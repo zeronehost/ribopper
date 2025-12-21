@@ -62,8 +62,15 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bo
 pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> CommandResult<Record> {
   let state = app.state::<crate::store::db::Db>();
   let db = state.0.lock().map_err(|e| e.to_string())?;
+  let max = if let Ok(Some(config)) = super::config::config_load(app.clone()) {
+    config.get_max().unwrap_or(None)
+  } else {
+    None
+  };
 
-  let data = db.create_record(clipboard).map_err(|e| e.to_string())?;
+  let data = db
+    .create_record(clipboard, max)
+    .map_err(|e| e.to_string())?;
   match data.try_into() {
     Ok(data) => {
       crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)

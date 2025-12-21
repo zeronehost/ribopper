@@ -1,7 +1,7 @@
 <template>
   <section class="setting">
     <s-navigation mode="rail" v-model.lazy="selected">
-      <s-navigation-item v-if="false" value="general">
+      <s-navigation-item value="general">
         <s-icon slot="icon">
           <RiboIconSetting />
         </s-icon>

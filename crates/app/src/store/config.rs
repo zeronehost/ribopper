@@ -7,6 +7,17 @@ pub struct RiboConfig {
   pub schema: String,
 }
 
+impl RiboConfig {
+  pub(crate) fn get_max(&self) -> anyhow::Result<Option<i64>> {
+    if let Some(conf) = &self.general {
+      if let Some(max) = conf.max {
+        return Ok(Some(max as i64));
+      }
+    }
+    Ok(None)
+  }
+}
+
 impl Default for RiboConfig {
   fn default() -> Self {
     Self {
