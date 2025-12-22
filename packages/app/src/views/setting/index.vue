@@ -25,7 +25,7 @@
           主题
         </div>
       </s-navigation-item>
-      <s-navigation-item v-if="false" value="hotkey">
+      <s-navigation-item value="hotkey">
         <s-icon slot="icon">
           <RiboIconKeyboard />
         </s-icon>

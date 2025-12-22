@@ -23,12 +23,13 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: space-between;
+    &+& {
+      border-top: solid 1px var(--s-color-outline-variant, #C0C8CC);
+      margin-top: 0.5rem;
+      padding-top: .5rem;
+    }
     &__title {
       font-weight: 700;
-    }
-
-    &+& {
-      margin-top: 1rem;
     }
   }
 </style>
