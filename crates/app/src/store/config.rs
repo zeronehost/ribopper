@@ -65,5 +65,12 @@ pub struct RiboOptions {}
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum RiboHotkey {
-  Edit(Vec<String>),
+  Edit{
+    
+  },
+  Clear(Vec<String>),
+  Prev(Vec<String>),
+  Next(Vec<String>),
+  Qrcode(Vec<String>),
+  Pane(Vec<String>),
 }
