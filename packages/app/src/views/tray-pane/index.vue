@@ -134,21 +134,25 @@ useListenHotKey(setting.hotkeys, (type) => {
         optionHandle("qrcode", id);
         break;
       case "delete":
-        optionHandle("delete", id);
+        optionHandle("delete", id).then(() => {
+          currentIndex.value = currentIndex.value - 1;
+        });
         break;
       case "clear":
-        cleanHandle();
+        cleanHandle().then(() => {
+          currentIndex.value = -1;
+        });
         break;
     }
   }
   switch (type) {
     case "prev":
       currentIndex.value = currentIndex.value <= 0 ? recordStore.total - 1 : currentIndex.value - 1;
-      document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center"});
+      document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center" });
       break;
-      case "next":
-        currentIndex.value = currentIndex.value >= recordStore.total - 1 ? 0 : currentIndex.value + 1;
-        document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center" });
+    case "next":
+      currentIndex.value = currentIndex.value >= recordStore.total - 1 ? 0 : currentIndex.value + 1;
+      document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center" });
       break;
   }
 });
