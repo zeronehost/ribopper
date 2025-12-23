@@ -5,7 +5,7 @@
   "identifier": "com.ribopper.app",
   "build": {
     "frontendDist": "../../packages/app/dist",
-    "devUrl": "http://localhost:3000",
+    "devUrl": "http://localhost:5050",
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build"
   },

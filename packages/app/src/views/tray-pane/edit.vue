@@ -15,7 +15,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { getRecord, updateRecord } from '@ribo/api';
+import { getRecord, logger, updateRecord } from '@ribo/api';
 import { Snackbar } from 'sober';
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -44,7 +44,8 @@ const saveHandle = () => {
     text: value.value
   }).then(() => {
     goback();
-  }).catch(() => {
+  }).catch((e) => {
+    logger.error(e);
     Snackbar.builder({
       text: "修改失败",
       duration: 1000,

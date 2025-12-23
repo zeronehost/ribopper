@@ -1,11 +1,8 @@
-import type { RiboHotkey } from "@ribo/api";
+import { logger, type RiboHotkey } from "@ribo/api";
 import { onBeforeUnmount, onMounted } from "vue";
 
-import { useSettingStore } from "@/stores/setting";
-
-export const useListenHotKey = (handle: (label: Omit<keyof RiboHotkey, "clear" | "pane">) => void) => {
-  const settingStore = useSettingStore();
-  const hotkey = settingStore.hotkeys;
+export const useListenHotKey = (hotkey: RiboHotkey, handle: (label: Omit<keyof RiboHotkey, "clear" | "pane">) => void) => {
+  logger.debug("hotkey listener mounted");
   const listenHotkeyHandle = (e: Event) => {
     if (e instanceof KeyboardEvent) {
       if (
@@ -84,11 +81,11 @@ export const useListenHotKey = (handle: (label: Omit<keyof RiboHotkey, "clear" |
   };
 
   onMounted(() => {
-    console.log("listen hotkey");
+    logger.info("listen hotkey");
     document.addEventListener("keydown", listenHotkeyHandle);
   });
   onBeforeUnmount(() => {
-    console.log("unlisten hotkey");
+    logger.info("unlisten hotkey");
     document.removeEventListener("keydown", listenHotkeyHandle);
   });
 }

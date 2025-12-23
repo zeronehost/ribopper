@@ -74,7 +74,7 @@ impl Tray {
           crate::window::open_tray_pane(app, app.cursor_position().unwrap()).unwrap();
         }
         "quit" => {
-          log::info!("退出应用");
+          log::info!("确认退出应用");
           let app_handle = app.clone();
           app
             .dialog()
@@ -86,7 +86,8 @@ impl Tray {
             ))
             .show(move |result| {
               if result {
-                log::info!("确认退出应用");
+                log::info!("退出应用");
+                log::info!("================================");
                 app_handle.exit(0);
               }
             });

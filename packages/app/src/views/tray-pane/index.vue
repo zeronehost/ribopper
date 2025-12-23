@@ -28,7 +28,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, copyRecord } from "@ribo/api";
+import { closeWindow, copyRecord, logger } from "@ribo/api";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
@@ -38,6 +38,7 @@ import { debounce } from "@/utils/helper";
 import { Snackbar } from "sober";
 import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
+import { useSettingStore } from "@/stores/setting";
 
 defineOptions({
   name: "tray_pane",
@@ -54,6 +55,7 @@ const list = computed(() => recordStore.list)
 const cacheStore = useCacheStore();
 
 const closeHandle = async () => {
+  currentIndex.value = -1;
   await closeWindow(route.name as string);
 };
 const cleanHandle = async () => {
@@ -77,7 +79,7 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
         });
       })
       .catch((e) => {
-        console.error(e);
+        logger.error(e);
         Snackbar.builder({
           text: "复制失败",
           duration: 1000,
@@ -115,8 +117,10 @@ const currentIndex = computed({
 });
 const currentId = computed(() => list.value[currentIndex.value]?.id);
 
-useListenHotKey((type) => {
-  console.log("useListenHotKey => type", type);
+const setting = useSettingStore();
+logger.debug("setting.hotkeys =>", JSON.stringify(setting.hotkeys));
+useListenHotKey(setting.hotkeys, (type) => {
+  logger.debug("useListenHotKey => type", type);
   const id = currentId.value;
   if (id) {
     switch (type) {

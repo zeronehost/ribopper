@@ -1,7 +1,5 @@
 use tauri::Manager;
 
-use crate::utils::{constant::RIBO_SCHEME, qrcode::create_qrcode};
-
 mod commands;
 mod events;
 mod logger;

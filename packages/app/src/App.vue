@@ -4,7 +4,7 @@
   </s-page>
 </template>
 <script setup lang="ts">
-import { listenNotify, configLoad, type Theme } from "@ribo/api";
+import { listenNotify, configLoad, type Theme, logger } from "@ribo/api";
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useRecordStore } from "@/stores/record";
@@ -15,7 +15,7 @@ const currentTheme = computed<Theme>(() => store.theme);
 
 const init = () => {
   configLoad().then((res) => {
-    console.log("configLoad =>", res);
+    logger.info("configLoad =>", JSON.stringify(res));
     if (res) {
       store.$patch({
         config: res,
@@ -33,14 +33,18 @@ onMounted(() => {
 const route = useRoute();
 const recordStore = useRecordStore();
 listenNotify((data) => {
-  console.log("listenNotify =>", data, route.name);
+  logger.debug("listenNotify =>", JSON.stringify(data), route.name);
   if (data.type === "refresh" && data.label === route.name) {
     init();
   }
   if (data.type === "update" && data.label !== "setting") {
     recordStore.getRecords().catch((e) => {
-      console.error(e);
+      logger.error(e);
     });
   }
+});
+
+window.addEventListener("error", (e) => {
+  logger.error(e.message, `[${e.filename}:${e.lineno}${e.colno}`);
 });
 </script>

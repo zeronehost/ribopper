@@ -18,7 +18,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
-import { qrcodeRecord } from "@ribo/api";
+import { logger, qrcodeRecord } from "@ribo/api";
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
@@ -40,7 +40,7 @@ if (id) {
       src.value = (e.target?.result as string) ?? "";
     }
   }).catch((err) => {
-    console.warn(err);
+    logger.error(err);
     error.value = true;
   })
 } else {

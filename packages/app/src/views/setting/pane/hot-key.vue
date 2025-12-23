@@ -27,7 +27,7 @@ import { RiboOptionSection } from "@/components/section";
 import { RiboKeyDialog, RiboKey } from "@/components/key";
 import { ref } from "vue";
 import { useSettingStore } from "@/stores/setting";
-import type { RiboHotkey, RiboKey as IRiboKey } from "@ribo/api";
+import { type RiboHotkey, type RiboKey as IRiboKey, logger } from "@ribo/api";
 
 
 const settingStore = useSettingStore();
@@ -36,7 +36,7 @@ const showKeyF = ref(false);
 const currentEdit = ref<keyof RiboHotkey>();
 const editHandle = (label: keyof RiboHotkey) => {
   showKeyF.value = true;
-  console.log(label);
+  logger.debug(label);
   currentEdit.value = label;
 }
 
