@@ -21,7 +21,8 @@
     <s-scroll-view>
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
       <template v-else>
-        <RiboCard v-for="record in list" :key="record.id" :data="record" @option="optionHandle" />
+        <RiboCard :class="{ selected: currentId === record.id }" v-for="record in list" :key="record.id" :data="record"
+          @option="optionHandle" />
       </template>
     </s-scroll-view>
   </section>
@@ -35,6 +36,8 @@ import { RiboIconClean } from "@/components/icons";
 import { useRecordStore } from "@/stores/record";
 import { debounce } from "@/utils/helper";
 import { Snackbar } from "sober";
+import { useListenHotKey } from "@/hooks";
+import { useCacheStore } from "@/stores/cache";
 
 defineOptions({
   name: "tray_pane",
@@ -45,16 +48,10 @@ const route = useRoute();
 const recordStore = useRecordStore();
 const searchReg = ref();
 const isEmpty = computed(() => recordStore.total === 0);
-// const selected = ref("all");
 
 const list = computed(() => recordStore.list)
-// const historys = computed(() => {
-//   if (searchReg.value) {
-//     return list.value.filter((item) => searchReg.value.test(item.content));
-//   }
-//   return list.value;
-// });
 
+const cacheStore = useCacheStore();
 
 const closeHandle = async () => {
   await closeWindow(route.name as string);
@@ -62,7 +59,6 @@ const closeHandle = async () => {
 const cleanHandle = async () => {
   await recordStore.clearRecord();
 };
-
 
 const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcode", id: number) => {
   if (option === "delete") {
@@ -95,18 +91,64 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
 
 
 const search = ref("");
-const fn = debounce(() => {
+const searchHandle = debounce(() => {
   searchReg.value = new RegExp(search.value, "i");
 }, 300);
 const clearSearchHandle = debounce(() => {
   search.value = "";
   searchReg.value = undefined;
 });
-const searchHandle = fn;
+
 
 onMounted(() => {
   recordStore.getRecords();
 });
+
+
+const currentIndex = computed({
+  get() {
+    return cacheStore.get("currentIndex") ?? -1;
+  },
+  set(value) {
+    cacheStore.set("currentIndex", value ?? -1);
+  }
+});
+const currentId = computed(() => list.value[currentIndex.value]?.id);
+
+useListenHotKey((type) => {
+  console.log("useListenHotKey => type", type);
+  const id = currentId.value;
+  if (id) {
+    switch (type) {
+      case "edit":
+        optionHandle("edit", id);
+        break;
+      case "copy":
+        optionHandle("copy", id);
+        break;
+      case "qrcode":
+        optionHandle("qrcode", id);
+        break;
+      case "delete":
+        optionHandle("delete", id);
+        break;
+      case "clear":
+        cleanHandle();
+        break;
+    }
+  }
+  switch (type) {
+    case "prev":
+      currentIndex.value = currentIndex.value <= 0 ? recordStore.total - 1 : currentIndex.value - 1;
+      document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center"});
+      break;
+      case "next":
+        currentIndex.value = currentIndex.value >= recordStore.total - 1 ? 0 : currentIndex.value + 1;
+        document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center" });
+      break;
+  }
+});
+
 </script>
 <style lang="scss">
 section.tray-pane {
@@ -119,6 +161,10 @@ section.tray-pane {
     flex: 1;
     width: 100%;
     overflow: auto;
+
+    .selected {
+      outline: 2px solid var(--s-color-primary);
+    }
   }
 }
 </style>

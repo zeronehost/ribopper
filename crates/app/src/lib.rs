@@ -37,97 +37,7 @@ pub fn run() {
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_global_shortcut::Builder::new().build())
     .plugin(tauri_plugin_dialog::init())
-    .plugin(tauri_plugin_store::Builder::new().build())
-    .register_uri_scheme_protocol(RIBO_SCHEME, |ctx, req| {
-      let path = req.uri().path();
-      if path == "/qrcode" {
-        let id = match req.uri().query() {
-          Some(id) => id,
-          None => {
-            return tauri::http::Response::builder()
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(
-                tauri::http::header::CACHE_CONTROL,
-                "application/octet-stream",
-              )
-              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
-              .body(b"".to_vec())
-              .unwrap();
-          }
-        };
-        let id = match id.parse::<u64>() {
-          Ok(id) => id,
-          Err(e) => {
-            return tauri::http::Response::builder()
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(
-                tauri::http::header::CACHE_CONTROL,
-                "application/octet-stream",
-              )
-              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
-              .body(format!("{}", e.to_string()).into_bytes())
-              .unwrap();
-          }
-        };
-        let app = ctx.app_handle();
-        let state = match app.try_state::<crate::store::db::Db>() {
-          Some(state) => state,
-          None => {
-            return tauri::http::Response::builder()
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(
-                tauri::http::header::CACHE_CONTROL,
-                "application/octet-stream",
-              )
-              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
-              .body(b"".to_vec())
-              .unwrap();
-          }
-        };
-        let record = match crate::commands::record::get_record(state, id) {
-          Ok(record) => record,
-          Err(e) => {
-            return tauri::http::Response::builder()
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(
-                tauri::http::header::CACHE_CONTROL,
-                "application/octet-stream",
-              )
-              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
-              .body(format!("{}", e.to_string()).into_bytes())
-              .unwrap();
-          }
-        };
-        let qrcode = match create_qrcode(record) {
-          Ok(qrcode) => qrcode,
-          Err(e) => {
-            return tauri::http::Response::builder()
-              .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-              .header(
-                tauri::http::header::CACHE_CONTROL,
-                "application/octet-stream",
-              )
-              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
-              .body(format!("{}", e.to_string()).into_bytes())
-              .unwrap();
-          }
-        };
-        return tauri::http::Response::builder()
-          .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-          .header(
-            tauri::http::header::CACHE_CONTROL,
-            "application/octet-stream",
-          )
-          .status(tauri::http::StatusCode::OK)
-          .body(qrcode)
-          .unwrap();
-      }
-      tauri::http::Response::builder()
-        .header(tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-        .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
-        .body(b"".to_vec())
-        .unwrap()
-    });
+    .plugin(tauri_plugin_store::Builder::new().build());
 
   let app = builder
     .invoke_handler(tauri::generate_handler![
@@ -141,7 +51,7 @@ pub fn run() {
       crate::commands::record::update_record,
       crate::commands::record::clear_records,
       crate::commands::record::copy_record,
-      // crate::commands::record::qrcode_record,
+      crate::commands::record::qrcode_record,
       crate::commands::target::get_targets,
       crate::commands::target::create_target,
       crate::commands::target::delete_target,

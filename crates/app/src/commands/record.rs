@@ -8,7 +8,7 @@ use super::CommandResult;
 use crate::{
   models::{Record, RecordWithTargets, UpdateRecord},
   store::db::Db,
-  utils::constant::WIN_LABEL_TRAY_PANE,
+  utils::{constant::WIN_LABEL_TRAY_PANE, qrcode::create_qrcode},
 };
 
 #[tauri::command]
@@ -189,4 +189,11 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
     .map_err(|e| e.to_string())?;
   }
   Ok(())
+}
+
+#[tauri::command]
+pub fn qrcode_record(state: State<'_, Db>, id: u64) -> CommandResult<Vec<u8>> {
+  log::info!("生成二维码数据: {id}");
+  let record = get_record(state, id)?;
+  create_qrcode(record).map_err(|e| e.to_string())
 }

@@ -3,8 +3,7 @@ pub struct RiboConfig {
   pub general: Option<RiboGeneral>,
   pub options: Option<RiboOptions>,
   pub theme: Option<RiboTheme>,
-  pub hotkey: Vec<RiboHotkey>,
-  pub schema: String,
+  pub hotkey: RiboHotkey,
 }
 
 impl RiboConfig {
@@ -33,20 +32,16 @@ impl Default for RiboConfig {
         auto_start: false,
       }),
       options: None,
-      theme: Some(RiboTheme::Light),
-      hotkey: vec![],
-      schema: if cfg!(target_os = "windows") {
-        "https://ribopper.".to_string()
-      } else {
-        "ribopper://".to_string()
-      },
+      theme: Some(RiboTheme::default()),
+      hotkey: RiboHotkey::default(),
     }
   }
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum RiboTheme {
+  #[default]
   Light,
   Dark,
   Auto,
@@ -62,15 +57,25 @@ pub struct RiboGeneral {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RiboOptions {}
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RiboHotkey {
+  edit: Option<RiboKey>,
+  clear: Option<RiboKey>,
+  prev: Option<RiboKey>,
+  next: Option<RiboKey>,
+  qrcode: Option<RiboKey>,
+  pane: Option<RiboKey>,
+  delete: Option<RiboKey>,
+  copy: Option<RiboKey>,
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub enum RiboHotkey {
-  Edit{
-    
-  },
-  Clear(Vec<String>),
-  Prev(Vec<String>),
-  Next(Vec<String>),
-  Qrcode(Vec<String>),
-  Pane(Vec<String>),
+pub struct RiboKey {
+  alt_key: bool,
+  ctrl_key: bool,
+  shift_key: bool,
+  meta_key: bool,
+  key: String,
 }

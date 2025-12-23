@@ -20,7 +20,6 @@
 import { ref } from 'vue';
 import { qrcodeRecord } from "@ribo/api";
 import { useRouter, useRoute } from 'vue-router';
-import { useSettingStore } from "@/stores/setting";
 
 const router = useRouter();
 const route = useRoute();
@@ -33,12 +32,8 @@ const src = ref('');
 const error = ref(false);
 
 if (id) {
-  const setting = useSettingStore();
   error.value = false;
-  qrcodeRecord(Number(id), setting.schema).then((res) => {
-    // src.value = res;
-    console.log(res);
-    // const buf = Uint8Array.from(res);
+  qrcodeRecord(Number(id)).then((res) => {
     const reader = new FileReader();
     reader.readAsDataURL(res);
     reader.onload = (e) => {

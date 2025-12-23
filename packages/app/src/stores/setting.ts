@@ -1,4 +1,4 @@
-import { type Config, type GeneralOptions, configSave, type Theme } from "@ribo/api";
+import { type Config, type GeneralOptions, configSave, type Theme, type RiboKey, type RiboHotkey } from "@ribo/api";
 import { defineStore } from "pinia";
 
 export const useSettingStore = defineStore("setting", {
@@ -23,6 +23,9 @@ export const useSettingStore = defineStore("setting", {
     },
     autoStart(): boolean {
       return this.config?.general?.autoStart as boolean
+    },
+    hotkeys(): RiboHotkey {
+      return this.config?.hotkey as RiboHotkey
     }
   },
   actions: {
@@ -34,6 +37,12 @@ export const useSettingStore = defineStore("setting", {
     },
     setAutoStart(autoStart: boolean) {
       (this.config.general as GeneralOptions).autoStart = autoStart;
+    },
+    setHotkey(label: keyof RiboHotkey, data: RiboKey) {
+      if (!this.config.hotkey) {
+        this.config.hotkey = {};
+      }
+      (this.config.hotkey as RiboHotkey)[label] = data;
     },
 
     saveConfig() {

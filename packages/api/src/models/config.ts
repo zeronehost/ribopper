@@ -3,7 +3,7 @@ export interface Config {
   theme: Theme;
   general: GeneralOptions;
   options: Array<Record<string, string>>;
-  hotkey: Array<Record<string, Array<string>>>;
+  hotkey: RiboHotkey;
   schema: string;
 }
 
@@ -20,3 +20,22 @@ export interface RiboEvent<T> {
 }
 
 export type RiboEventType = "init" | "update" | "refresh";
+
+export interface RiboHotkey {
+  clear?: RiboKey,
+  edit?: RiboKey,
+  next?: RiboKey,
+  pane?: RiboKey,
+  prev?: RiboKey,
+  qrcode?: RiboKey,
+  delete?: RiboKey,
+  copy?: RiboKey,
+}
+
+export interface RiboKey {
+  altKey: boolean;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  shiftKey: boolean;
+  key?: string;
+}
