@@ -13,22 +13,22 @@ impl Database {
       versions.push(version?);
     }
     let version = versions.first().copied();
-    log::info!("schema version: {:?}", version);
+    log::debug!("db.schema: current version={:?}", version);
     Ok(version)
   }
 
   pub(super) fn schema_version_exists(&self) -> Result<bool> {
     match self.get_schema_version() {
       Ok(Some(_)) => {
-        log::info!("schema version exists");
+        log::debug!("db.schema: version exists");
         Ok(true)
       }
       Ok(None) => {
-        log::info!("schema version does not exist");
+        log::debug!("db.schema: version does not exist");
         Ok(false)
       }
       Err(_) => {
-        log::info!("database not exist");
+        log::error!("db.schema: error checking schema version");
         Ok(false)
       }
     }
@@ -39,21 +39,25 @@ impl Database {
       "insert into schema_version (version) values (?1);",
       params![version],
     )?;
+    log::debug!("db.schema: updated schema version to {}", version);
     Ok(())
   }
   pub fn migrate_after_version(&self, version: u16) -> Result<()> {
     for migrate in crate::schema::MIGRATIONS.iter() {
       if migrate.version > version {
-        log::info!("migrating from version {} to {}", version, migrate.version);
-        log::info!("{}", migrate.description);
+        log::info!("db.schema: migrating from version {} to {}", version, migrate.version);
+        log::info!("db.schema: {}", migrate.description);
 
         match self
           .0
           .execute_batch(&format!("BEGIN; {} COMMIT;", migrate.script))
         {
-          Ok(_) => self.update_schema_version(migrate.version)?,
+          Ok(_) => {
+            self.update_schema_version(migrate.version)?;
+            log::info!("db.schema: migration {} applied", migrate.version);
+          }
           Err(e) => {
-            log::error!("failed to apply migration: {}", e);
+            log::error!("db.schema: failed to apply migration {}: {}", migrate.version, e);
             return Err(e);
           }
         }

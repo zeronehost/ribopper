@@ -9,6 +9,7 @@ use super::db::Database;
 
 impl Database {
   pub fn create_target(&self, target: models::NewTarget) -> Result<models::Target> {
+    log::info!("db.target: create_target name={}", target.name);
     let mut stmt = self.conn().prepare(
       r#"
     INSERT INTO target (name, description)
@@ -23,6 +24,7 @@ impl Database {
   }
 
   pub fn get_target_by_name(&self, name: &str) -> Result<Option<models::Target>> {
+    log::debug!("db.target: get_target_by_name name={}", name);
     let mut stmt = self
       .conn()
       .prepare("select * from target where name = ?1")?;
@@ -34,6 +36,7 @@ impl Database {
   }
 
   pub fn get_targets(&self) -> Result<Vec<models::Target>> {
+    log::debug!("db.target: get_targets");
     let mut stmt = self.conn().prepare("select * from target order by name")?;
     let targets = stmt.query_map([], |row| Ok(models::Target::from_row(row)))?;
     let mut res = Vec::new();
@@ -44,8 +47,10 @@ impl Database {
   }
 
   pub fn delete_target(&self, id: i64) -> Result<()> {
+    log::info!("db.target: delete_target id={}", id);
     let mut stmt = self.conn().prepare("delete from target where id = ?1")?;
-    stmt.execute(params![id])?;
+    let rows = stmt.execute(params![id])?;
+    log::debug!("db.target: delete affected {} rows", rows);
     Ok(())
   }
 }

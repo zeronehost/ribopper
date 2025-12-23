@@ -35,6 +35,7 @@ where
   }
 
   pub fn emit<R: Runtime>(&self, app: &AppHandle<R>) -> tauri::Result<()> {
+    log::debug!("events: emitting {:?} to {} (label={})", self.typ, RIBO_EVENT, self.label);
     app.emit(RIBO_EVENT, self)
   }
 }

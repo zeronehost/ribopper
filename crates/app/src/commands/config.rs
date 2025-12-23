@@ -11,14 +11,25 @@ use crate::{
 
 #[tauri::command]
 pub fn config_load<R: Runtime>(app: AppHandle<R>) -> Result<Option<RiboConfig>, String> {
-  let store = app.store(STORE_FILE).map_err(|e| e.to_string())?;
+  log::debug!("commands::config::config_load called");
+  let store = app.store(STORE_FILE).map_err(|e| {
+    log::error!("commands::config::config_load - failed to open store: {}", e);
+    e.to_string()
+  })?;
   match store.get("config") {
     Some(config) => {
-      let conf: RiboConfig = serde_json::from_value(config).map_err(|e| e.to_string())?;
+      let conf: RiboConfig = serde_json::from_value(config).map_err(|e| {
+        log::error!("commands::config::config_load - parse error: {}", e);
+        e.to_string()
+      })?;
 
+      log::debug!("commands::config::config_load - returning config");
       Ok(Some(conf))
     }
-    None => Ok(None),
+    None => {
+      log::debug!("commands::config::config_load - no config found");
+      Ok(None)
+    }
   }
 }
 

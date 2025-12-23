@@ -11,6 +11,7 @@ impl Database {
     record: models::NewRecord,
     limit: Option<i64>,
   ) -> Result<models::Record> {
+    log::info!("db.record: create_record invoked (type={:?})", record.typ);
     if let Some(max) = limit {
       self.0.execute(
         "DELETE from record where id not in (select id from record order by id desc limit ?1)",
@@ -25,6 +26,7 @@ impl Database {
   }
 
   pub fn get_record_by_id(&self, id: u64) -> Result<Option<models::Record>> {
+    log::debug!("db.record: get_record_by_id id={}", id);
     let mut stmt = self.conn().prepare("select * from record where id = ?1;")?;
     match stmt.query_row(params![id], |row| Ok(models::Record::from_row(row))) {
       Ok(record) => Ok(Some(record?)),
@@ -34,21 +36,26 @@ impl Database {
   }
 
   pub fn update_record_content(&self, id: u64, content: String) -> Result<bool> {
+    log::info!("db.record: update_record_content id={}", id);
     let rows_affected = self.conn().execute(
       "update record set content = ?1 where id = ?2",
       params![content, id],
     )?;
+    log::debug!("db.record: update affected {} rows", rows_affected);
     Ok(rows_affected > 0)
   }
 
   pub fn delete_record(&self, id: u64) -> Result<bool> {
+    log::info!("db.record: delete_record id={}", id);
     let rows_affected = self
       .conn()
       .execute("delete from record where id = ?1", params![id])?;
+    log::debug!("db.record: delete affected {} rows", rows_affected);
     Ok(rows_affected > 0)
   }
 
   pub fn query_record(&self, query: models::RecordQuery) -> Result<Vec<models::RecordWithTargets>> {
+    log::debug!("db.record: query_record start: {:?}", query);
     let mut sql = String::from(
       r#"
       SELECT 
@@ -128,6 +135,7 @@ impl Database {
   }
 
   pub fn get_record_recent(&self, limit: i64) -> Result<Vec<models::Record>> {
+    log::debug!("db.record: get_record_recent limit={}", limit);
     let mut stmt = self
       .conn()
       .prepare("select * from record order by created_at desc limit ?1;")?;
@@ -144,6 +152,7 @@ impl Database {
     records: Vec<models::NewRecord>,
     max: Option<i64>,
   ) -> Result<Vec<models::Record>> {
+    log::info!("db.record: batch_inset_record count={}", records.len());
     let mut results = Vec::with_capacity(records.len());
 
     for record in records {
@@ -151,6 +160,7 @@ impl Database {
       results.push(result);
     }
 
+    log::debug!("db.record: batch insert completed, inserted={}", results.len());
     Ok(results)
   }
 }

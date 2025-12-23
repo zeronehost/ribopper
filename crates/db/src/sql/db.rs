@@ -7,14 +7,17 @@ pub struct Database(pub Connection);
 
 impl Database {
   fn get_connection<P: AsRef<Path>>(path: P, key: Option<&str>) -> Result<Connection> {
+    log::debug!("db: opening connection to path");
     let conn = Connection::open(path)?;
     if let Some(key) = key {
+      log::debug!("db: applying key to connection (hidden)");
       conn.pragma_update(None, "key", key)?;
     }
     Ok(conn)
   }
 
   pub fn new<P: AsRef<Path>>(path: P, key: Option<&str>) -> Result<Self> {
+    log::info!("db: creating Database at path");
     Ok(Self(Self::get_connection(path, key)?))
   }
 

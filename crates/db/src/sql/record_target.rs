@@ -10,6 +10,7 @@ impl Database {
     &self,
     record_target: &models::NewRecordTarget,
   ) -> Result<models::RecordTarget> {
+    log::info!("db.record_target: create_record_target record_id={} target_id={}", record_target.record_id, record_target.target_id);
     let mut stmt = self.conn().prepare(
       r#"
       INSERT INTO record_target (target_id, record_id)
@@ -25,9 +26,11 @@ impl Database {
   }
 
   pub fn delete_record_target(&self, id: u64) -> Result<bool> {
+    log::info!("db.record_target: delete_record_target id={}", id);
     let rows_affected = self
       .conn()
       .execute("delete from record_target where id = ?1", params![id])?;
+    log::debug!("db.record_target: delete affected {} rows", rows_affected);
     Ok(rows_affected > 0)
   }
 
@@ -35,6 +38,7 @@ impl Database {
     &self,
     record_id: i64,
   ) -> Result<Vec<models::RecordTarget>> {
+    log::debug!("db.record_target: get_record_target_by_record_id record_id={}", record_id);
     let mut stmt = self
       .conn()
       .prepare("SELECT * FROM record_target WHERE record_id = ?1 ORDER BY created_at")?;
@@ -54,6 +58,7 @@ impl Database {
     &self,
     target_id: u64,
   ) -> Result<Vec<models::RecordTarget>> {
+    log::debug!("db.record_target: get_record_target_by_target_id target_id={}", target_id);
     let mut stmt = self
       .conn()
       .prepare("SELECT * FROM record_target WHERE target_id = ?1 ORDER BY created_at")?;

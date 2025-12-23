@@ -83,8 +83,10 @@ pub fn run() {
     } = event
       && let tauri::WindowEvent::CloseRequested { api, .. } = win_e
     {
+      log::info!("Window close requested for label={}", label);
       let w = app.get_webview_window(label.as_str()).unwrap();
       w.hide().unwrap();
+      log::info!("Window hidden; prevented close for label={}", label);
       api.prevent_close();
     }
   })

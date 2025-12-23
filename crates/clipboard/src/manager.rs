@@ -14,6 +14,7 @@ where
   F: Fn(Content) + Send + 'static,
 {
   pub fn new(handler: F) -> crate::error::Result<Self> {
+    log::info!("clipboard: creating Manager");
     let (tx, rx) = mpsc::channel();
     let manager = Self {
       inner: Arc::new(Mutex::new(InnerManager {
@@ -23,29 +24,42 @@ where
         current: None,
       })),
     };
-
+    log::debug!("clipboard: starting listener threads");
     manager.listen(rx, tx);
     Ok(manager)
   }
 
   fn listen(&self, rx: mpsc::Receiver<()>, tx: mpsc::Sender<()>) {
     thread::spawn(move || {
+      log::debug!("clipboard: master thread starting");
       Master::new(Handler(tx)).unwrap().run().unwrap();
+      log::debug!("clipboard: master thread exiting");
     });
 
     let inner = self.inner.clone();
     thread::spawn(move || {
       for _ in rx {
+        log::debug!("clipboard: received change notification");
         let mut inner = inner.lock().unwrap();
         if let Some(content) = inner.get_content() {
+          log::info!("clipboard: new content detected: {:?}", content);
           (*inner.handler)(content);
+        } else {
+          log::debug!("clipboard: no new content from get_content()");
         }
       }
     });
   }
 
   pub fn paste(&self, content: Content) -> crate::error::Result<()> {
-    self.inner.lock().unwrap().paste(content)
+    log::info!("clipboard: paste called with content type={:?}", content.content);
+    let res = self.inner.lock().unwrap().paste(content);
+    if let Err(ref e) = res {
+      log::error!("clipboard: paste failed: {:?}", e);
+    } else {
+      log::debug!("clipboard: paste succeeded");
+    }
+    res
   }
 }
 
@@ -96,6 +110,7 @@ where
       data.push(FormatContent::Files(files));
     }
     if content.is_none() || data.is_empty() {
+      log::debug!("clipboard: get_content found no usable content");
       return None;
     }
     if self.current.is_some() && self.current == content {
@@ -104,13 +119,16 @@ where
     }
     self.current = content.clone();
 
-    Some(Content {
+    let content_struct = Content {
       content: content.unwrap(),
       data,
-    })
+    };
+    log::debug!("clipboard: get_content returning {:?}", content_struct);
+    Some(content_struct)
   }
 
   fn paste(&mut self, content: Content) -> crate::error::Result<()> {
+    log::info!("clipboard: InnerManager::paste content={:?}", content.content);
     for data in content.data {
       match data {
         FormatContent::Text(data) => {
@@ -125,6 +143,7 @@ where
       }
     }
     self.flag = true;
+    log::debug!("clipboard: paste completed, flag set");
     Ok(())
   }
 }

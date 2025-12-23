@@ -16,7 +16,11 @@ pub fn get_records(
   state: State<'_, Db>,
   query: RecordQuery,
 ) -> CommandResult<Vec<RecordWithTargets>> {
-  let db = state.0.lock().map_err(|e| e.to_string())?;
+  log::debug!("commands::record::get_records called with query={:?}", query);
+  let db = state.0.lock().map_err(|e| {
+    log::error!("commands::record::get_records - failed to lock db: {}", e);
+    e.to_string()
+  })?;
   let data = db.query_record(query).map_err(|e| e.to_string())?;
   data
     .iter()
@@ -26,9 +30,16 @@ pub fn get_records(
 
 #[tauri::command]
 pub fn get_record(state: State<'_, Db>, id: u64) -> CommandResult<Record> {
-  let db = state.0.lock().map_err(|e| e.to_string())?;
+  log::debug!("commands::record::get_record id={}", id);
+  let db = state.0.lock().map_err(|e| {
+    log::error!("commands::record::get_record - failed to lock db: {}", e);
+    e.to_string()
+  })?;
 
-  let data = db.get_record_by_id(id).map_err(|e| e.to_string())?;
+  let data = db.get_record_by_id(id).map_err(|e| {
+    log::error!("commands::record::get_record - db error: {}", e);
+    e.to_string()
+  })?;
 
   let data: Record = match data {
     Some(data) => data
@@ -42,8 +53,12 @@ pub fn get_record(state: State<'_, Db>, id: u64) -> CommandResult<Record> {
 
 #[tauri::command]
 pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bool> {
+  log::info!("commands::record::delete_record id={}", id);
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| e.to_string())?;
+  let db = state.0.lock().map_err(|e| {
+    log::error!("commands::record::delete_record - failed to lock db: {}", e);
+    e.to_string()
+  })?;
 
   match db.delete_record(id) {
     Ok(success) => {
@@ -51,6 +66,7 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bo
         crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
           .emit(&app)
           .map_err(|e| e.to_string())?;
+        log::info!("commands::record::delete_record - record deleted id={}", id);
       }
       Ok(success)
     }
@@ -60,8 +76,12 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bo
 
 #[tauri::command]
 pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> CommandResult<Record> {
+  log::info!("commands::record::create_record type={:?}", clipboard.typ);
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| e.to_string())?;
+  let db = state.0.lock().map_err(|e| {
+    log::error!("commands::record::create_record - failed to lock db: {}", e);
+    e.to_string()
+  })?;
   let max = if let Ok(Some(config)) = super::config::config_load(app.clone()) {
     config.get_max().unwrap_or(None)
   } else {
@@ -71,21 +91,22 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Com
   let data = db
     .create_record(clipboard, max)
     .map_err(|e| e.to_string())?;
-  match data.try_into() {
-    Ok(data) => {
-      crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
-        .emit(&app)
-        .map_err(|e| e.to_string())?;
-      Ok(data)
-    }
-    Err(e) => Err(e.to_string()),
-  }
+  let created: Record = data.try_into().map_err(|e: serde_json::Error| e.to_string())?;
+  crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+    .emit(&app)
+    .map_err(|e| e.to_string())?;
+  log::info!("commands::record::create_record - created record");
+  Ok(created)
 }
 
 #[tauri::command]
 pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> CommandResult<bool> {
+  log::info!("commands::record::update_record called");
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| e.to_string())?;
+  let db = state.0.lock().map_err(|e| {
+    log::error!("commands::record::update_record - failed to lock db: {}", e);
+    e.to_string()
+  })?;
   match record.try_into() {
     Ok((id, content)) => match db.update_record_content(id, content) {
       Ok(success) => {
@@ -93,6 +114,7 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Com
           crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
             .emit(&app)
             .map_err(|e| e.to_string())?;
+          log::info!("commands::record::update_record - updated id={}", id);
         }
         Ok(success)
       }
@@ -104,7 +126,7 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Com
 
 #[tauri::command]
 pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
-  log::info!("清楚历史记录");
+  log::info!("commands::record::clear_records called");
   let app_handle = app.clone();
   app
     .dialog()
@@ -115,8 +137,8 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
       "取消".to_string(),
     ))
     .show(move |result| {
-      if result {
-        log::info!("确认清空历史记录");
+        if result {
+        log::info!("commands::record::clear_records confirmed by user");
         // 通知刷新
         let state = app_handle.state::<crate::store::db::Db>();
         let db = state.0.lock().unwrap();
@@ -126,15 +148,15 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
               .emit(&app_handle)
             {
               Ok(_) => {
-                log::info!("通知刷新成功");
+                log::info!("commands::record::clear_records - notify refresh succeeded");
               }
               Err(e) => {
-                log::error!("通知刷新失败: {e}");
+                log::error!("commands::record::clear_records - notify refresh failed: {}", e);
               }
             };
           }
           Err(e) => {
-            log::error!("清空历史记录失败: {e}");
+            log::error!("commands::record::clear_records - clear failed: {}", e);
           }
         };
       }
