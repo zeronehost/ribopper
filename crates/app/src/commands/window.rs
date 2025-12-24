@@ -12,6 +12,9 @@ pub fn close_window<R: Runtime>(app: AppHandle<R>, label: &str) -> Result<(), St
       }
     }
   };
-  log::info!("commands::window::close_window succeeded for label={}", label);
+  log::info!(
+    "commands::window::close_window succeeded for label={}",
+    label
+  );
   Ok(())
 }

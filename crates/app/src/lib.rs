@@ -1,4 +1,7 @@
 use tauri::Manager;
+use tauri_plugin_store::StoreExt;
+
+use crate::{store::config::RiboConfig, utils::constant::STORE_FILE};
 
 mod commands;
 mod events;
@@ -30,10 +33,74 @@ pub fn run() {
         })
         .build(),
     );
+  #[cfg(desktop)]
+  {
+    builder = builder
+      .plugin(tauri_plugin_autostart::init(
+        tauri_plugin_autostart::MacosLauncher::AppleScript,
+        None,
+      ))
+      .plugin(
+        tauri_plugin_global_shortcut::Builder::new()
+          .with_handler(move |app, sc, ev| {
+            match crate::commands::config::config_load(app.clone()) {
+              Ok(config) => match config {
+                Some(conf) => {
+                  if let Some(k) = conf.hotkey.clear {
+                    use tauri_plugin_global_shortcut::{Shortcut, ShortcutState};
+
+                    if let Ok(key) = TryInto::<Shortcut>::try_into(&k)
+                      && sc == &key
+                    {
+                      log::info!("global shortcut: clear shortcut triggered");
+                      if ev.state() == ShortcutState::Pressed {
+                        match crate::commands::record::clear_records(app.clone()) {
+                          Ok(_) => {
+                            log::info!("global shortcut: clear records success");
+                          }
+                          Err(e) => {
+                            log::error!("global shortcut: clear records failed: {}", e);
+                          }
+                        }
+                      }
+                    }
+                  }
+                  if let Some(k) = conf.hotkey.pane {
+                    use tauri_plugin_global_shortcut::{Shortcut, ShortcutState};
+
+                    if let Ok(key) = TryInto::<Shortcut>::try_into(&k)
+                      && sc == &key
+                    {
+                      log::info!("global shortcut: clear shortcut triggered");
+                      if ev.state() == ShortcutState::Pressed {
+                        use tauri_plugin_dialog::DialogExt;
+
+                        log::info!("global shortcut: toggle tray pane window");
+                        app
+                          .clone()
+                          .dialog()
+                          .message("暂不支持打开上下文菜单，请点击系统托盘图标打开")
+                          .title("温馨提示")
+                          .show(|_| {});
+                      }
+                    }
+                  }
+                }
+                None => {
+                  log::warn!("global shortcut: config not exist");
+                }
+              },
+              Err(e) => {
+                log::error!("global shortcut: Failed to load config: {}", e);
+              }
+            }
+          })
+          .build(),
+      );
+  }
 
   builder = builder
     .plugin(tauri_plugin_opener::init())
-    .plugin(tauri_plugin_global_shortcut::Builder::new().build())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_store::Builder::new().build());
 
@@ -62,13 +129,12 @@ pub fn run() {
     .setup(|app| {
       crate::store::Store::init(app.handle())?;
       crate::tray::Tray::init(app.handle())?;
-      #[cfg(desktop)]
-      {
-        use tauri_plugin_autostart::MacosLauncher;
-        app.handle().plugin(tauri_plugin_autostart::init(
-          MacosLauncher::LaunchAgent,
-          Some(vec!["--flag1", "--flag2"]),
-        ))?;
+
+      let store = app.store(STORE_FILE)?;
+      if let Some(config) = store.get("config") {
+        let config: RiboConfig = serde_json::from_value(config).unwrap_or_default();
+        crate::commands::config::autostart_setting(app.handle(), &config);
+        crate::commands::config::shortcut_setting(app.handle(), &config, None)?;
       }
       Ok(())
     })

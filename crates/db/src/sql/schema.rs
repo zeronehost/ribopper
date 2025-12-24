@@ -45,7 +45,11 @@ impl Database {
   pub fn migrate_after_version(&self, version: u16) -> Result<()> {
     for migrate in crate::schema::MIGRATIONS.iter() {
       if migrate.version > version {
-        log::info!("db.schema: migrating from version {} to {}", version, migrate.version);
+        log::info!(
+          "db.schema: migrating from version {} to {}",
+          version,
+          migrate.version
+        );
         log::info!("db.schema: {}", migrate.description);
 
         match self
@@ -57,7 +61,11 @@ impl Database {
             log::info!("db.schema: migration {} applied", migrate.version);
           }
           Err(e) => {
-            log::error!("db.schema: failed to apply migration {}: {}", migrate.version, e);
+            log::error!(
+              "db.schema: failed to apply migration {}: {}",
+              migrate.version,
+              e
+            );
             return Err(e);
           }
         }

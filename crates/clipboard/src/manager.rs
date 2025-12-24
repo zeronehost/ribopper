@@ -52,7 +52,10 @@ where
   }
 
   pub fn paste(&self, content: Content) -> crate::error::Result<()> {
-    log::info!("clipboard: paste called with content type={:?}", content.content);
+    log::info!(
+      "clipboard: paste called with content type={:?}",
+      content.content
+    );
     let res = self.inner.lock().unwrap().paste(content);
     if let Err(ref e) = res {
       log::error!("clipboard: paste failed: {:?}", e);
@@ -128,7 +131,10 @@ where
   }
 
   fn paste(&mut self, content: Content) -> crate::error::Result<()> {
-    log::info!("clipboard: InnerManager::paste content={:?}", content.content);
+    log::info!(
+      "clipboard: InnerManager::paste content={:?}",
+      content.content
+    );
     for data in content.data {
       match data {
         FormatContent::Text(data) => {

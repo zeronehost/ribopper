@@ -139,9 +139,9 @@ useListenHotKey(setting.hotkeys, (type) => {
         });
         break;
       case "clear":
-        cleanHandle().then(() => {
-          currentIndex.value = -1;
-        });
+        currentIndex.value = -1;
+        // cleanHandle().then(() => {
+        // });
         break;
     }
   }

@@ -1,3 +1,7 @@
+use std::str::FromStr;
+
+use tauri_plugin_global_shortcut::{Modifiers, Shortcut};
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RiboConfig {
   pub general: Option<RiboGeneral>,
@@ -8,10 +12,10 @@ pub struct RiboConfig {
 
 impl RiboConfig {
   pub(crate) fn get_max(&self) -> anyhow::Result<Option<i64>> {
-    if let Some(conf) = &self.general {
-      if let Some(max) = conf.max {
-        return Ok(Some(max as i64));
-      }
+    if let Some(conf) = &self.general
+      && let Some(max) = conf.max
+    {
+      return Ok(Some(max as i64));
     }
     Ok(None)
   }
@@ -60,22 +64,45 @@ pub struct RiboOptions {}
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RiboHotkey {
-  edit: Option<RiboKey>,
-  clear: Option<RiboKey>,
-  prev: Option<RiboKey>,
-  next: Option<RiboKey>,
-  qrcode: Option<RiboKey>,
-  pane: Option<RiboKey>,
-  delete: Option<RiboKey>,
-  copy: Option<RiboKey>,
+  pub(crate) edit: Option<RiboKey>,
+  pub(crate) clear: Option<RiboKey>,
+  pub(crate) prev: Option<RiboKey>,
+  pub(crate) next: Option<RiboKey>,
+  pub(crate) qrcode: Option<RiboKey>,
+  pub(crate) pane: Option<RiboKey>,
+  pub(crate) delete: Option<RiboKey>,
+  pub(crate) copy: Option<RiboKey>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RiboKey {
-  alt_key: bool,
-  ctrl_key: bool,
-  shift_key: bool,
-  meta_key: bool,
-  key: String,
+  pub(crate) alt_key: bool,
+  pub(crate) ctrl_key: bool,
+  pub(crate) shift_key: bool,
+  pub(crate) meta_key: bool,
+  pub(crate) key: String,
+}
+
+impl TryInto<Shortcut> for &RiboKey {
+  type Error = anyhow::Error;
+  fn try_into(self) -> Result<Shortcut, Self::Error> {
+    let mut mods = Modifiers::empty();
+    if self.alt_key {
+      mods |= Modifiers::ALT;
+    }
+    if self.ctrl_key {
+      mods |= Modifiers::CONTROL;
+    }
+    if self.shift_key {
+      mods |= Modifiers::SHIFT;
+    }
+    if self.meta_key {
+      mods |= Modifiers::SUPER;
+    }
+    let k = Shortcut::from_str(&self.key)?.key;
+    let key = Shortcut::new(Some(mods), k);
+
+    Ok(key)
+  }
 }

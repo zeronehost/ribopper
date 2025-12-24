@@ -160,7 +160,10 @@ impl Database {
       results.push(result);
     }
 
-    log::debug!("db.record: batch insert completed, inserted={}", results.len());
+    log::debug!(
+      "db.record: batch insert completed, inserted={}",
+      results.len()
+    );
     Ok(results)
   }
 }

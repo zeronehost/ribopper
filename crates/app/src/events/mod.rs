@@ -22,6 +22,7 @@ where
     }
   }
 
+  #[allow(unused)]
   pub fn create_init_event(payload: Option<D>, label: &str) -> Self {
     Self::new(EventType::Init, payload, label)
   }
@@ -35,7 +36,12 @@ where
   }
 
   pub fn emit<R: Runtime>(&self, app: &AppHandle<R>) -> tauri::Result<()> {
-    log::debug!("events: emitting {:?} to {} (label={})", self.typ, RIBO_EVENT, self.label);
+    log::debug!(
+      "events: emitting {:?} to {} (label={})",
+      self.typ,
+      RIBO_EVENT,
+      self.label
+    );
     app.emit(RIBO_EVENT, self)
   }
 }

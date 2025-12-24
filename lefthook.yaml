@@ -8,3 +8,7 @@ pre-commit:
       glob: "*.{rs}"
       run: cargo fmt -- --check
       stage_fixed: true
+    rust-clippy:
+      glob: "*.{rs}"
+      run: cargo clippy -- -D warnings
+      stage_fixed: true

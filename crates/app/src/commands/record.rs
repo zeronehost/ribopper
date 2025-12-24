@@ -16,7 +16,10 @@ pub fn get_records(
   state: State<'_, Db>,
   query: RecordQuery,
 ) -> CommandResult<Vec<RecordWithTargets>> {
-  log::debug!("commands::record::get_records called with query={:?}", query);
+  log::debug!(
+    "commands::record::get_records called with query={:?}",
+    query
+  );
   let db = state.0.lock().map_err(|e| {
     log::error!("commands::record::get_records - failed to lock db: {}", e);
     e.to_string()
@@ -91,7 +94,9 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Com
   let data = db
     .create_record(clipboard, max)
     .map_err(|e| e.to_string())?;
-  let created: Record = data.try_into().map_err(|e: serde_json::Error| e.to_string())?;
+  let created: Record = data
+    .try_into()
+    .map_err(|e: serde_json::Error| e.to_string())?;
   crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
     .emit(&app)
     .map_err(|e| e.to_string())?;
@@ -137,7 +142,7 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
       "取消".to_string(),
     ))
     .show(move |result| {
-        if result {
+      if result {
         log::info!("commands::record::clear_records confirmed by user");
         // 通知刷新
         let state = app_handle.state::<crate::store::db::Db>();
@@ -151,7 +156,10 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
                 log::info!("commands::record::clear_records - notify refresh succeeded");
               }
               Err(e) => {
-                log::error!("commands::record::clear_records - notify refresh failed: {}", e);
+                log::error!(
+                  "commands::record::clear_records - notify refresh failed: {}",
+                  e
+                );
               }
             };
           }

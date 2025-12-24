@@ -14,7 +14,10 @@ pub fn get_targets(state: State<'_, Db>) -> CommandResult<Vec<Target>> {
 
   match db.get_targets() {
     Ok(targets) => {
-      log::debug!("commands::target::get_targets - returning {} targets", targets.len());
+      log::debug!(
+        "commands::target::get_targets - returning {} targets",
+        targets.len()
+      );
       Ok(targets)
     }
     Err(e) => {
