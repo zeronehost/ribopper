@@ -74,3 +74,13 @@ BEGIN
     UPDATE record_target SET updated_at = DATETIME('now', 'localtime') 
     WHERE id = NEW.id;
 END;
+
+CREATE TABLE IF NOT EXISTS command (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    reg TEXT NOT NULL,
+    commands TEXT NOT NULL,  -- 存储为 JSON 字符串
+    created_at datetime default (DATETIME('now', 'localtime')),
+    updated_at datetime default (DATETIME('now', 'localtime'))
+);

@@ -45,7 +45,9 @@ mod tests {
   #[test]
   fn test_init() {
     let uri = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test.db");
-    std::fs::remove_file(&uri).unwrap();
+    if uri.exists() {
+      std::fs::remove_file(&uri).unwrap();
+    }
     let db = Database::new(uri, None).unwrap();
     let res = db.init();
     println!("{:?}", res);
