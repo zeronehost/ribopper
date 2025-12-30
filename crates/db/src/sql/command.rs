@@ -23,7 +23,7 @@ impl Database {
     )?
   }
 
-  pub fn get_command_by_id(&self, id: i64) -> Result<Option<models::Command>> {
+  pub fn get_command_by_id(&self, id: u64) -> Result<Option<models::Command>> {
     log::info!("db.command: get_command_by_id id={}", id);
     let mut stmt = self.conn().prepare("select id, name, description, reg, commands, created_at, updated_at, updated_at from command where id = ?1")?;
     match stmt.query_row(params![id], |row| Ok(models::Command::from_row(row))) {
@@ -54,11 +54,11 @@ impl Database {
     Ok(result)
   }
 
-  pub fn delete_command(&self, id: i64) -> Result<()> {
+  pub fn delete_command(&self, id: u64) -> Result<bool> {
     log::info!("db.command: delete_command invoked id={}", id);
     let mut stmt = self.conn().prepare("delete from command where id = ?1")?;
-    stmt.execute(params![id])?;
-    Ok(())
+    let rows_affected = stmt.execute(params![id])?;
+    Ok(rows_affected > 0)
   }
 }
 
@@ -84,6 +84,50 @@ mod tests {
       reg: "*".to_string(),
       commands: vec![],
     });
+    println!("{:?}", command);
+    assert!(command.is_ok());
+  }
+
+  #[test]
+  fn test_get_command_by_id() {
+    let uri = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test.db");
+
+    let db = Database::new(uri, None).unwrap();
+
+    let command = db.get_command_by_id(1);
+    println!("{:?}", command);
+    assert!(command.is_ok());
+  }
+
+  #[test]
+  fn test_get_command_by_reg() {
+    let uri = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test.db");
+
+    let db = Database::new(uri, None).unwrap();
+
+    let command = db.get_command_by_reg("*");
+    println!("{:?}", command);
+    assert!(command.is_ok());
+  }
+
+  #[test]
+  fn test_get_commands() {
+    let uri = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test.db");
+
+    let db = Database::new(uri, None).unwrap();
+
+    let command = db.get_commands();
+    println!("{:?}", command);
+    assert!(command.is_ok());
+  }
+
+  #[test]
+  fn test_delete_command() {
+    let uri = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test.db");
+
+    let db = Database::new(uri, None).unwrap();
+
+    let command = db.delete_command(1);
     println!("{:?}", command);
     assert!(command.is_ok());
   }
