@@ -34,10 +34,10 @@ const route = useRoute();
 const recordStore = useRecordStore();
 listenNotify((data) => {
   logger.debug("listenNotify =>", JSON.stringify(data), route.name);
-  if (data.type === "refresh" && data.label === route.name) {
+  if (data.type === "refresh" && typeof route.name === "string" && route.name.includes(data.label)) {
     init();
   }
-  if (data.type === "update" && data.label !== "setting") {
+  if (data.type === "update" && data.label === "setting") {
     recordStore.getRecords().catch((e) => {
       logger.error(e);
     });

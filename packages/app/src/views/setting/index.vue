@@ -1,53 +1,49 @@
 <template>
   <section class="setting">
-    <s-navigation mode="rail" v-model.lazy="selected">
-      <s-navigation-item value="general">
-        <s-icon slot="icon">
-          <RiboIconSetting />
-        </s-icon>
-        <div slot="text">
-          通用
-        </div>
-      </s-navigation-item>
-      <s-navigation-item v-if="false" value="options">
-        <s-icon slot="icon">
-          <RiboIconOption />
-        </s-icon>
-        <div slot="text">
-          操作
-        </div>
-      </s-navigation-item>
-      <s-navigation-item value="theme">
-        <s-icon slot="icon">
-          <RiboIconTheme />
-        </s-icon>
-        <div slot="text">
-          主题
-        </div>
-      </s-navigation-item>
-      <s-navigation-item value="hotkey">
-        <s-icon slot="icon">
-          <RiboIconKeyboard />
-        </s-icon>
-        <div slot="text">
-          快捷键
-        </div>
-      </s-navigation-item>
-      <s-navigation-item v-if="false" value="helper">
-        <s-icon slot="icon">
-          <RiboIconHelper />
-        </s-icon>
-        <div slot="text">
-          帮助
-        </div>
-      </s-navigation-item>
+    <s-navigation mode="rail" v-model.lazy="active">
+        <s-navigation-item value="/setting">
+          <s-icon slot="icon">
+            <RiboIconSetting />
+          </s-icon>
+          <div slot="text">
+            通用
+          </div>
+        </s-navigation-item>
+        <s-navigation-item value="/setting/theme">
+          <s-icon slot="icon">
+            <RiboIconTheme />
+          </s-icon>
+          <div slot="text">
+            主题
+          </div>
+        </s-navigation-item>
+        <s-navigation-item value="/setting/options">
+          <s-icon slot="icon">
+            <RiboIconOption />
+          </s-icon>
+          <div slot="text">
+            操作
+          </div>
+        </s-navigation-item>
+        <s-navigation-item value="/setting/hot-key">
+          <s-icon slot="icon">
+            <RiboIconKeyboard />
+          </s-icon>
+          <div slot="text">
+            快捷键
+          </div>
+        </s-navigation-item>
+        <s-navigation-item value="/setting/helper">
+          <s-icon slot="icon">
+            <RiboIconHelper />
+          </s-icon>
+          <div slot="text">
+            帮助
+          </div>
+        </s-navigation-item>
     </s-navigation>
     <section class="content">
-      <GeneralPane v-show="selected === 'general'" />
-      <OptionPane v-show="selected === 'options'" />
-      <ThemePane v-show="selected === 'theme'" />
-      <HotkeyPane v-show="selected === 'hotkey'" />
-      <HelperPane v-show="selected === 'helper'" />
+      <router-view />
     </section>
     <section class="options">
       <s-button type="elevated" @click="cancelHandle">
@@ -70,28 +66,30 @@
 </template>
 <script setup lang="ts">
 import { closeWindow } from "@ribo/api";
-import { computed, ref } from "vue";
-import { useRoute } from "vue-router";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
   RiboIconCancel,
   RiboIconCheck,
   RiboIconHelper,
   RiboIconKeyboard,
-  RiboIconOption,
   RiboIconSetting,
   RiboIconTheme,
+  RiboIconOption,
 } from "@/components/icons";
 import { useSettingStore } from "@/stores/setting";
-import HelperPane from "./pane/helper.vue";
-import HotkeyPane from "./pane/hot-key.vue";
-import GeneralPane from "./pane/index.vue";
-import OptionPane from "./pane/options.vue";
-import ThemePane from "./pane/theme.vue";
 
-const selected = ref("general");
 const route = useRoute();
+const router = useRouter();
 const store = useSettingStore();
 const isSubmit = computed(() => !store.isUpdate);
+
+const active = computed({
+  get: () => route.path,
+  set: (path) => {
+    router.push(path);
+  }
+});
 
 const submitHandle = async () => {
   await store.saveConfig();
