@@ -125,6 +125,14 @@ pub fn run() {
       crate::commands::config::config_load,
       crate::commands::config::config_save,
       //-------------------------------------------
+      // cmd commands
+      crate::commands::command::get_commands,
+      crate::commands::command::get_command_by_id,
+      crate::commands::command::create_command,
+      crate::commands::command::delete_command,
+      crate::commands::command::update_command,
+      crate::commands::command::exec_command,
+      //-------------------------------------------
     ])
     .setup(|app| {
       crate::store::Store::init(app.handle())?;

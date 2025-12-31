@@ -75,6 +75,7 @@ BEGIN
     WHERE id = NEW.id;
 END;
 
+-- command table
 CREATE TABLE IF NOT EXISTS command (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -84,3 +85,13 @@ CREATE TABLE IF NOT EXISTS command (
     created_at datetime default (DATETIME('now', 'localtime')),
     updated_at datetime default (DATETIME('now', 'localtime'))
 );
+
+-- command 触发器
+DROP TRIGGER IF EXISTS trigger_command_update_timestamp;
+CREATE TRIGGER trigger_command_update_timestamp
+    BEFORE UPDATE ON command
+    FOR EACH ROW
+BEGIN
+    UPDATE command SET updated_at = DATETIME('now', 'localtime') 
+    WHERE id = NEW.id;
+END;

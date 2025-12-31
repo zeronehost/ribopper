@@ -3,6 +3,20 @@ use std::{fs::create_dir_all, path::PathBuf};
 use tauri::{AppHandle, Manager, Runtime};
 
 pub fn get_ribo_db_path<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<PathBuf> {
+  #[cfg(debug_assertions)]
+  {
+    let p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    .parent()
+    .unwrap()
+    .parent()
+    .unwrap()
+    .join("tmp");
+    if !p.exists() {
+      create_dir_all(&p)?;
+    }
+    std::fs::write(p.join(".gitignore"), "*")?;
+    return Ok(p);
+  }
   let p = app.path().app_data_dir()?;
   if !p.exists() {
     create_dir_all(&p)?;

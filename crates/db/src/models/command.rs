@@ -45,6 +45,7 @@ pub struct NewCommand {
   pub commands: Vec<Cmd>,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct UpdateCommand {
   pub id: u64,
   pub name: String,
