@@ -42,6 +42,9 @@ const currentTheme = computed({
 .theme {
   s-card {
     display: block;
-  }
+      max-width: unset;
+      margin: 1rem;
+      padding: .5rem;
+    }
 }
 </style>

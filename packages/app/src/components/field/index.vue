@@ -16,6 +16,9 @@ defineProps({
   .ribo-field {
     display: flex;
     flex-direction: column;
+    max-width: unset;
+    margin: 1rem;
+    padding: .5rem;
 
     &__title {
       font-weight: 700;

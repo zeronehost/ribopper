@@ -42,7 +42,7 @@ where
         log::debug!("clipboard: received change notification");
         let mut inner = inner.lock().unwrap();
         if let Some(content) = inner.get_content() {
-          log::info!("clipboard: new content detected: {:?}", content);
+          log::info!("clipboard: new content detected");
           (*inner.handler)(content);
         } else {
           log::debug!("clipboard: no new content from get_content()");

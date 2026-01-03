@@ -137,11 +137,6 @@ const cancelHandle = async () => {
   .content {
     grid-area: content;
     overflow: hidden;
-    s-card {
-      max-width: unset;
-      margin: 1rem;
-      padding: .5rem;
-    }
   }
 }
 </style>
