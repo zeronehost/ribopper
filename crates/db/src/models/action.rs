@@ -16,10 +16,10 @@ impl FromRow for Action {
   fn from_row(row: &rusqlite::Row) -> crate::Result<Self> {
     Ok(Self {
       id: row.get(0)?,
-      description: row.get(2)?,
-      pattern: row.get(3)?,
-      created_at: row.get(4)?,
-      updated_at: row.get(5)?,
+      description: row.get(1)?,
+      pattern: row.get(2)?,
+      created_at: row.get(3)?,
+      updated_at: row.get(4)?,
     })
   }
 }

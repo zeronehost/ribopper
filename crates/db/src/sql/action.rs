@@ -11,9 +11,9 @@ impl Database {
       "db.actions: create_action invoked (pattern={:?})",
       new_action.pattern
     );
-    let mut stmt = self.conn().prepare("insert into actions (description, pattern) values (?1, ?2, ?3) RETURNING id, description, pattern, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into actions (description, pattern) values (?1, ?2) RETURNING id, description, pattern, created_at, updated_at")?;
     let action = stmt.query_row(
-      params![new_action.description, new_action.pattern,],
+      params![new_action.description, new_action.pattern],
       |row| Ok(models::Action::from_row(row)),
     )??;
 
@@ -27,10 +27,10 @@ impl Database {
       "db.actions: create_action invoked (pattern={:?})",
       new_action.pattern
     );
-    let mut stmt = self.conn().prepare("insert into actions (description, pattern) values (?1, ?2, ?3) RETURNING id, description, pattern, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into actions (description, pattern) values (?1, ?2) RETURNING id, description, pattern, created_at, updated_at")?;
     let action = stmt
       .query_row(
-        params![new_action.description, new_action.pattern,],
+        params![new_action.description, new_action.pattern],
         |row| Ok(models::Action::from_row(row)),
       )??
       .into();
