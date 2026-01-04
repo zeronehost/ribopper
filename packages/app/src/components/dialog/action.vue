@@ -140,6 +140,10 @@ const cancelHandle = () => {
     }
   }
 
+  &__title {
+    color: var(--s-color-on-surface, #191C1E);
+  }
+
   &__body {
     overflow: hidden;
     margin: 1rem 0;
