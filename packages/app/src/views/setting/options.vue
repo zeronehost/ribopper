@@ -4,11 +4,11 @@
     <s-card>
       <section class="ribo-cmd">
         <header class="ribo-cmd__row ribo-cmd__header">
-          <div class="ribo-cmd__col pattern">匹配模式和命令</div>
+          <div class="ribo-cmd__col pattern">匹配模式和指令</div>
           <div class="ribo-cmd__col description">描述</div>
         </header>
         <s-scroll-view class="ribo-cmd__body">
-          <RiboOption :options="commands" @selected="selectedHandle" />
+          <RiboOption :options="options" @selected="selectedHandle" />
         </s-scroll-view>
       </section>
       <footer>
@@ -24,7 +24,7 @@
             <span>编辑操作</span>
           </s-button>
         </div>
-        <s-button type="elevated" :disabled="!selected" @click="deleteHandle">
+        <s-button type="elevated" :disabled="!selected" @click="deleteDialogShow = true">
           <s-icon slot="start">
             <RiboIconDelete />
           </s-icon>
@@ -33,183 +33,56 @@
       </footer>
     </s-card>
   </RiboOptionSection>
-  
-  <s-dialog class="options-view__dialog" :showed="deleteDialogShow">
-    <div slot="headline" class="headline">温馨提示</div>
-    <div slot="text">确定要删除该操作吗？</div>
-    <div slot="action" class="action">
-      <s-button type="elevated" @click="deleteConfirmHandle">确定</s-button>
-      <s-button type="elevated" @click="deleteCancelHandle">取消</s-button>
-    </div>
-  </s-dialog>
-  <dialog ref="addAndEditDialogEl" class="options-view__dialog-pane">
-    <header>添加操作</header>
-  </dialog>
+
+  <RiboDialogDelete v-model="deleteDialogShow" @confirm="deleteConfirmHandle" />
+  <RiboDialogAction v-model="actionShow" @confirm="actionConfirmHandle" />
 </template>
 <script setup lang="ts">
 import { RiboIconEdit, RiboIconDelete } from "@/components/icons";
 import { RiboOptionSection } from "@/components/section";
 import { ref } from 'vue';
 import { RiboOption } from "@/components/option";
-import type { Action } from "@ribo/api";
+import { RiboDialogDelete, RiboDialogAction } from "@/components/dialog";
+import { createActionOption, deleteAction, logger, updateAction, type Action, type NewAction, type UpdateAction } from "@ribo/api";
 
-const commands = ref([
-  {
-    id: 1,
-    name: "NPM Scripts",
-    pattern: "npm*",
-    description: "Common NPM commands",
-    options: [
-      {
-        command: "npm install <%s>",
-        description: "Install a package"
-      },
-      {
-        command: "npm run <%s>",
-        description: "Run a script"
-      },
-      {
-        command: "npm start",
-        description: "Start the application"
-      },
-      {
-        command: "npm test",
-        description: "Run tests"
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: "Git Commands",
-    pattern: "git*",
-    description: "Version control commands",
-    options: [
-      {
-        command: "git add <%s>",
-        description: "Add files to staging area"
-      },
-      {
-        command: "git commit -m '<%s>'",
-        description: "Commit with message"
-      },
-      {
-        command: "git push",
-        description: "Push changes to remote"
-      },
-      {
-        command: "git pull",
-        description: "Pull changes from remote"
-      },
-      {
-        command: "git checkout -b <%s>",
-        description: "Create and switch to a new branch"
-      }
-    ]
-  },
-  {
-    id: 3,
-    name: "Docker Commands",
-    pattern: "docker*",
-    description: "Container management commands",
-    options: [
-      {
-        command: "docker build -t <%s> .",
-        description: "Build Docker image"
-      },
-      {
-        command: "docker run -p <%s>:<%s> <%s>",
-        description: "Run Docker container with port mapping"
-      },
-      {
-        command: "docker ps",
-        description: "List running containers"
-      },
-      {
-        command: "docker-compose up",
-        description: "Start services with docker-compose"
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: "File Operations",
-    pattern: "file*",
-    description: "File and directory operations",
-    options: [
-      {
-        command: "ls -la <%s>",
-        description: "List files with details"
-      },
-      {
-        command: "cp -r <%s> <%s>",
-        description: "Copy files or directories"
-      },
-      {
-        command: "mv <%s> <%s>",
-        description: "Move or rename files"
-      },
-      {
-        command: "find . -name '<%s>'",
-        description: "Find files by name"
-      }
-    ]
-  },
-  {
-    id: 5,
-    name: "System Commands",
-    pattern: "sys*",
-    description: "System management commands",
-    options: [
-      {
-        command: "ps aux | grep <%s>",
-        description: "Find running processes"
-      },
-      {
-        command: "kill -9 <%s>",
-        description: "Kill a process by ID"
-      },
-      {
-        command: "df -h",
-        description: "Check disk space"
-      },
-      {
-        command: "top",
-        description: "Monitor system resources"
-      }
-    ]
-  }
-]);
 
+const options = ref<Action[]>([]);
 const selected = ref<Action>();
 
 const selectedHandle = (data: Action) => {
   selected.value = data;
 }
 
-const addAndEditShow = ref(false);
+const actionShow = ref(false);
 const addHandle = () => {
-  addAndEditShow.value = true;
+  selected.value = undefined;
+  actionShow.value = true;
 }
 const editHandle = () => {
-  addAndEditShow.value = true;
+  actionShow.value = true;
 }
-const addAndEditConfirmHandle = () => {
-  addAndEditShow.value = false;
-}
-const addAndEditCancelHandle = () => {
-  addAndEditShow.value = false;
+const actionConfirmHandle = async (action: NewAction | UpdateAction) => {
+  actionShow.value = false;
+  if (Object.hasOwn(action, "id")) {
+    await updateAction(action as UpdateAction).catch(e => {
+      logger.error(e);
+    });
+  } {
+    await createActionOption(action as NewAction).catch(e => {
+      logger.error(e);
+    });
+  }
 }
 
 const deleteDialogShow = ref(false);
-const deleteHandle = () => {
-  deleteDialogShow.value = true;
-  // TODO: delete action
-}
-const deleteConfirmHandle = () => {
+
+const deleteConfirmHandle = async () => {
   deleteDialogShow.value = false;
-}
-const deleteCancelHandle = () => {
-  deleteDialogShow.value = false;
+  if (selected.value) {
+    await deleteAction(selected.value?.id as number).catch(e => {
+      logger.error(e);
+    });
+  }
 }
 
 </script>
@@ -284,39 +157,6 @@ const deleteCancelHandle = () => {
           margin-left: 0.5rem;
         }
       }
-    }
-  }
-
-  &__dialog {
-    &::part(container) {
-      border-radius: 0.5rem;
-    }
-
-    .action {
-      padding: 0;
-    }
-
-    s-button {
-      border-radius: 6px;
-
-      &+s-button {
-        margin-left: 1rem;
-      }
-    }
-
-    &-pane {
-      border: none;
-      padding: 1rem;
-      border-radius: 5px;
-      outline: none;
-      top: 2rem;
-      right: 2rem;
-      bottom: 2rem;
-      left: 2rem;
-      width: auto;
-      height: auto;
-      z-index: 10;
-
     }
   }
 }

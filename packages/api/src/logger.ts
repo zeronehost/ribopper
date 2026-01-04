@@ -1,34 +1,39 @@
-import { error, warn, info, debug, trace } from "@tauri-apps/plugin-log";
+// import { error, warn, info, debug, trace } from "@tauri-apps/plugin-log";
+import { invoke } from "@tauri-apps/api/core";
 
+type Level = "error" | "warn" | "info" | "debug" | "trace";
 
 class Logger {
-  _print(...msg: unknown[]) {
+  _print(level: Level, ...msg: unknown[]) {
     const str = msg.map(i => `${i}`).join(" ");
-    return `[web] ${str}`
+    invoke("web_log", {
+      level,
+      message: str
+    });
   }
-  error(...message: any[]) {
-    console.error(message);
-    error(this._print(...message));
+  error(error: Error) {
+    console.error(error);
+    this._print("error", error.message, error.cause, error.stack);
   }
   
   warn(...message: any[]) {
     console.warn(message);
-    warn(this._print(...message));
+    this._print("warn", ...message);
   }
 
   info(...message: any[]) {
     console.info(message);
-    info(this._print(...message));
+    this._print("info", ...message);
   }
 
   debug(...message: any[]) {
     console.debug(message);
-    debug(this._print(...message));
+    this._print("debug", ...message);
   }
 
   trace(...message: any[]) {
     console.trace(message);
-    trace(this._print(...message));
+    this._print("trace", ...message);
   }
 }
 

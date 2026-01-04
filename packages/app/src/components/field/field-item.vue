@@ -30,6 +30,7 @@ defineProps({
     }
     &__title {
       font-weight: 700;
+      color: var(--s-color-on-surface-variant, #40484C);
     }
   }
 </style>

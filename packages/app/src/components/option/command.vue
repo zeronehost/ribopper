@@ -5,8 +5,8 @@
         <RiboIconTerminal />
       </s-icon>
       <div class="ribo-command__content">
-        <div>{{command.command}}</div>
-        <div class="description">{{command.description}}</div>
+        <div>{{options.command}}</div>
+        <div class="description">{{options.description}}</div>
       </div>
     </div>
   </div>
@@ -20,7 +20,7 @@ defineOptions({
 });
 
 defineProps({
-  command: {
+  options: {
     type: Object as PropType<Option>,
     default: () => ({})
   }

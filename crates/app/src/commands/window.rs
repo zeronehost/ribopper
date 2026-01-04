@@ -18,3 +18,26 @@ pub fn close_window<R: Runtime>(app: AppHandle<R>, label: &str) -> Result<(), St
   );
   Ok(())
 }
+
+#[tauri::command]
+pub fn web_log(level: Level, message: String) -> Result<(), String> {
+  log::info!("commands::window::web_log called");
+  match level {
+    Level::Trace => log::trace!("[web] {}", message),
+    Level::Debug => log::debug!("[web] {}", message),
+    Level::Info => log::info!("[web] {}", message),
+    Level::Warn => log::warn!("[web] {}", message),
+    Level::Error => log::error!("[web] {}", message),
+  }
+  Ok(())
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub(crate) enum Level {
+  Trace,
+  Debug,
+  Info,
+  Warn,
+  Error,
+}

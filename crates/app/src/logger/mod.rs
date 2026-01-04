@@ -2,13 +2,6 @@ pub(crate) fn targets() -> Vec<tauri_plugin_log::Target> {
   if cfg!(debug_assertions) {
     vec![
       tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
-      // tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
-      //   file_name: Some(format!(
-      //     "ribopper-_dev-{}",
-      //     chrono::Local::now().format("%Y-%m-%d")
-      //   )),
-      // }),
-      tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview),
     ]
   } else {
     vec![tauri_plugin_log::Target::new(

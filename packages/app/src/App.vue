@@ -15,7 +15,7 @@ const currentTheme = computed<Theme>(() => store.theme);
 
 const init = () => {
   configLoad().then((res) => {
-    logger.info("configLoad =>", JSON.stringify(res));
+    logger.info("init => configLoad called");
     if (res) {
       store.$patch({
         config: res,
@@ -33,11 +33,11 @@ onMounted(() => {
 const route = useRoute();
 const recordStore = useRecordStore();
 listenNotify((data) => {
-  logger.debug("listenNotify =>", JSON.stringify(data), route.name);
+  logger.debug("listenNotify =>", data.type);
   if (data.type === "refresh" && typeof route.name === "string" && route.name.includes(data.label)) {
     init();
   }
-  if (data.type === "update" && data.label === "setting") {
+  if (data.type === "update" && data.label !== "setting") {
     recordStore.getRecords().catch((e) => {
       logger.error(e);
     });
@@ -45,6 +45,6 @@ listenNotify((data) => {
 });
 
 window.addEventListener("error", (e) => {
-  logger.error(e.message, `[${e.filename}:${e.lineno}${e.colno}`);
+  logger.error(e.error);
 });
 </script>

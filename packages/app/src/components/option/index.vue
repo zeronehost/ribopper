@@ -1,6 +1,9 @@
 <template>
   <div class="ribo-option">
-    <RiboAction v-for="option in options" :key="option.id" :data="option" :selected="selected === option.id" />
+    <template v-if="options.length > 0">
+      <RiboAction v-for="option in options" :key="option.id" :data="option" :selected="selected === option.id" />
+    </template>
+    <s-empty v-else>暂无指令</s-empty>
   </div>
 </template>
 <script setup lang="ts">

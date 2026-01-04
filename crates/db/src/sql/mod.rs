@@ -3,6 +3,6 @@ mod record;
 mod record_target;
 mod schema;
 mod target;
-mod command;
+mod action;
 
 pub use self::db::Database;

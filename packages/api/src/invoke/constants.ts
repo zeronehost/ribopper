@@ -10,3 +10,15 @@ export const CONFIG_SAVE = "config_save";
 
 export const CLOSE_WINDOW = "close_window";
 export const COPY_RECORD = "copy_record";
+
+export const GET_ACTIONS = "get_actions";
+export const GET_ACTION_BY_ID = "get_action_by_id";
+export const CREATE_ACTION = "create_action";
+export const CREATE_ACTION_OPTION = "create_action_option";
+export const CREATE_OPTION = "create_option";
+export const DELETE_ACTION = "delete_action";
+export const UPDATE_ACTION = "update_action";
+export const UPDATE_OPTION = "update_option";
+export const DELETE_OPTION = "delete_option";
+export const GET_EXEC_ACTION = "get_exec_action";
+export const EXEC_ACTION = "exec_action";

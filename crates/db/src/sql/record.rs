@@ -25,6 +25,17 @@ impl Database {
     })?
   }
 
+  pub(crate) fn get_records(&self) -> Result<Vec<models::Record>> {
+    log::debug!("db.record: get_record");
+    let mut stmt = self.conn().prepare("select * from record;")?;
+    let records = stmt.query_map([], |row| Ok(models::Record::from_row(row)))?;
+    let mut arr = Vec::new();
+    for record in records {
+      arr.push(record??);
+    }
+    Ok(arr)
+  }
+
   pub fn get_record_by_id(&self, id: u64) -> Result<Option<models::Record>> {
     log::debug!("db.record: get_record_by_id id={}", id);
     let mut stmt = self.conn().prepare("select * from record where id = ?1;")?;

@@ -1,4 +1,4 @@
-mod command;
+mod action;
 mod record;
 mod record_target;
 mod target;
@@ -10,4 +10,4 @@ pub trait FromRow: Sized {
   fn from_row(row: &Row) -> Result<Self>;
 }
 
-pub use self::{command::*, record::*, record_target::*, target::*};
+pub use self::{action::*, record::*, record_target::*, target::*};

@@ -107,6 +107,7 @@ pub fn run() {
   let app = builder
     .invoke_handler(tauri::generate_handler![
       crate::commands::window::close_window,
+      crate::commands::window::web_log,
       //-------------------------------------------
       // db commands
       crate::commands::record::get_records,
@@ -126,12 +127,17 @@ pub fn run() {
       crate::commands::config::config_save,
       //-------------------------------------------
       // cmd commands
-      crate::commands::command::get_commands,
-      crate::commands::command::get_command_by_id,
-      crate::commands::command::create_command,
-      crate::commands::command::delete_command,
-      crate::commands::command::update_command,
-      crate::commands::command::exec_command,
+      crate::commands::action::get_actions,
+      crate::commands::action::get_action_by_id,
+      crate::commands::action::create_action,
+      crate::commands::action::create_action_option,
+      crate::commands::action::create_option,
+      crate::commands::action::delete_action,
+      crate::commands::action::delete_option,
+      crate::commands::action::update_action,
+      crate::commands::action::update_option,
+      crate::commands::action::get_exec_action,
+      crate::commands::action::exec_action,
       //-------------------------------------------
     ])
     .setup(|app| {

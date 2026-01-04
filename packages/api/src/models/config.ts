@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: 忽略 */
 export interface Config {
   theme: Theme;
   general: GeneralOptions;

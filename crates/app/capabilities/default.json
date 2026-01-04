@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "enables the default permissions",
   "windows": ["setting", "tray_pane"],
-  "permissions": ["core:default", "log:allow-log", "log:default"]
+  "permissions": ["core:default"]
 }
