@@ -1,4 +1,3 @@
-// biome-ignore-all lint/suspicious/noExplicitAny: 忽略
 export const debounce = (func: () => any, delay: number = 300) => {
   let timer: number | undefined;
   return function (this: any, ...args: any) {
@@ -8,3 +7,4 @@ export const debounce = (func: () => any, delay: number = 300) => {
     }, delay);
   };
 };
+

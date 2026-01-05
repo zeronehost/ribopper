@@ -1,6 +1,6 @@
 use tauri::{AppHandle, Manager, Runtime};
 
-use crate::{commands::config::config_load, utils::constant::WIN_LABEL_TRAY_PANE};
+use crate::{commands::config::config_load, events::EventLabel};
 pub struct Clipboard(
   pub(crate) ribo_clipboard::Manager<Box<dyn Fn(ribo_clipboard::Content) + Send + 'static>>,
 );
@@ -24,7 +24,7 @@ impl Clipboard {
           .create_record(c.try_into().unwrap(), max)
         {
           Ok(_) => {
-            crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+            crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
               .emit(&app_handle)
               .unwrap();
           }

@@ -1,4 +1,5 @@
 use chrono::{DateTime, Local};
+use rusqlite::{ToSql, types::FromSql};
 
 use crate::models::FromRow;
 
@@ -45,6 +46,7 @@ pub struct RiboOption {
   pub description: Option<String>,
   pub command: String,
   pub action_id: u64, // foreign key
+  pub out: OutModel,
   pub created_at: DateTime<Local>,
   pub updated_at: DateTime<Local>,
 }
@@ -56,8 +58,9 @@ impl FromRow for RiboOption {
       action_id: row.get(1)?,
       description: row.get(2)?,
       command: row.get(3)?,
-      created_at: row.get(4)?,
-      updated_at: row.get(5)?,
+      out: row.get(4)?,
+      created_at: row.get(5)?,
+      updated_at: row.get(6)?,
     })
   }
 }
@@ -68,6 +71,7 @@ pub struct NewRiboOption {
   pub description: Option<String>,
   pub action_id: u64,
   pub command: String,
+  pub out: OutModel,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -75,6 +79,7 @@ pub struct UpdateRiboOption {
   pub id: u64,
   pub description: Option<String>,
   pub command: String,
+  pub out: OutModel,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -106,4 +111,33 @@ pub struct NewActionWithOption {
   pub description: Option<String>,
   pub pattern: String,
   pub options: Vec<NewRiboOption>,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum OutModel {
+  Ingore,
+  Replace,
+  Append,
+}
+
+impl FromSql for OutModel {
+  fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
+    match value.as_str()? {
+      "i" => Ok(OutModel::Ingore),
+      "r" => Ok(OutModel::Replace),
+      "a" => Ok(OutModel::Append),
+      _ => Ok(OutModel::Ingore),
+    }
+  }
+}
+
+impl ToSql for OutModel {
+  fn to_sql(&self) -> rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
+    Ok(match self {
+      OutModel::Ingore => "i".into(),
+      OutModel::Replace => "r".into(),
+      OutModel::Append => "a".into(),
+    })
+  }
 }

@@ -126,14 +126,14 @@ where
       content: content.unwrap(),
       data,
     };
-    log::debug!("clipboard: get_content returning {:?}", content_struct);
+    log::debug!("clipboard: get_content returning type={:?}", content_struct.get_type());
     Some(content_struct)
   }
 
   fn paste(&mut self, content: Content) -> crate::error::Result<()> {
     log::info!(
-      "clipboard: InnerManager::paste content={:?}",
-      content.content
+      "clipboard: InnerManager::paste content_type={:?}",
+      content.get_type()
     );
     for data in content.data {
       match data {

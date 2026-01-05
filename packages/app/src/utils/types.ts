@@ -1,4 +1,6 @@
-// biome-ignore lint/suspicious/noExplicitAny: 忽略
+import type { RiboEvent } from "@ribo/api";
+import type { InjectionKey } from "vue";
+
 export const isEqual = (a: any, b: any): boolean => {
   if (a === b) return true;
   if (a == null || b == null) return false;
@@ -14,3 +16,9 @@ export const isEqual = (a: any, b: any): boolean => {
   }
   return false;
 };
+
+export const rootContextKey: InjectionKey<RootContext> = Symbol("ribopper-root");
+export type RootContext = {
+  register: <T>(cb: (event: RiboEvent<T>) => void) => void;
+  unregister: <T>(cb: (event: RiboEvent<T>) => void) => void;
+}

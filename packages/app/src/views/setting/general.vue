@@ -8,6 +8,7 @@
       <!-- <RiboFieldItem title="查询剪贴板间隔时间">
         <s-text-field v-model="duration" type="number" placeholder="请输入查询剪贴板间隔时间"></s-text-field>
       </RiboFieldItem> -->
+      <s-divider></s-divider>
       <RiboFieldItem title="开机启动">
         <s-switch v-model.lazy="autoStart" type="checkbox"></s-switch>
       </RiboFieldItem>
@@ -46,6 +47,9 @@ const autoStart = computed({
   .options-panel {
     s-text-field {
       min-height: 1.5rem;
+    }
+    s-divider {
+      margin: 0.5rem 0;
     }
   }
 </style>

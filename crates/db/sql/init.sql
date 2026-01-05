@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS options (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   command TEXT NOT NULL,
   description TEXT,
+  out: char(1) NOT NULL,
   action_id INTEGER NOT NULL,
   created_at datetime default (DATETIME('now', 'localtime')),
   updated_at datetime default (DATETIME('now', 'localtime')),

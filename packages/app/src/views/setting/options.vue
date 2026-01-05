@@ -8,7 +8,7 @@
           <div class="ribo-cmd__col description">描述</div>
         </header>
         <s-scroll-view class="ribo-cmd__body">
-          <RiboOption :options="options" @selected="selectedHandle" />
+          <RiboOption ref="optionEl" :options="actions" @selected="selectedHandle" />
         </s-scroll-view>
       </section>
       <footer>
@@ -33,56 +33,104 @@
       </footer>
     </s-card>
   </RiboOptionSection>
-
   <RiboDialogDelete v-model="deleteDialogShow" @confirm="deleteConfirmHandle" />
-  <RiboDialogAction v-model="actionShow" @confirm="actionConfirmHandle" />
+  <RiboDialogAddAction v-model="addActionShow" @confirm="addActionConfirmHandle" />
+  <RiboDialogUpdateAction
+    v-model="updateActionShow"
+    :action="selected"
+    @confirm="updateActionConfirmHandle"
+    @add-option="addOptionHandle"
+    @delete-option="deleteOptionHandle"
+    @update-option="updateOptionHandle"
+    @close="closeHandle"
+  />
 </template>
 <script setup lang="ts">
 import { RiboIconEdit, RiboIconDelete } from "@/components/icons";
 import { RiboOptionSection } from "@/components/section";
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { RiboOption } from "@/components/option";
-import { RiboDialogDelete, RiboDialogAction } from "@/components/dialog";
-import { createActionOption, deleteAction, logger, updateAction, type Action, type NewAction, type UpdateAction } from "@ribo/api";
+import {
+  RiboDialogDelete,
+  RiboDialogAddAction,
+  RiboDialogUpdateAction,
+} from "@/components/dialog";
+import {
+  logger,
+  type Action,
+  type NewAction,
+  type NewOption,
+  type UpdateAction,
+  type UpdateOption
+} from "@ribo/api";
+import { useActionStore } from "@/stores/action";
 
+const actionStore = useActionStore();
 
-const options = ref<Action[]>([]);
+const actions = computed(() => actionStore.actions);
 const selected = ref<Action>();
+const optionEl = ref<typeof RiboOption>();
 
 const selectedHandle = (data: Action) => {
   selected.value = data;
 }
 
-const actionShow = ref(false);
+const addActionShow = ref(false);
+const updateActionShow = ref(false);
+
 const addHandle = () => {
-  selected.value = undefined;
-  actionShow.value = true;
+  addActionShow.value = true;
 }
 const editHandle = () => {
-  actionShow.value = true;
+  updateActionShow.value = true;
 }
-const actionConfirmHandle = async (action: NewAction | UpdateAction) => {
-  actionShow.value = false;
-  if (Object.hasOwn(action, "id")) {
-    await updateAction(action as UpdateAction).catch(e => {
-      logger.error(e);
-    });
-  } {
-    await createActionOption(action as NewAction).catch(e => {
-      logger.error(e);
-    });
-  }
+
+const addActionConfirmHandle = async (action: NewAction) => {
+  await actionStore.addAction(action).catch(e => {
+    logger.error(e);
+  })
+}
+
+const updateActionConfirmHandle = async (action: UpdateAction) => {
+  await actionStore.updateAction(action).catch(e => {
+    logger.error(e);
+  });
+  selected.value = undefined;
+  optionEl.value?.reset();
 }
 
 const deleteDialogShow = ref(false);
 
 const deleteConfirmHandle = async () => {
-  deleteDialogShow.value = false;
   if (selected.value) {
-    await deleteAction(selected.value?.id as number).catch(e => {
+    await actionStore.deleteAction(selected.value?.id as number).catch(e => {
       logger.error(e);
     });
+    selected.value = undefined;
+    optionEl.value?.reset();
   }
+}
+
+const addOptionHandle = async (option: NewOption) => {
+  await actionStore.addOption(option).catch(e => {
+    logger.error(e);
+  });
+}
+
+const deleteOptionHandle = async (optionId: number) => {
+  await actionStore.deleteOption(optionId).catch(e => {
+    logger.error(e);
+  });
+}
+const updateOptionHandle = async (option: UpdateOption) => {
+  await actionStore.updateOption(option).catch(e => {
+    logger.error(e);
+  });
+}
+
+const closeHandle = () => {
+  selected.value = undefined;
+  optionEl.value?.reset();
 }
 
 </script>

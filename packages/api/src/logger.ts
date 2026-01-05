@@ -13,7 +13,11 @@ class Logger {
   }
   error(error: Error) {
     console.error(error);
-    this._print("error", error.message, error.cause, error.stack);
+    if (typeof error === "string") {
+      this._print("error", error);
+    } else {
+      this._print("error", error.message, error.cause, error.stack);
+    }
   }
   
   warn(...message: any[]) {

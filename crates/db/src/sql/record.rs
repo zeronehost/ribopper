@@ -25,6 +25,7 @@ impl Database {
     })?
   }
 
+  #[allow(unused)]
   pub(crate) fn get_records(&self) -> Result<Vec<models::Record>> {
     log::debug!("db.record: get_record");
     let mut stmt = self.conn().prepare("select * from record;")?;

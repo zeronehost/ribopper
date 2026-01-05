@@ -1,7 +1,7 @@
 <template>
   <s-dialog class="ribo-dialog-delete" :showed>
-    <div slot="headline" class="headline">温馨提示</div>
-    <div slot="text">确定要删除该操作吗？</div>
+    <div slot="headline" class="headline">{{title}}</div>
+    <div slot="text">{{content}}</div>
     <div slot="action" class="action">
       <s-button type="filled" @click="confirmHandle">确定</s-button>
       <s-button type="elevated" @click="cancelHandle">取消</s-button>
@@ -20,6 +20,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  title: {
+    type: String,
+    default: "温馨提示",
+  },
+  content: {
+    type: String,
+    default: "确定要删除该操作吗？",
+  }
 });
 
 const showed = ref(props.modelValue);

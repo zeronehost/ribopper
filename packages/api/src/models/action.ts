@@ -10,10 +10,14 @@ export interface Action {
 export interface Option {
   id: number;
   command: string;
+  out: OptionOut;
+  actionId: number;
   description: string;
   updatedAt: Date,
   createdAt: Date,
 }
+
+export type OptionOut = "ingore" | "replace" | "add";
 
 export type NewOption = Omit<Option, "id" | "createdAt" | "updatedAt">;
 

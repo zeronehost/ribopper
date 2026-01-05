@@ -21,7 +21,6 @@ pub fn close_window<R: Runtime>(app: AppHandle<R>, label: &str) -> Result<(), St
 
 #[tauri::command]
 pub fn web_log(level: Level, message: String) -> Result<(), String> {
-  log::info!("commands::window::web_log called");
   match level {
     Level::Trace => log::trace!("[web] {}", message),
     Level::Debug => log::debug!("[web] {}", message),

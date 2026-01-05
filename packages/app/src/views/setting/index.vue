@@ -1,46 +1,46 @@
 <template>
   <section class="setting">
     <s-navigation mode="rail" v-model.lazy="active">
-        <s-navigation-item value="/setting">
-          <s-icon slot="icon">
-            <RiboIconSetting />
-          </s-icon>
-          <div slot="text">
-            通用
-          </div>
-        </s-navigation-item>
-        <s-navigation-item value="/setting/theme">
-          <s-icon slot="icon">
-            <RiboIconTheme />
-          </s-icon>
-          <div slot="text">
-            主题
-          </div>
-        </s-navigation-item>
-        <s-navigation-item value="/setting/options">
-          <s-icon slot="icon">
-            <RiboIconOption />
-          </s-icon>
-          <div slot="text">
-            操作
-          </div>
-        </s-navigation-item>
-        <s-navigation-item value="/setting/hot-key">
-          <s-icon slot="icon">
-            <RiboIconKeyboard />
-          </s-icon>
-          <div slot="text">
-            快捷键
-          </div>
-        </s-navigation-item>
-        <s-navigation-item value="/setting/helper">
-          <s-icon slot="icon">
-            <RiboIconHelper />
-          </s-icon>
-          <div slot="text">
-            帮助
-          </div>
-        </s-navigation-item>
+      <s-navigation-item value="/setting">
+        <s-icon slot="icon">
+          <RiboIconSetting />
+        </s-icon>
+        <div slot="text">
+          通用
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/theme">
+        <s-icon slot="icon">
+          <RiboIconTheme />
+        </s-icon>
+        <div slot="text">
+          主题
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/options">
+        <s-icon slot="icon">
+          <RiboIconOption />
+        </s-icon>
+        <div slot="text">
+          操作
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/hot-key">
+        <s-icon slot="icon">
+          <RiboIconKeyboard />
+        </s-icon>
+        <div slot="text">
+          快捷键
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/helper">
+        <s-icon slot="icon">
+          <RiboIconHelper />
+        </s-icon>
+        <div slot="text">
+          帮助
+        </div>
+      </s-navigation-item>
     </s-navigation>
     <section class="content">
       <router-view />
@@ -65,8 +65,8 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow } from "@ribo/api";
-import { computed } from "vue";
+import { closeWindow, EVENT_LABEL_ACTION, EVENT_LABEL_ACTIONOPTION, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_OPTION, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_SETTING, type RiboEvent } from "@ribo/api";
+import { computed, inject, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   RiboIconCancel,
@@ -78,10 +78,13 @@ import {
   RiboIconOption,
 } from "@/components/icons";
 import { useSettingStore } from "@/stores/setting";
+import { useActionStore } from "@/stores/action";
+import { rootContextKey } from "@/utils/types";
 
 const route = useRoute();
 const router = useRouter();
 const store = useSettingStore();
+const actionStore = useActionStore();
 const isSubmit = computed(() => !store.isUpdate);
 
 const active = computed({
@@ -101,8 +104,47 @@ const confirmHandle = async () => {
 };
 
 const cancelHandle = async () => {
-  await closeWindow(route.name as string);
+  await closeWindow(WIN_LABEL_SETTING);
 };
+
+const context = inject(rootContextKey);
+
+const loadConfig = (event: RiboEvent<void>) => {
+  if (
+    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
+    if (
+      event.label === EVENT_LABEL_CONFIG
+      || event.label === EVENT_LABEL_ALL
+    ) {
+      store.loadConfig();
+    }
+  }
+};
+
+const loadAction = (event: RiboEvent<void>) => {
+  if (
+    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
+    if (
+      event.label === EVENT_LABEL_ACTION
+      || event.label === EVENT_LABEL_ACTIONOPTION
+      || event.label === EVENT_LABEL_OPTION
+      || event.label === EVENT_LABEL_ALL
+    ) {
+      actionStore.getActions();
+    }
+  }
+}
+
+onMounted(() => {
+  context?.register(loadConfig);
+  context?.register(loadAction);
+  store.loadConfig();
+  actionStore.getActions();
+});
+onUnmounted(() => {
+  context?.unregister(loadConfig);
+  context?.unregister(loadAction);
+});
 </script>
 <style lang="scss">
 .setting {
@@ -111,8 +153,8 @@ const cancelHandle = async () => {
   overflow: hidden;
   display: grid;
   grid-template-areas:
-  "setting content"
-  "setting option";
+    "setting content"
+    "setting option";
   grid-template-columns: 80px auto;
   grid-template-rows: auto 80px;
 
@@ -120,6 +162,7 @@ const cancelHandle = async () => {
     grid-area: setting;
     background: var(--s-color-surface-container-low, #F2F4F5);
   }
+
   .options {
     grid-area: option;
     display: flex;
@@ -134,6 +177,7 @@ const cancelHandle = async () => {
       border-radius: 6px;
     }
   }
+
   .content {
     grid-area: content;
     overflow: hidden;

@@ -6,9 +6,10 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 
 use super::CommandResult;
 use crate::{
+  events::EventLabel,
   models::{Record, RecordWithTargets, UpdateRecord},
   store::db::Db,
-  utils::{constant::WIN_LABEL_TRAY_PANE, qrcode::create_qrcode},
+  utils::qrcode::create_qrcode,
 };
 
 #[tauri::command]
@@ -45,10 +46,14 @@ pub fn get_record(state: State<'_, Db>, id: u64) -> CommandResult<Record> {
   })?;
 
   let data: Record = match data {
-    Some(data) => data
-      .try_into()
-      .map_err(|e: serde_json::Error| e.to_string())?,
-    None => return Err(ribo_db::Error::NotFound(format!("{id}")).to_string()),
+    Some(data) => data.try_into().map_err(|e: serde_json::Error| {
+      log::error!("commands::record::get_record - failed to convert: {}", e);
+      e.to_string()
+    })?,
+    None => {
+      log::error!("commands::record::get_record - record not found id={id}");
+      return Err(ribo_db::Error::NotFound(format!("{id}")).to_string());
+    }
   };
 
   Ok(data)
@@ -66,14 +71,17 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bo
   match db.delete_record(id) {
     Ok(success) => {
       if success {
-        crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+        crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
           .emit(&app)
           .map_err(|e| e.to_string())?;
         log::info!("commands::record::delete_record - record deleted id={}", id);
       }
       Ok(success)
     }
-    Err(e) => Err(e.to_string()),
+    Err(e) => {
+      log::error!("commands::record::delete_record - db error: {}", e);
+      Err(e.to_string())
+    }
   }
 }
 
@@ -91,13 +99,15 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Com
     None
   };
 
-  let data = db
-    .create_record(clipboard, max)
-    .map_err(|e| e.to_string())?;
-  let created: Record = data
-    .try_into()
-    .map_err(|e: serde_json::Error| e.to_string())?;
-  crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+  let data = db.create_record(clipboard, max).map_err(|e| {
+    log::error!("commands::record::create_record - db error: {}", e);
+    e.to_string()
+  })?;
+  let created: Record = data.try_into().map_err(|e: serde_json::Error| {
+    log::error!("commands::record::create_record - failed to convert: {}", e);
+    e.to_string()
+  })?;
+  crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
     .emit(&app)
     .map_err(|e| e.to_string())?;
   log::info!("commands::record::create_record - created record");
@@ -116,7 +126,7 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Com
     Ok((id, content)) => match db.update_record_content(id, content) {
       Ok(success) => {
         if success {
-          crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+          crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
             .emit(&app)
             .map_err(|e| e.to_string())?;
           log::info!("commands::record::update_record - updated id={}", id);
@@ -146,10 +156,17 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
         log::info!("commands::record::clear_records confirmed by user");
         // 通知刷新
         let state = app_handle.state::<crate::store::db::Db>();
-        let db = state.0.lock().unwrap();
+        let db = state
+          .0
+          .lock()
+          .map_err(|e| {
+            log::error!("commands::record::clear_records - failed to lock db: {}", e);
+            e
+          })
+          .unwrap();
         match db.clear_records() {
           Ok(_) => {
-            match crate::events::RiboEvent::<()>::create_update_event(None, WIN_LABEL_TRAY_PANE)
+            match crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
               .emit(&app_handle)
             {
               Ok(_) => {
@@ -174,12 +191,20 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> CommandResult<()> {
 
 #[tauri::command]
 pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> {
-  log::info!("复制数据: {id}");
+  log::info!("commands::record::copy_record called id={id}");
   let db = app.state::<crate::store::db::Db>();
   let clipboard = app.state::<crate::store::clipboard::Clipboard>();
-  let db = db.0.lock().map_err(|e| e.to_string())?;
-  let data = db.get_record_by_id(id).map_err(|e| e.to_string())?;
-  log::debug!("data => {:?}", data);
+  let db = db.0.lock().map_err(|e| {
+    log::error!("commands::record::copy_record - failed to lock db: {}", e);
+    e.to_string()
+  })?;
+  let data = db.get_record_by_id(id).map_err(|e| {
+    log::error!(
+      "commands::record::copy_record - failed to get record: {}",
+      e
+    );
+    e.to_string()
+  })?;
   if let Some(record) = data {
     match record.typ {
       ribo_db::models::RecordType::Text => {
@@ -191,11 +216,14 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
       }
       ribo_db::models::RecordType::Image => {
         let data = serde_json::from_str::<Vec<ribo_clipboard::FormatContent>>(&record.data)
-          .map_err(|e| e.to_string())?;
+          .map_err(|e| {
+            log::error!("commands::record::copy_record - failed to parse image json: {e}");
+            e.to_string()
+          })?;
         clipboard.0.paste(ribo_clipboard::Content {
           content: ribo_clipboard::FormatContent::Image(
             serde_json::from_str(&record.content).map_err(|e| {
-              log::error!("解析图片失败: {e}");
+              log::error!("commands::record::copy_record - failed to parse image: {e}");
               e.to_string()
             })?,
           ),
@@ -204,11 +232,14 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
       }
       ribo_db::models::RecordType::Files => {
         let data = serde_json::from_str::<Vec<ribo_clipboard::FormatContent>>(&record.data)
-          .map_err(|e| e.to_string())?;
+          .map_err(|e| {
+            log::error!("commands::record::copy_record - failed to parse files json: {e}");
+            e.to_string()
+          })?;
         clipboard.0.paste(ribo_clipboard::Content {
           content: ribo_clipboard::FormatContent::Files(
             serde_json::from_str::<Vec<PathBuf>>(&record.content).map_err(|e| {
-              log::error!("解析文件列表失败: {e}");
+              log::error!("commands::record::copy_record - failed to parse files: {e}");
               e.to_string()
             })?,
           ),
@@ -223,7 +254,10 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
 
 #[tauri::command]
 pub fn qrcode_record(state: State<'_, Db>, id: u64) -> CommandResult<Vec<u8>> {
-  log::info!("生成二维码数据: {id}");
+  log::info!("commands::record::qrcode_record called id={id}");
   let record = get_record(state, id)?;
-  create_qrcode(record).map_err(|e| e.to_string())
+  create_qrcode(record).map_err(|e| {
+    log::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
+    e.to_string()
+  })
 }

@@ -28,8 +28,8 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, copyRecord, logger } from "@ribo/api";
-import { computed, onMounted, ref } from "vue";
+import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, type RiboEvent } from "@ribo/api";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
@@ -39,13 +39,13 @@ import { Snackbar } from "sober";
 import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
 import { useSettingStore } from "@/stores/setting";
+import { rootContextKey } from "@/utils/types";
 
 defineOptions({
   name: "tray_pane",
 });
 
 const router = useRouter();
-const route = useRoute();
 const recordStore = useRecordStore();
 const searchReg = ref();
 const isEmpty = computed(() => recordStore.total === 0);
@@ -56,7 +56,7 @@ const cacheStore = useCacheStore();
 
 const closeHandle = async () => {
   currentIndex.value = -1;
-  await closeWindow(route.name as string);
+  await closeWindow(WIN_LABEL_TRAY_PANE);
 };
 const cleanHandle = async () => {
   await recordStore.clearRecord();
@@ -99,11 +99,6 @@ const searchHandle = debounce(() => {
 const clearSearchHandle = debounce(() => {
   search.value = "";
   searchReg.value = undefined;
-});
-
-
-onMounted(() => {
-  recordStore.getRecords();
 });
 
 
@@ -157,6 +152,27 @@ useListenHotKey(setting.hotkeys, (type) => {
   }
 });
 
+const context = inject(rootContextKey);
+
+const loadRecords = (event: RiboEvent<void>) => {
+  if (
+    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)
+    && (
+      event.label === EVENT_LABEL_RECORD
+      || event.label === EVENT_LABEL_TARGET
+      || event.label === EVENT_LABEL_ALL
+    )) {
+      recordStore.getRecords();
+  }
+};
+
+onMounted(() => {
+  context?.register(loadRecords);
+  recordStore.getRecords();
+});
+onUnmounted(() => {
+  context?.unregister(loadRecords);
+});
 </script>
 <style lang="scss">
 section.tray-pane {

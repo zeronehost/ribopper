@@ -15,6 +15,12 @@ defineOptions({
   name: 'RiboOption',
 });
 
+defineExpose({
+  reset() {
+    selected.value = -1;
+  }
+})
+
 const props = defineProps({
   options: {
     type: Array as PropType<Action[]>,
@@ -23,7 +29,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits<{
-  selected: [data: Action]
+  selected: [data: Action],
 }>();
 
 const selected = ref<number>(-1);
@@ -33,7 +39,7 @@ provide(optionContainerKey, {
     selected.value = data.id;
     emits('selected', data);
   }
-})
+});
 </script>
 <style lang="scss">
 

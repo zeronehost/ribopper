@@ -1,20 +1,20 @@
 <template>
-  <div class="ribo-action">
-    <div class="ribo-action__body" :class="{selected}">
+  <div class="ribo-tree-action">
+    <div class="ribo-tree-action__body" :class="{selected}">
       <s-icon :name="folded ? 'chevron_right' : 'chevron_down'" @click="expandHandle"></s-icon>
-      <div class="ribo-action__content" @click.stop="selectHandle">
+      <div class="ribo-tree-action__content" @click.stop="selectHandle">
         <div>{{data.pattern}}</div>
         <div class="description">{{data.description}}</div>
       </div>
     </div>
-    <s-fold :folded="folded" class="ribo-action__children">
-      <RiboCommand v-for="(command, key) in data.options" :key :command />
+    <s-fold :folded="folded" class="ribo-tree-action__children">
+      <RiboOption v-for="(option, key) in data.options" :key :option />
     </s-fold>
   </div>
 </template>
 <script setup lang="ts">
 import { inject, ref, type PropType } from 'vue';
-import RiboCommand from "./command.vue";
+import RiboOption from "./option.vue";
 import type { Action } from '@ribo/api';
 import { optionContainerKey, type OptionContainer } from './utils';
 
@@ -46,7 +46,7 @@ const selectHandle = () => {
 }
 </script>
 <style lang="scss">
-.ribo-action {
+.ribo-tree-action {
   position: relative;
   // padding-left: 1rem;
 

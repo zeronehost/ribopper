@@ -1,10 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
-import { CREATE_ACTION, CREATE_ACTION_OPTION, CREATE_OPTION, DELETE_ACTION, DELETE_OPTION, EXEC_ACTION, GET_ACTION_BY_ID, GET_ACTIONS, GET_EXEC_ACTION, UPDATE_ACTION, UPDATE_OPTION } from "./constants";
+import { CREATE_ACTION, CREATE_ACTION_OPTION, CREATE_OPTION, DELETE_ACTION, DELETE_OPTION, EXEC_ACTION, GET_ACTION_BY_ID, GET_ACTIONS, GET_EXEC_ACTION, GET_OPTIONS_BY_ACTION_ID, UPDATE_ACTION, UPDATE_OPTION } from "./constants";
 import type { Option, Action, NewAction, NewOption, UpdateAction, UpdateOption } from "@/models";
 
 export const getActions = async () => await invoke<Action[]>(GET_ACTIONS);
 
 export const getActionById = async (id: number) => await invoke<Action>(GET_ACTION_BY_ID, { id });
+
+export const getOptionsByActionId = async (actionId: number) => await invoke<Option[]>(GET_OPTIONS_BY_ACTION_ID, { id: actionId });
 
 export const createAction = async (action: NewAction) => await invoke<Action>(CREATE_ACTION, { action });
 export const createActionOption = async (action: NewAction) => await invoke<Action>(CREATE_ACTION_OPTION, { action });

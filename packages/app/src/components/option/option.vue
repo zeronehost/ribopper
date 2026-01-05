@@ -1,12 +1,12 @@
 <template>
-  <div class="ribo-command">
-    <div class="ribo-command__body">
+  <div class="ribo-tree-option">
+    <div class="ribo-tree-option__body">
       <s-icon>
         <RiboIconTerminal />
       </s-icon>
-      <div class="ribo-command__content">
-        <div>{{options.command}}</div>
-        <div class="description">{{options.description}}</div>
+      <div class="ribo-tree-option__content">
+        <div>{{option.command}}</div>
+        <div class="description">{{option.description}}</div>
       </div>
     </div>
   </div>
@@ -16,11 +16,11 @@ import type { PropType } from "vue";
 import { RiboIconTerminal } from "../icons";
 import type { Option } from "@ribo/api";
 defineOptions({
-  name: "RiboCommand"
+  name: "RiboOption"
 });
 
 defineProps({
-  options: {
+  option: {
     type: Object as PropType<Option>,
     default: () => ({})
   }
@@ -28,7 +28,7 @@ defineProps({
 
 </script>
 <style lang="scss">
-.ribo-command {
+.ribo-tree-option {
   position: relative;
   padding-left: 1rem;
 
@@ -87,7 +87,7 @@ defineProps({
     }
 
     .description {
-      width: calc(50% + 24px + 3.5rem);
+      width: calc(50% + 24px + 2rem);
     }
   }
 }

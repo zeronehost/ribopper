@@ -42,8 +42,7 @@ impl Database {
     for option in new_action.options.iter() {
       let opt = self.create_option(models::NewRiboOption {
         action_id: action.id,
-        description: option.description.clone(),
-        command: option.command.clone(),
+        ..option.clone()
       })?;
       options.push(opt);
     }
@@ -78,7 +77,7 @@ impl Database {
     log::info!("db.action: get_actions invoked");
     let mut stmt = self
       .conn()
-      .prepare("select id, name, description, pattern, created_at, updated_at from actions")?;
+      .prepare("select id, description, pattern, created_at, updated_at from actions")?;
     let actions = stmt.query_map(params![], |row| Ok(models::Action::from_row(row)))?;
     let mut result = Vec::new();
     for action in actions {
@@ -109,7 +108,7 @@ impl Database {
     log::info!("db.action: get_options_by_action_id invoked id={}", id);
     let mut stmt = self
       .conn()
-      .prepare("select id, action_id, command, description, created_at, updated_at from options where action_id = ?1")?;
+      .prepare("select id, action_id, description, command, out, created_at, updated_at from options where action_id = ?1")?;
     let res = stmt.query_map(params![id], |row| Ok(models::RiboOption::from_row(row)))?;
     let mut options = vec![];
     for option in res {
@@ -124,12 +123,13 @@ impl Database {
       new_option.action_id,
       new_option.command
     );
-    let mut stmt = self.conn().prepare("insert into options (action_id, command, description) values (?1, ?2, ?3) RETURNING id, action_id, command, description, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into options (action_id, command, description, out) values (?1, ?2, ?3, ?4) RETURNING id, action_id, description, command, out, created_at, updated_at")?;
     let option = stmt.query_row(
       params![
         new_option.action_id,
         new_option.command,
-        new_option.description
+        new_option.description,
+        new_option.out
       ],
       |row| Ok(models::RiboOption::from_row(row)),
     );
@@ -156,8 +156,8 @@ impl Database {
   pub fn update_option(&self, option: models::UpdateRiboOption) -> Result<bool> {
     log::info!("db.actions: update_option invoked (id={:?})", option.id);
     let rows_affected = self.conn().execute(
-      "update options set command = ?1, description = ?2 where id = ?3",
-      params![option.command, option.description, option.id],
+      "update options set command = ?1, description = ?2, out = ?3 where id = ?4",
+      params![option.command, option.description, option.out, option.id],
     )?;
     Ok(rows_affected > 0)
   }

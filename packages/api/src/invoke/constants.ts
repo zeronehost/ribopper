@@ -13,6 +13,7 @@ export const COPY_RECORD = "copy_record";
 
 export const GET_ACTIONS = "get_actions";
 export const GET_ACTION_BY_ID = "get_action_by_id";
+export const GET_OPTIONS_BY_ACTION_ID = "get_options_by_action_id";
 export const CREATE_ACTION = "create_action";
 export const CREATE_ACTION_OPTION = "create_action_option";
 export const CREATE_OPTION = "create_option";
