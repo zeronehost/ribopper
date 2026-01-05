@@ -93,15 +93,15 @@ pub struct ActionWithOption {
   pub updated_at: DateTime<Local>,
 }
 
-impl Into<ActionWithOption> for Action {
-  fn into(self) -> ActionWithOption {
+impl From<Action> for ActionWithOption {
+  fn from(val: Action) -> Self {
     ActionWithOption {
-      id: self.id,
-      description: self.description,
-      pattern: self.pattern,
+      id: val.id,
+      description: val.description,
+      pattern: val.pattern,
       options: vec![],
-      created_at: self.created_at,
-      updated_at: self.updated_at,
+      created_at: val.created_at,
+      updated_at: val.updated_at,
     }
   }
 }

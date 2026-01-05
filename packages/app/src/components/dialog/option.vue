@@ -46,12 +46,12 @@ const props = defineProps({
 });
 
 const rootEl = ref<HTMLDialogElement>();
-const innerOption = ref<Partial<Option>>({...props.data ?? {}});
+const innerOption = ref<Partial<Option>>({...props.data});
 
 watch(() => props.modelValue, (val) => {
   if (val) {
     rootEl.value?.showModal();
-    innerOption.value = {...props.data??{}};
+    innerOption.value = {...props.data};
     console.log("innerOption =>", innerOption.value);
   }
 });
