@@ -1,7 +1,10 @@
 <template>
   <s-card class="ribo-card" @click="copyHandle" clickable>
     <div class="content">
-      <pre>{{ content }}</pre>
+      <pre v-if="isText">{{ (data as RiboTextRecord).text }}</pre>
+      <div v-else-if="isFile">
+        <p v-for="value in (data as RiboFileRecord).files">{{value}}</p>
+      </div>
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
@@ -20,25 +23,18 @@
       <s-icon-button class="btn delete" @click.prevent.stop="deleteHandle">
         <RiboIconDelete />
       </s-icon-button>
-      <!-- 收藏 -->
-      <!-- <s-icon-button class="btn" @click.prevent.stop="favoritesHandle">
-        <RiboIconStarActived v-if="data.favorites" />
-        <RiboIconStar v-else />
-      </s-icon-button> -->
     </div>
 
   </s-card>
 </template>
 <script lang="ts" setup>
-import type { RiboRecordWithTargets } from "@ribo/api";
+import type { RiboRecord, RiboTextRecord, RiboFileRecord } from "@ribo/api";
 import { computed, type PropType } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
   RiboIconPlay,
   RiboIconQrcode,
-  // RiboIconStar,
-  // RiboIconStarActived,
 } from "@/components/icons";
 
 defineOptions({
@@ -46,7 +42,7 @@ defineOptions({
 });
 const props = defineProps({
   data: {
-    type: Object as PropType<RiboRecordWithTargets>,
+    type: Object as PropType<RiboRecord>,
     required: true,
   },
   collectible: Boolean,
@@ -56,7 +52,9 @@ const props = defineProps({
   scannable: Boolean,
 });
 
-const content = computed(() => props.data.type === "text" ? props.data.text : "");
+// const content = computed(() => props.data.type === "text" ? props.data.text : "");
+const isText = computed(() => props.data.type === "text");
+const isFile = computed(() => props.data.type === "files");
 const id = computed(() => props.data.id);
 
 const emit = defineEmits<{
