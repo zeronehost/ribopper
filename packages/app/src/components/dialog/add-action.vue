@@ -140,7 +140,6 @@ const deleteOption = (index: number) => {
   deletedIndex.value = index;
 }
 const deleteOptionConfirm = () => {
-  console.log(innerAction.value, deletedIndex.value);
   if (deletedIndex.value!==undefined) {
     innerAction.value.options?.splice(deletedIndex.value, 1);
   }

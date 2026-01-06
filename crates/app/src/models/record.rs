@@ -50,60 +50,66 @@ impl TryInto<Record> for ribo_db::models::Record {
   }
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct RecordWithTargets {
-  id: u64,
-  text: Option<String>,
-  image: Option<Vec<u8>>,
-  files: Option<Vec<PathBuf>>,
-  #[serde(rename = "type")]
-  typ: ribo_db::models::RecordType,
-  targets: Vec<String>,
-  target_count: u64,
-  created_at: Option<DateTime<Local>>,
-  updated_at: Option<DateTime<Local>>,
-}
-impl TryInto<RecordWithTargets> for &ribo_db::models::RecordWithTargets {
+impl TryInto<Record> for &ribo_db::models::Record {
   type Error = serde_json::Error;
-  fn try_into(self) -> Result<RecordWithTargets, Self::Error> {
-    Ok(match self.record_type {
-      ribo_db::models::RecordType::Text => RecordWithTargets {
-        id: self.record_id,
-        text: Some(self.content.clone()),
-        image: None,
-        files: None,
-        typ: self.record_type,
-        targets: self.target_names.clone(),
-        target_count: self.target_count,
-        created_at: self.record_created,
-        updated_at: self.record_updated,
-      },
-      ribo_db::models::RecordType::Image => RecordWithTargets {
-        id: self.record_id,
-        image: Some(serde_json::from_str(&self.content)?),
-        text: None,
-        files: None,
-        typ: self.record_type,
-        targets: self.target_names.clone(),
-        target_count: self.target_count,
-        created_at: self.record_created,
-        updated_at: self.record_updated,
-      },
-      ribo_db::models::RecordType::Files => RecordWithTargets {
-        id: self.record_id,
-        files: Some(serde_json::from_str(&self.content)?),
-        image: None,
-        text: None,
-        typ: self.record_type,
-        targets: self.target_names.clone(),
-        target_count: self.target_count,
-        created_at: self.record_created,
-        updated_at: self.record_updated,
-      },
-    })
+  fn try_into(self) -> Result<Record, Self::Error> {
+    self.clone().try_into()
   }
 }
+// #[derive(Debug, serde::Serialize, serde::Deserialize)]
+// #[serde(rename_all = "camelCase")]
+// pub(crate) struct RecordWithTargets {
+//   id: u64,
+//   text: Option<String>,
+//   image: Option<Vec<u8>>,
+//   files: Option<Vec<PathBuf>>,
+//   #[serde(rename = "type")]
+//   typ: ribo_db::models::RecordType,
+//   targets: Vec<String>,
+//   target_count: u64,
+//   created_at: Option<DateTime<Local>>,
+//   updated_at: Option<DateTime<Local>>,
+// }
+// impl TryInto<RecordWithTargets> for &ribo_db::models::RecordWithTargets {
+//   type Error = serde_json::Error;
+//   fn try_into(self) -> Result<RecordWithTargets, Self::Error> {
+//     Ok(match self.record_type {
+//       ribo_db::models::RecordType::Text => RecordWithTargets {
+//         id: self.record_id,
+//         text: Some(self.content.clone()),
+//         image: None,
+//         files: None,
+//         typ: self.record_type,
+//         targets: self.target_names.clone(),
+//         target_count: self.target_count,
+//         created_at: self.record_created,
+//         updated_at: self.record_updated,
+//       },
+//       ribo_db::models::RecordType::Image => RecordWithTargets {
+//         id: self.record_id,
+//         image: Some(serde_json::from_str(&self.content)?),
+//         text: None,
+//         files: None,
+//         typ: self.record_type,
+//         targets: self.target_names.clone(),
+//         target_count: self.target_count,
+//         created_at: self.record_created,
+//         updated_at: self.record_updated,
+//       },
+//       ribo_db::models::RecordType::Files => RecordWithTargets {
+//         id: self.record_id,
+//         files: Some(serde_json::from_str(&self.content)?),
+//         image: None,
+//         text: None,
+//         typ: self.record_type,
+//         targets: self.target_names.clone(),
+//         target_count: self.target_count,
+//         created_at: self.record_created,
+//         updated_at: self.record_updated,
+//       },
+//     })
+//   }
+// }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -70,7 +70,7 @@ pub struct NewRecord {
 #[serde(rename_all = "camelCase")]
 pub struct RecordQuery {
   pub content_contains: Option<String>,
-  pub target_id: Option<i64>,
+  // pub target_id: Option<i64>,
   pub start_date: Option<DateTime<Local>>,
   pub end_date: Option<DateTime<Local>>,
   pub limit: Option<i32>,

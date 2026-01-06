@@ -7,16 +7,13 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use super::CommandResult;
 use crate::{
   events::EventLabel,
-  models::{Record, RecordWithTargets, UpdateRecord},
+  models::{Record, /*RecordWithTargets, */ UpdateRecord},
   store::db::Db,
   utils::qrcode::create_qrcode,
 };
 
 #[tauri::command]
-pub fn get_records(
-  state: State<'_, Db>,
-  query: RecordQuery,
-) -> CommandResult<Vec<RecordWithTargets>> {
+pub fn get_records(state: State<'_, Db>, query: RecordQuery) -> CommandResult<Vec<Record>> {
   log::debug!(
     "commands::record::get_records called with query={:?}",
     query

@@ -41,6 +41,6 @@ export type RiboRecord = (
   updatedAt: Date,
 }
 
-export type RiboRecordWithTargets = RiboRecord & RecordWithTargetsBase;
+// export type RiboRecordWithTargets = RiboRecord & RecordWithTargetsBase;
 
 export type UpdateRecord = RiboTextRecord | RiboImageRecord | RiboFileRecord;

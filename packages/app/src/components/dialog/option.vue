@@ -52,7 +52,6 @@ watch(() => props.modelValue, (val) => {
   if (val) {
     rootEl.value?.showModal();
     innerOption.value = {...props.data};
-    console.log("innerOption =>", innerOption.value);
   }
 });
 

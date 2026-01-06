@@ -18,19 +18,26 @@
       <s-tab-item value="all"><span slot="text">全部</span></s-tab-item>
       <s-tab-item value="favorites"><span slot="text">仅收藏</span></s-tab-item>
     </s-tab> -->
-    <s-scroll-view>
+    <!-- <s-scroll-view>
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
       <template v-else>
         <RiboCard :class="{ selected: currentId === record.id }" v-for="record in list" :key="record.id" :data="record"
           @option="optionHandle" />
       </template>
-    </s-scroll-view>
+    </s-scroll-view> -->
+    <RiboScrollView @load="scrollHandle">
+      <s-empty v-if="isEmpty">暂时没有内容</s-empty>
+      <template v-else>
+        <RiboCard :class="{ selected: currentId === record.id }" v-for="record in list" :key="record.id" :data="record"
+          @option="optionHandle" />
+      </template>
+    </RiboScrollView>
   </section>
 </template>
 <script setup lang="ts">
 import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, type RiboEvent } from "@ribo/api";
 import { computed, inject, onMounted, onUnmounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
 import { useRecordStore } from "@/stores/record";
@@ -40,6 +47,7 @@ import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
 import { useSettingStore } from "@/stores/setting";
 import { rootContextKey } from "@/utils/types";
+import { RiboScrollView } from "@/components/scroll-view";
 
 defineOptions({
   name: "tray_pane",
@@ -47,8 +55,8 @@ defineOptions({
 
 const router = useRouter();
 const recordStore = useRecordStore();
-const searchReg = ref();
-const isEmpty = computed(() => recordStore.total === 0);
+
+const isEmpty = computed(() => recordStore.list.length === 0);
 
 const list = computed(() => recordStore.list)
 
@@ -91,14 +99,27 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
   }
 };
 
+const scrollHandle = () => {
+  recordStore.getRecords();
+}
 
-const search = ref("");
+
+const search = computed({
+  get() {
+    return recordStore.contentContains ?? "";
+  },
+  set(val) {
+    recordStore.search(val);
+  }
+});
 const searchHandle = debounce(() => {
-  searchReg.value = new RegExp(search.value, "i");
+  recordStore.reset();
+  recordStore.getRecords();
 }, 300);
 const clearSearchHandle = debounce(() => {
   search.value = "";
-  searchReg.value = undefined;
+  recordStore.reset();
+  recordStore.getRecords();
 });
 
 
@@ -162,12 +183,14 @@ const loadRecords = (event: RiboEvent<void>) => {
       || event.label === EVENT_LABEL_TARGET
       || event.label === EVENT_LABEL_ALL
     )) {
+      recordStore.reset();
       recordStore.getRecords();
   }
 };
 
 onMounted(() => {
   context?.register(loadRecords);
+  recordStore.reset();
   recordStore.getRecords();
 });
 onUnmounted(() => {

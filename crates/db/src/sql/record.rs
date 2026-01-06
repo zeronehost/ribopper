@@ -66,58 +66,39 @@ impl Database {
     Ok(rows_affected > 0)
   }
 
-  pub fn query_record(&self, query: models::RecordQuery) -> Result<Vec<models::RecordWithTargets>> {
+  pub fn query_record(&self, query: models::RecordQuery) -> Result<Vec<models::Record>> {
     log::debug!("db.record: query_record start: {:?}", query);
     let mut sql = String::from(
-      r#"
-      SELECT 
-          c.id as record_id,
-          c.content,
-          c.data,
-          c.type,
-          c.created_at as record_created,
-          c.updated_at as record_updated,
-          COALESCE(json_group_array(t.name), '[]') as target_names,
-          COUNT(ct.target_id) as target_count
-      FROM record c
-      LEFT JOIN record_target ct ON c.id = ct.record_id
-      LEFT JOIN target t ON ct.target_id = t.id
-      WHERE 1=1
-      "#,
+      r#" SELECT id, content, data, type, created_at, updated_at FROM record"#,
     );
     let mut params: Vec<Box<dyn ToSql>> = Vec::new();
     let mut conditions = Vec::new();
 
     // 构建查询条件
     if let Some(ref content) = query.content_contains {
-      conditions.push("c.content LIKE ?");
+      conditions.push("content LIKE ?");
       params.push(Box::new(format!("%{}%", content)));
     }
-    if let Some(target_id) = query.target_id {
-      conditions
-        .push("EXISTS (SELECT 1 FROM record_target WHERE record_id = c.id AND target_id = ?)");
-      params.push(Box::new(target_id));
-    }
     if let Some(ref start_date) = query.start_date {
-      conditions.push("c.created_at >= ?");
+      conditions.push("created_at >= ?");
       params.push(Box::new(start_date.format("%Y-%m-%d %H:%M:%S").to_string()));
     }
 
     if let Some(ref end_date) = query.end_date {
-      conditions.push("c.created_at <= ?");
+      conditions.push("created_at <= ?");
       params.push(Box::new(end_date.format("%Y-%m-%d %H:%M:%S").to_string()));
     }
 
     if !conditions.is_empty() {
-      sql.push_str(" AND ");
+      sql.push_str(" WHERE ");
       sql.push_str(&conditions.join(" AND "));
     }
 
     // 分组
-    sql.push_str(" GROUP BY c.id");
+    sql.push_str(" GROUP BY id");
 
     // 排序
-    let order_by = query.order_by.unwrap_or_else(|| "c.created_at".to_string());
+    let order_by = query.order_by.unwrap_or_else(|| "created_at".to_string());
     let order_direction = query.order_direction.unwrap_or_else(|| "DESC".to_string());
     sql.push_str(&format!(" ORDER BY {} {}", order_by, order_direction));
 
@@ -129,13 +110,13 @@ impl Database {
         sql.push_str(&format!(" OFFSET {}", offset));
       }
     }
-
+    log::debug!("---------------------\ndb.record: query_record sql: {sql}\n------------------------");
     // 执行查询
     let mut stmt = self.conn().prepare(&sql)?;
     let param_refs: Vec<&dyn ToSql> = params.iter().map(|p| &**p).collect();
 
     let rows = stmt.query_map(rusqlite::params_from_iter(param_refs), |row| {
-      Ok(models::RecordWithTargets::from_row(row))
+      Ok(models::Record::from_row(row))
     })?;
 
     let mut results = Vec::new();
@@ -177,6 +158,18 @@ impl Database {
       results.len()
     );
     Ok(results)
+  }
+
+  pub fn clear_records(&self) -> Result<()> {
+    self.conn().execute_batch(
+      r#"
+    begin transaction;
+    delete from record;
+    delete from sqlite_sequence where name = 'record';
+    commit"#,
+    )?;
+
+    Ok(())
   }
 }
 

@@ -118,9 +118,9 @@ pub fn run() {
       crate::commands::record::clear_records,
       crate::commands::record::copy_record,
       crate::commands::record::qrcode_record,
-      crate::commands::target::get_targets,
-      crate::commands::target::create_target,
-      crate::commands::target::delete_target,
+      // crate::commands::target::get_targets,
+      // crate::commands::target::create_target,
+      // crate::commands::target::delete_target,
       //-------------------------------------------
       // store commands
       crate::commands::config::config_load,

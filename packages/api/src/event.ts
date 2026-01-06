@@ -4,7 +4,7 @@ import type { RiboEvent } from "./models";
 export const listenNotify = <T>(callback: (data: RiboEvent<T>) => void) => {
   listen("ribo-notify", (e) => {
     callback(e.payload as RiboEvent<T>);
-  }).catch(e => {console.error(e); throw new Error(e)});
+  });
 };
 
 export const EVENT_TYPE_INIT = "init";
