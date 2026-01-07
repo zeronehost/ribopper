@@ -4,7 +4,7 @@
   </s-scroll-view>
 </template>
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, shallowRef } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
 defineOptions({
   name: "RiboScrollView",

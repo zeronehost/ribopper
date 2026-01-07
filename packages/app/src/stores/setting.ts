@@ -54,13 +54,14 @@ export const useSettingStore = defineStore("setting", {
       });
     },
 
-    loadConfig() {
-      configLoad().then((config) => {
+    async loadConfig() {
+      try {
+        const config = await configLoad();
         this.config = config;
         this._initData = JSON.parse(JSON.stringify(this.config));
-      }).catch((e) => {
-        logger.error(e);
-      })
+      } catch (e) {
+        logger.error(e as Error);
+      }
     }
   },
 });

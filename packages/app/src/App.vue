@@ -5,7 +5,7 @@
 </template>
 <script setup lang="ts">
 import { listenNotify, type Theme, logger, type RiboEvent } from "@ribo/api";
-import { computed, provide } from "vue";
+import { computed, onMounted, provide } from "vue";
 import { useSettingStore } from "@/stores/setting";
 import { rootContextKey } from "@/utils/types";
 
@@ -34,4 +34,8 @@ listenNotify<any>((data) => {
 window.addEventListener("error", (e) => {
   logger.error(e.error);
 });
+
+onMounted(() => {
+  store.loadConfig();
+})
 </script>

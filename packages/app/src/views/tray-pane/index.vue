@@ -10,11 +10,17 @@
           </s-icon>
         </s-icon-button>
       </s-search>
-      <s-icon-button slot="action" @click="cleanHandle">
-        <s-icon>
-          <RiboIconClean />
-        </s-icon>
-      </s-icon-button>
+      <s-popup-menu slot="action">
+        <s-icon-button slot="trigger">
+          <s-icon name="menu"></s-icon>
+        </s-icon-button>
+        <s-popup-menu-item @click="cleanHandle">
+          <s-icon slot="start">
+            <RiboIconClean />
+          </s-icon>
+          清空历史记录
+        </s-popup-menu-item>
+      </s-popup-menu>
     </s-appbar>
     <RiboScrollView @load="scrollHandle">
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
@@ -26,8 +32,8 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, type RiboEvent } from "@ribo/api";
-import { computed, inject, onMounted, onUnmounted } from "vue";
+import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, type RiboEvent } from "@ribo/api";
+import { computed, inject, nextTick, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
@@ -124,9 +130,9 @@ const currentIndex = computed({
 });
 const currentId = computed(() => list.value[currentIndex.value]?.id);
 
-const setting = useSettingStore();
-logger.debug("setting.hotkeys =>", JSON.stringify(setting.hotkeys));
-useListenHotKey(setting.hotkeys, (type) => {
+const settingStore = useSettingStore();
+logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
+useListenHotKey(settingStore.hotkeys, (type) => {
   logger.debug("useListenHotKey => type", type);
   const id = currentId.value;
   if (id) {
@@ -152,16 +158,18 @@ useListenHotKey(setting.hotkeys, (type) => {
         break;
     }
   }
-  switch (type) {
-    case "prev":
-      currentIndex.value = currentIndex.value <= 0 ? recordStore.total - 1 : currentIndex.value - 1;
-      document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center" });
-      break;
-    case "next":
-      currentIndex.value = currentIndex.value >= recordStore.total - 1 ? 0 : currentIndex.value + 1;
-      document.querySelector(".selected")!.scrollIntoView({ behavior: "auto", block: "center" });
-      break;
+  if (type === "prev" || type === "next") {
+    const total = recordStore.total;
+    currentIndex.value = type === "prev"
+      ? (currentIndex.value - 1 + total) % total
+      : (currentIndex.value + 1) % total;
   }
+  nextTick().then(() => {
+    const el = document.querySelector(".selected") as HTMLElement;
+    if (el) {
+      el.scrollIntoView({ behavior: "auto", block: "center" })
+    }
+  })
 });
 
 const context = inject(rootContextKey);
@@ -174,8 +182,17 @@ const loadRecords = (event: RiboEvent<void>) => {
       || event.label === EVENT_LABEL_TARGET
       || event.label === EVENT_LABEL_ALL
     )) {
-      recordStore.reset();
-      recordStore.getRecords();
+    recordStore.reset();
+    recordStore.getRecords();
+  }
+  if (
+    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
+    if (
+      event.label === EVENT_LABEL_CONFIG
+      || event.label === EVENT_LABEL_ALL
+    ) {
+      settingStore.loadConfig();
+    }
   }
 };
 
