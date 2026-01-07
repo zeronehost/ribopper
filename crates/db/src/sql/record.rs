@@ -110,7 +110,6 @@ impl Database {
         sql.push_str(&format!(" OFFSET {}", offset));
       }
     }
-    log::debug!("---------------------\ndb.record: query_record sql: {sql}\n------------------------");
     // 执行查询
     let mut stmt = self.conn().prepare(&sql)?;
     let param_refs: Vec<&dyn ToSql> = params.iter().map(|p| &**p).collect();

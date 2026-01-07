@@ -4,10 +4,12 @@ pub fn create_qrcode(data: crate::models::Record) -> anyhow::Result<Vec<u8>> {
       Some(text) => text.as_bytes().to_vec(),
       None => return Err(anyhow::anyhow!("No text provided")),
     },
+    #[cfg(feature = "image")]
     ribo_db::models::RecordType::Image => match data.image {
       Some(image) => image,
       None => return Err(anyhow::anyhow!("No image provided")),
     },
+    #[cfg(feature = "file")]
     ribo_db::models::RecordType::Files => match data.files {
       Some(files) => files
         .iter()

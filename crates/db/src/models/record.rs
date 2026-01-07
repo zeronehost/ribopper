@@ -30,7 +30,9 @@ impl FromRow for Record {
 #[serde(rename_all = "camelCase")]
 pub enum RecordType {
   Text,
+  #[cfg(feature = "image")]
   Image,
+  #[cfg(feature = "file")]
   Files,
 }
 
@@ -38,7 +40,9 @@ impl rusqlite::types::FromSql for RecordType {
   fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
     match value.as_str()? {
       "text" => Ok(RecordType::Text),
+      #[cfg(feature = "image")]
       "image" => Ok(RecordType::Image),
+      #[cfg(feature = "file")]
       "files" => Ok(RecordType::Files),
       _ => Err(rusqlite::types::FromSqlError::InvalidType),
     }
@@ -50,7 +54,9 @@ impl rusqlite::types::ToSql for RecordType {
     Ok(rusqlite::types::ToSqlOutput::Owned(
       match self {
         RecordType::Text => "text".to_string(),
+        #[cfg(feature = "image")]
         RecordType::Image => "image".to_string(),
+        #[cfg(feature = "file")]
         RecordType::Files => "files".to_string(),
       }
       .into(),

@@ -211,6 +211,7 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
           content,
         })
       }
+      #[cfg(feature = "image")]
       ribo_db::models::RecordType::Image => {
         let data = serde_json::from_str::<Vec<ribo_clipboard::FormatContent>>(&record.data)
           .map_err(|e| {
@@ -227,6 +228,7 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<()> 
           data,
         })
       }
+      #[cfg(feature = "file")]
       ribo_db::models::RecordType::Files => {
         let data = serde_json::from_str::<Vec<ribo_clipboard::FormatContent>>(&record.data)
           .map_err(|e| {

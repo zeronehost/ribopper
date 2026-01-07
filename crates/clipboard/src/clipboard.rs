@@ -21,10 +21,14 @@ impl Clipboard {
   pub(crate) fn set_text(&mut self, text: &str) -> Result<()> {
     self.0.set_text(text).map_err(Into::into)
   }
+
+  #[cfg(feature = "image")]
   pub(crate) fn get_image(&mut self) -> Result<Vec<u8>> {
     let image = self.0.get_image()?;
     Ok(image.into_owned_bytes().to_vec())
   }
+
+  #[cfg(feature = "image")]
   pub(crate) fn set_image(&mut self, data: &[u8]) -> Result<()> {
     let image_data = image::load_from_memory(data)?;
     let width = image_data.width() as usize;
@@ -38,10 +42,12 @@ impl Clipboard {
     self.0.set_image(data).map_err(Into::into)
   }
 
+  #[cfg(feature = "file")]
   pub(crate) fn get_files(&mut self) -> Result<Vec<PathBuf>> {
     let clipboard_get = self.0.get();
     clipboard_get.file_list().map_err(Into::into)
   }
+  #[cfg(feature = "file")]
   pub(crate) fn set_files(&mut self, files: &[impl AsRef<Path>]) -> Result<()> {
     let clipboard_set = self.0.set();
     clipboard_set.file_list(files).map_err(Into::into)

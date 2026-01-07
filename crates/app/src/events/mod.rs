@@ -58,7 +58,6 @@ pub enum EventLabel {
   ActionOption,
   Option,
   Target,
-  ALL,
 }
 
 impl core::fmt::Display for EventLabel {
@@ -70,7 +69,6 @@ impl core::fmt::Display for EventLabel {
       EventLabel::ActionOption => write!(f, "action-option"),
       EventLabel::Option => write!(f, "option"),
       EventLabel::Target => write!(f, "target"),
-      EventLabel::ALL => write!(f, "all"),
     }
   }
 }

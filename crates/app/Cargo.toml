@@ -25,7 +25,7 @@ log.workspace = true
 tokio.workspace = true
 
 ribo-db = { path = "../db" }
-ribo-clipboard = { path = "../clipboard" }
+ribo-clipboard = { path = "../clipboard"}
 
 tauri = { version = "2.9.2", features = ["tray-icon"] }
 tauri-plugin-log = { version = "2", features = ["colored"] }
@@ -39,3 +39,8 @@ image = "0.25.9"
 tauri-plugin-autostart = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-single-instance = "2"
+
+[features]
+default = ["file"]
+image = ["ribo-clipboard/image", "ribo-db/image"]
+file = ["ribo-clipboard/file", "ribo-db/file"]

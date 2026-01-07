@@ -103,11 +103,14 @@ where
       content = Some(FormatContent::Text(text.clone()));
       data.push(FormatContent::Text(text));
     }
+    // TODO image 存在问题 后续再处理
+    #[cfg(feature = "image")]
     if let Ok(png) = self.clipboard.get_image() {
       content = Some(FormatContent::Image(png.clone()));
       data.push(FormatContent::Image(png));
     }
 
+    #[cfg(feature = "file")]
     if let Ok(files) = self.clipboard.get_files() {
       content = Some(FormatContent::Files(files.clone()));
       data.push(FormatContent::Files(files));
@@ -140,9 +143,11 @@ where
         FormatContent::Text(data) => {
           self.clipboard.set_text(data.as_str())?;
         }
+        #[cfg(feature = "image")]
         FormatContent::Image(data) => {
           self.clipboard.set_image(data.as_slice())?;
         }
+        #[cfg(feature = "file")]
         FormatContent::Files(data) => {
           self.clipboard.set_files(data.as_slice())?;
         }
@@ -171,7 +176,9 @@ impl Content {
 #[serde(rename_all = "camelCase")]
 pub enum FormatContent {
   Text(String),
+  #[cfg(feature = "image")]
   Image(Vec<u8>),
+  #[cfg(feature = "file")]
   Files(Vec<PathBuf>),
 }
 
@@ -179,7 +186,9 @@ impl FormatContent {
   fn get_type(&self) -> ribo_db::models::RecordType {
     match self {
       Self::Text(_) => ribo_db::models::RecordType::Text,
+      #[cfg(feature = "image")]
       Self::Image(_) => ribo_db::models::RecordType::Image,
+      #[cfg(feature = "file")]
       Self::Files(_) => ribo_db::models::RecordType::Files,
     }
   }
@@ -191,7 +200,9 @@ impl TryFrom<Content> for ribo_db::models::NewRecord {
     let typ = value.get_type();
     let content = match value.content {
       FormatContent::Text(data) => data,
+      #[cfg(feature = "image")]
       FormatContent::Image(data) => serde_json::to_string(&data)?,
+      #[cfg(feature = "file")]
       FormatContent::Files(data) => serde_json::to_string(&data)?,
     };
     Ok(ribo_db::models::NewRecord {
