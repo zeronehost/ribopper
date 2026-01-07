@@ -59,19 +59,18 @@ impl Tray {
         if let TrayIconEvent::Click {
           button: MouseButton::Left,
           button_state: MouseButtonState::Down,
-          position,
           ..
         } = ev
         {
           log::info!("左键点击托盘图标");
           let app = icon.app_handle();
-          crate::window::open_tray_pane(app, position).unwrap();
+          crate::window::open_tray_pane(app).unwrap();
         }
       })
       .on_menu_event(|app, ev| match ev.id().as_ref() {
         "main" => {
           log::info!("打开主窗口");
-          crate::window::open_tray_pane(app, app.cursor_position().unwrap()).unwrap();
+          crate::window::open_tray_pane(app).unwrap();
         }
         "quit" => {
           log::info!("确认退出应用");

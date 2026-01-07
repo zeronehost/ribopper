@@ -28,7 +28,7 @@ export interface RiboImageRecord {
 }
 export interface RiboFileRecord {
   type: "files",
-  files: string,
+  files: string[],
   id: number,
 }
 

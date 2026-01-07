@@ -17,6 +17,9 @@ import riboIconStarActived from "./star-actived.vue";
 import riboIconTheme from "./theme.vue";
 import riboIconTerminal from "./terminal.vue";
 
+export { default as RiboIconFolder} from "./folder.vue";
+export { default as RiboIconImage } from "./image.vue";
+
 export const RiboIconClose = riboIconClose;
 export const RiboIconDelete = riboIconDelete;
 export const RiboIconEdit = riboIconEdit;

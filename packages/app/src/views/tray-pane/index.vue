@@ -5,8 +5,10 @@
         <s-icon name="close"></s-icon>
       </s-icon-button>
       <s-search slot="search" placeholder="搜索..." v-model="search" @input="searchHandle">
-        <s-icon slot="end" name="close" v-show="search" @click="clearSearchHandle">
-        </s-icon>
+        <s-icon-button slot="end" v-show="search" @click="clearSearchHandle">
+          <s-icon name="close">
+          </s-icon>
+        </s-icon-button>
       </s-search>
       <s-icon-button slot="action" @click="cleanHandle">
         <s-icon>
@@ -14,17 +16,6 @@
         </s-icon>
       </s-icon-button>
     </s-appbar>
-    <!-- <s-tab v-if="hasFavorites" mode="fixed" v-model.lazy="selected">
-      <s-tab-item value="all"><span slot="text">全部</span></s-tab-item>
-      <s-tab-item value="favorites"><span slot="text">仅收藏</span></s-tab-item>
-    </s-tab> -->
-    <!-- <s-scroll-view>
-      <s-empty v-if="isEmpty">暂时没有内容</s-empty>
-      <template v-else>
-        <RiboCard :class="{ selected: currentId === record.id }" v-for="record in list" :key="record.id" :data="record"
-          @option="optionHandle" />
-      </template>
-    </s-scroll-view> -->
     <RiboScrollView @load="scrollHandle">
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
       <template v-else>
@@ -36,7 +27,7 @@
 </template>
 <script setup lang="ts">
 import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, type RiboEvent } from "@ribo/api";
-import { computed, inject, onMounted, onUnmounted, ref } from "vue";
+import { computed, inject, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
@@ -190,8 +181,6 @@ const loadRecords = (event: RiboEvent<void>) => {
 
 onMounted(() => {
   context?.register(loadRecords);
-  recordStore.reset();
-  recordStore.getRecords();
 });
 onUnmounted(() => {
   context?.unregister(loadRecords);

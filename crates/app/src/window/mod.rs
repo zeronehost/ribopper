@@ -1,23 +1,20 @@
 use crate::utils::{
   constant::{WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING, WIN_URL_TRAY_PANE},
-  pos::calc_pane_pos,
+  pos::set_tray_window_pos,
 };
 use tauri::{AppHandle, Manager, Runtime};
 
 pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
-  log::info!("打开设置窗口");
   match app.get_webview_window(WIN_LABEL_MAIN) {
     Some(win) => match win.is_visible() {
       Ok(true) => win.hide(),
       Ok(false) => {
-        log::info!("设置窗口存在且是隐藏状态");
         win.show()?;
         win.set_focus()
       }
       _ => Ok(()),
     },
     None => {
-      log::info!("设置窗口不存在");
       let win = tauri::WebviewWindowBuilder::new(
         app,
         WIN_LABEL_MAIN,
@@ -50,28 +47,18 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
 
 pub fn open_tray_pane<R: Runtime>(
   app: &AppHandle<R>,
-  pos: tauri::PhysicalPosition<f64>,
 ) -> tauri::Result<()> {
-  log::info!("打开主面板");
   match app.get_webview_window(WIN_LABEL_TRAY_PANE) {
     Some(win) => match win.is_visible() {
       Ok(true) => win.hide(),
       Ok(false) => {
-        log::info!("获取当前屏幕");
-        let monitor = win
-          .current_monitor()?
-          .unwrap_or(app.monitor_from_point(pos.x, pos.y).unwrap().unwrap());
-        log::info!("主面板存在且是隐藏状态");
-        log::info!("设置主面板位置");
-        win.set_position(calc_pane_pos(win.outer_size()?, monitor))?;
-        log::info!("主面板显示");
+        set_tray_window_pos(&app, &win)?;
         win.show()?;
         win.set_focus()
       }
       _ => Ok(()),
     },
     None => {
-      log::info!("主面板不存在");
       let win = tauri::WebviewWindowBuilder::new(
         app,
         WIN_LABEL_TRAY_PANE,
@@ -98,15 +85,13 @@ pub fn open_tray_pane<R: Runtime>(
       .resizable(false)
       .devtools(cfg!(debug_assertions))
       .build()?;
-      log::info!("获取当前屏幕");
-      let monitor = win
-        .current_monitor()?
-        .unwrap_or(app.monitor_from_point(pos.x, pos.y).unwrap().unwrap());
-      log::info!("设置主面板位置");
-      win.set_position(calc_pane_pos(win.outer_size()?, monitor))?;
+      
+      set_tray_window_pos(&app, &win)?;
       win.show()?;
+      if cfg!(debug_assertions) {
+        win.open_devtools();
+      }
       win.set_focus()?;
-      // log::debug!("{:?}", win.outer_position());
       Ok(())
     }
   }

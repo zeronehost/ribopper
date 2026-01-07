@@ -1,7 +1,7 @@
 /// 应用名
 pub const APP_NAME: &str = "ribopper";
 /// 窗口名
-pub const WIN_NANE: &str = "ribopper";
+pub const WIN_NANE: &str = "剪贴板管理工具-设置";
 
 /// 设置窗口标签
 pub const WIN_LABEL_MAIN: &str = "setting";

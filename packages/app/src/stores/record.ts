@@ -1,5 +1,6 @@
 import { getRecords, deleteRecord, clearRecord, type RiboRecord } from "@ribo/api"
 import { defineStore } from "pinia"
+import { shallowReactive } from "vue";
 
 export const useRecordStore = defineStore('record', {
   state: (): {
@@ -8,12 +9,14 @@ export const useRecordStore = defineStore('record', {
     index: number,
     loadEnable: boolean,
     contentContains: string,
+    loading: boolean;
   } => ({
     list: [],
     size: 10,
     index: 0,
     loadEnable: true,
-    contentContains: ""
+    contentContains: "",
+    loading: false,
   }),
 
   getters: {
@@ -24,7 +27,10 @@ export const useRecordStore = defineStore('record', {
 
   actions: {
     reset() {
-      this.list = [];
+      if (this.loading) {
+        return
+      }
+      this.list = shallowReactive([]);
       this.index = 0;
       this.size = 10;
       this.loadEnable = true;
@@ -32,10 +38,13 @@ export const useRecordStore = defineStore('record', {
     async getRecords() {
       if (this.loadEnable) {
         const offset = this.index * this.size;
+        this.loading = true;
         const list = await getRecords({
           limit: this.size,
           offset,
           contentContains: this.contentContains,
+        }).finally(() => {
+          this.loading = false;
         });
         if (list.length >= this.size) {
           this.index += 1;

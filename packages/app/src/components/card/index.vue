@@ -1,10 +1,13 @@
 <template>
   <s-card class="ribo-card" @click="copyHandle" clickable>
     <div class="content">
-      <pre v-if="isText">{{ (data as RiboTextRecord).text }}</pre>
-      <div v-else-if="isFile">
-        <p v-for="value in (data as RiboFileRecord).files">{{value}}</p>
+      <div v-if="isFile" class="files">
+        <s-icon>
+          <RiboIconFolder />
+        </s-icon>
+        <span>{{ content }}</span>
       </div>
+      <pre v-else class="text">{{ content }}</pre>
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
@@ -28,11 +31,12 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import type { RiboRecord, RiboTextRecord, RiboFileRecord } from "@ribo/api";
-import { computed, type PropType } from "vue";
+import type { RiboFileRecord, RiboRecord, RiboTextRecord } from "@ribo/api";
+import { computed, type PropType, ref } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,
+  RiboIconFolder,
   RiboIconPlay,
   RiboIconQrcode,
 } from "@/components/icons";
@@ -52,9 +56,26 @@ const props = defineProps({
   scannable: Boolean,
 });
 
-// const content = computed(() => props.data.type === "text" ? props.data.text : "");
+
 const isText = computed(() => props.data.type === "text");
 const isFile = computed(() => props.data.type === "files");
+const content = computed(() => {
+  if (isFile.value) {
+    const files = (props.data as RiboFileRecord).files;
+    const file = files[0]?.split(/\\\\|\\|\//g) ?? [];
+    let filename;
+    do {
+      filename = file.pop();
+      if (filename) {
+        break;
+      }
+    } while (file.length > 0)
+
+
+    return `${filename}... (${files.length})`
+  }
+  if (isText.value) return (props.data as RiboTextRecord)?.text ?? "";
+})
 const id = computed(() => props.data.id);
 
 const emit = defineEmits<{
@@ -98,10 +119,24 @@ s-card.ribo-card {
       width: 100%;
     }
 
-    pre {
+    .text {
       margin: 0;
       max-height: 5rem;
       overflow: hidden;
+    }
+
+    .files {
+      display: flex;
+      flex-direction: column;
+
+      s-icon {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      span {
+        color: var(--s-color-outline-variant);
+      }
     }
   }
 
@@ -118,6 +153,7 @@ s-card.ribo-card {
       display: none;
     }
   }
+
   &:hover {
     .ribo-card__option {
       display: flex;
