@@ -26,16 +26,18 @@ export const useRecordStore = defineStore('record', {
   },
 
   actions: {
-    reset() {
-      if (this.loading) {
-        return
-      }
+    async initRecords() {
       this.list = shallowReactive([]);
       this.index = 0;
       this.size = 10;
       this.loadEnable = true;
+      if (!this.loading) {
+        await this.getRecords();
+      }
     },
     async getRecords() {
+      console.trace(`store -> getRecords => ${new Date().toLocaleTimeString()}`);
+      console.count("store -> getRecords");
       if (this.loadEnable) {
         const offset = this.index * this.size;
         this.loading = true;

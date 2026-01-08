@@ -1,7 +1,6 @@
 mod action;
 mod record;
-// mod record_target;
-// mod target;
+mod record_action;
 
 use crate::error::Result;
 use rusqlite::Row;
@@ -13,6 +12,5 @@ pub trait FromRow: Sized {
 pub use self::{
   action::*,
   record::*,
-  // record_target::*,
-  // target::*
+  record_action::*,
 };

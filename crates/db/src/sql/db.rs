@@ -36,6 +36,9 @@ impl Database {
   pub fn conn(&self) -> &Connection {
     &self.0
   }
+  pub fn conn_mut(&mut self) -> &mut Connection {
+    &mut self.0
+  }
 }
 
 #[cfg(test)]

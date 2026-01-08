@@ -109,14 +109,14 @@ const search = computed({
     recordStore.search(val);
   }
 });
-const searchHandle = debounce(() => {
-  recordStore.reset();
-  recordStore.getRecords();
+const searchHandle = debounce(async () => {
+  await nextTick();
+  await recordStore.initRecords();
 }, 300);
-const clearSearchHandle = debounce(() => {
+const clearSearchHandle = debounce(async () => {
   search.value = "";
-  recordStore.reset();
-  recordStore.getRecords();
+  await nextTick();
+  await recordStore.initRecords();
 });
 
 
@@ -174,7 +174,7 @@ useListenHotKey(settingStore.hotkeys, (type) => {
 
 const context = inject(rootContextKey);
 
-const loadRecords = (event: RiboEvent<void>) => {
+const loadRecords = async (event: RiboEvent<void>) => {
   if (
     (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)
     && (
@@ -182,8 +182,9 @@ const loadRecords = (event: RiboEvent<void>) => {
       || event.label === EVENT_LABEL_TARGET
       || event.label === EVENT_LABEL_ALL
     )) {
-    recordStore.reset();
-    recordStore.getRecords();
+    console.trace("loadRecords", event);
+    await nextTick();
+    await recordStore.initRecords();
   }
   if (
     (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {

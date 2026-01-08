@@ -32,7 +32,7 @@
 </template>
 <script lang="ts" setup>
 import type { RiboFileRecord, RiboRecord, RiboTextRecord } from "@ribo/api";
-import { computed, type PropType, ref } from "vue";
+import { computed, type PropType } from "vue";
 import {
   RiboIconDelete,
   RiboIconEdit,

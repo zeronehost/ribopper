@@ -52,7 +52,7 @@ pub fn open_tray_pane<R: Runtime>(
     Some(win) => match win.is_visible() {
       Ok(true) => win.hide(),
       Ok(false) => {
-        set_tray_window_pos(&app, &win)?;
+        set_tray_window_pos(app, &win)?;
         win.show()?;
         win.set_focus()
       }
@@ -86,7 +86,7 @@ pub fn open_tray_pane<R: Runtime>(
       .devtools(cfg!(debug_assertions))
       .build()?;
       
-      set_tray_window_pos(&app, &win)?;
+      set_tray_window_pos(app, &win)?;
       win.show()?;
       if cfg!(debug_assertions) {
         win.open_devtools();

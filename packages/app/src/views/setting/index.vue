@@ -65,7 +65,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, EVENT_LABEL_ACTION, EVENT_LABEL_ACTIONOPTION, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_OPTION, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_SETTING, type RiboEvent } from "@ribo/api";
+import { closeWindow, EVENT_LABEL_ACTION, EVENT_LABEL_ACTIONOPTION, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_OPTION, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, WIN_LABEL_SETTING, type RiboEvent } from "@ribo/api";
 import { computed, inject, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {

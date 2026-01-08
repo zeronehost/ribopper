@@ -109,7 +109,7 @@ pub fn run() {
       crate::commands::window::close_window,
       crate::commands::window::web_log,
       //-------------------------------------------
-      // db commands
+      // record commands
       crate::commands::record::get_records,
       crate::commands::record::get_record,
       crate::commands::record::delete_record,
@@ -118,15 +118,12 @@ pub fn run() {
       crate::commands::record::clear_records,
       crate::commands::record::copy_record,
       crate::commands::record::qrcode_record,
-      // crate::commands::target::get_targets,
-      // crate::commands::target::create_target,
-      // crate::commands::target::delete_target,
       //-------------------------------------------
       // store commands
       crate::commands::config::config_load,
       crate::commands::config::config_save,
       //-------------------------------------------
-      // cmd commands
+      // action commands
       crate::commands::action::get_actions,
       crate::commands::action::get_action_by_id,
       crate::commands::action::create_action,

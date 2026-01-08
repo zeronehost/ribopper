@@ -73,8 +73,21 @@ impl Database {
     }
   }
 
-  pub fn get_actions(&self) -> Result<Vec<models::ActionWithOption>> {
+  pub(super) fn get_actions(&self) -> Result<Vec<models::Action>> {
     log::info!("db.action: get_actions invoked");
+    let mut stmt = self
+      .conn()
+      .prepare("select id, description, pattern, created_at, updated_at from actions")?;
+    let actions = stmt.query_map(params![], |row| Ok(models::Action::from_row(row)))?;
+    let mut result = Vec::new();
+    for action in actions {
+      result.push(action??);
+    }
+    Ok(result)
+  }
+
+  pub fn get_action_options(&self) -> Result<Vec<models::ActionWithOption>> {
+    log::info!("db.action: get_action_options invoked");
     let mut stmt = self
       .conn()
       .prepare("select id, description, pattern, created_at, updated_at from actions")?;
@@ -162,30 +175,30 @@ impl Database {
     Ok(rows_affected > 0)
   }
 
-  pub fn get_action_record_by_record(
-    &self,
-    record: &models::Record,
-  ) -> Result<Vec<models::ActionWithOption>> {
-    let actions = self.get_actions()?;
+  // pub fn get_action_record_by_record(
+  //   &self,
+  //   record: &models::Record,
+  // ) -> Result<Vec<models::ActionWithOption>> {
+  //   let actions = self.get_actions()?;
 
-    if actions.is_empty() {
-      return Ok(vec![]);
-    }
+  //   if actions.is_empty() {
+  //     return Ok(vec![]);
+  //   }
 
-    Ok(
-      actions
-        .iter()
-        .filter(|i| {
-          let reg = regex::Regex::new(&i.pattern);
-          match reg {
-            Ok(reg) => reg.is_match(&record.content),
-            _ => false,
-          }
-        })
-        .cloned()
-        .collect::<Vec<models::ActionWithOption>>(),
-    )
-  }
+  //   Ok(
+  //     actions
+  //       .iter()
+  //       .filter(|i| {
+  //         let reg = regex::Regex::new(&i.pattern);
+  //         match reg {
+  //           Ok(reg) => reg.is_match(&record.content),
+  //           _ => false,
+  //         }
+  //       })
+  //       .cloned()
+  //       .collect::<Vec<models::ActionWithOption>>(),
+  //   )
+  // }
 }
 
 #[cfg(test)]

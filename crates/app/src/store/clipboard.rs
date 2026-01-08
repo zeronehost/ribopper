@@ -17,13 +17,11 @@ impl Clipboard {
         } else {
           None
         };
-        match db
-          .0
-          .lock()
-          .unwrap()
-          .create_record(c.try_into().unwrap(), max)
-        {
-          Ok(_) => {
+        let mut db = db.0.lock().unwrap();
+        match db.create_record(c.try_into().unwrap(), max) {
+          Ok(record) => {
+            db.create_action_option_by_record(record.id, &record.content)
+              .unwrap();
             crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
               .emit(&app_handle)
               .unwrap();

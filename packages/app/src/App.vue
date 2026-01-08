@@ -5,7 +5,7 @@
 </template>
 <script setup lang="ts">
 import { listenNotify, type Theme, logger, type RiboEvent } from "@ribo/api";
-import { computed, onMounted, provide } from "vue";
+import { computed, onMounted, onUnmounted, provide } from "vue";
 import { useSettingStore } from "@/stores/setting";
 import { rootContextKey } from "@/utils/types";
 
@@ -23,11 +23,15 @@ provide(rootContextKey, {
   }
 })
 
-listenNotify<any>((data) => {
+const unlisten = listenNotify<any>(async (data) => {
   logger.debug("listenNotify =>", data.type);
-  hookCache.forEach((cb: (event: RiboEvent<any>) => void) => {
-    cb(data);
-  });
+  console.countReset("store -> getRecords");
+  let arr = hookCache.values();
+  let item = arr.next();
+  while (!item.done) {
+    await item.value(data);
+    item = arr.next();
+  }
 });
 
 
@@ -37,5 +41,10 @@ window.addEventListener("error", (e) => {
 
 onMounted(() => {
   store.loadConfig();
-})
+});
+onUnmounted(() => {
+  unlisten.then((fn) => {
+    fn()
+  });
+});
 </script>

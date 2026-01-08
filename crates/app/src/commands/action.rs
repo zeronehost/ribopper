@@ -14,7 +14,7 @@ use crate::{
 pub fn create_action<R: Runtime>(app: AppHandle<R>, action: NewAction) -> CommandResult<Action> {
   log::debug!("commands::action::create_action called");
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| {
+  let mut db = state.0.lock().map_err(|e| {
     log::error!(
       "commands::action::create_action - failed to local db: {}",
       e
@@ -26,6 +26,8 @@ pub fn create_action<R: Runtime>(app: AppHandle<R>, action: NewAction) -> Comman
     log::error!("commands::action::create_action - failed to create action");
     e.to_string()
   })?;
+  db.create_action_option_by_action(action.id, &action.pattern)
+    .map_err(|e| e.to_string())?;
   RiboEvent::<()>::create_update_event(None, EventLabel::Action)
     .emit(&app)
     .map_err(|e| e.to_string())?;
@@ -66,7 +68,7 @@ pub fn create_action_option<R: Runtime>(
 ) -> CommandResult<ActionWithOption> {
   log::debug!("commands::action::create_action_option called");
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| {
+  let mut db = state.0.lock().map_err(|e| {
     log::error!(
       "commands::action::create_action_option - failed to local db: {}",
       e
@@ -74,14 +76,16 @@ pub fn create_action_option<R: Runtime>(
     e.to_string()
   })?;
   log::debug!("create_action_option - action={:?}", action);
-  let action = db.create_action_option(action).map_err(|e| {
+  let action_option = db.create_action_option(action.clone()).map_err(|e| {
     log::error!("commands::action::create_action_option - failed to create action option");
     e.to_string()
   })?;
+  db.create_action_option_by_action(action_option.id, action.pattern.as_str())
+  .map_err(|e| e.to_string())?;
   RiboEvent::<()>::create_update_event(None, EventLabel::ActionOption)
     .emit(&app)
     .map_err(|e| e.to_string())?;
-  Ok(action)
+  Ok(action_option)
 }
 
 #[tauri::command]
@@ -92,8 +96,8 @@ pub fn get_actions(state: State<'_, Db>) -> CommandResult<Vec<ActionWithOption>>
     e.to_string()
   })?;
 
-  db.get_actions().map_err(|e| {
-    log::error!("commands::action::get_actions - failed to get actions");
+  db.get_action_options().map_err(|e| {
+    log::error!("commands::action::get_action_options - failed to get actions");
     e.to_string()
   })
 }
@@ -182,7 +186,7 @@ pub fn delete_option<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bo
 pub fn update_action<R: Runtime>(app: AppHandle<R>, action: UpdateAction) -> CommandResult<bool> {
   log::info!("commands::action::update_action called id={}", action.id);
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| {
+  let mut db = state.0.lock().map_err(|e| {
     log::error!(
       "commands::action::update_action - failed to local db: {}",
       e
@@ -190,9 +194,12 @@ pub fn update_action<R: Runtime>(app: AppHandle<R>, action: UpdateAction) -> Com
     e.to_string()
   })?;
   let id = action.id;
+  let binding = action.clone();
+  let pattern = binding.pattern.as_str();
   match db.update_action(action) {
     Ok(success) => {
       if success {
+        db.update_action_option_by_action(id, pattern).map_err(|e| e.to_string())?;
         RiboEvent::<()>::create_update_event(None, EventLabel::Action)
           .emit(&app)
           .map_err(|e| e.to_string())?;
@@ -258,35 +265,36 @@ pub fn get_exec_action<R: Runtime>(
 ) -> CommandResult<Vec<ActionWithOption>> {
   log::info!("commands::action::exec_action called id={}", id);
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| {
+  let _db = state.0.lock().map_err(|e| {
     log::error!("commands::action::exec_action - failed to local db: {}", e);
     e.to_string()
   })?;
+  todo!()
 
-  let data = db.get_record_by_id(id).map_err(|e| e.to_string())?;
-  match data {
-    Some(record) => {
-      log::info!(
-        "commands::action::exec_action - success to exec action id={}",
-        id
-      );
-      let action = match db.get_action_record_by_record(&record) {
-        Ok(action) => action,
-        Err(e) => {
-          log::error!(
-            "commands::action::exec_action - failed to get action record: {}",
-            e
-          );
-          return Err(e.to_string());
-        }
-      };
-      Ok(action)
-    }
-    None => {
-      log::error!("commands::action::exec_action - record not found id={}", id);
-      Ok(vec![])
-    }
-  }
+  // let data = db.get_record_by_id(id).map_err(|e| e.to_string())?;
+  // match data {
+  //   Some(record) => {
+  //     log::info!(
+  //       "commands::action::exec_action - success to exec action id={}",
+  //       id
+  //     );
+  //     let action = match db.get_action_record_by_record(&record) {
+  //       Ok(action) => action,
+  //       Err(e) => {
+  //         log::error!(
+  //           "commands::action::exec_action - failed to get action record: {}",
+  //           e
+  //         );
+  //         return Err(e.to_string());
+  //       }
+  //     };
+  //     Ok(action)
+  //   }
+  //   None => {
+  //     log::error!("commands::action::exec_action - record not found id={}", id);
+  //     Ok(vec![])
+  //   }
+  // }
 }
 
 #[tauri::command]

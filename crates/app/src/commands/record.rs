@@ -115,14 +115,15 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Com
 pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> CommandResult<bool> {
   log::info!("commands::record::update_record called");
   let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| {
+  let mut db = state.0.lock().map_err(|e| {
     log::error!("commands::record::update_record - failed to lock db: {}", e);
     e.to_string()
   })?;
   match record.try_into() {
-    Ok((id, content)) => match db.update_record_content(id, content) {
+    Ok((id, content)) => match db.update_record_content(id, content.clone()) {
       Ok(success) => {
         if success {
+          db.update_action_option_by_record(id, &content).map_err(|e| e.to_string())?;
           crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
             .emit(&app)
             .map_err(|e| e.to_string())?;

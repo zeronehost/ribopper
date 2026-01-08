@@ -96,7 +96,6 @@ BEGIN
 END;
 
 -- options
-DROP TABLE IF EXISTS options;
 CREATE TABLE IF NOT EXISTS options (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   command TEXT NOT NULL,
@@ -119,3 +118,17 @@ BEGIN
   UPDATE options SET updated_at = DATETIME('now', 'localtime') 
   WHERE id = NEW.id;
 END;
+
+-- record_action table
+create table if not exists record_action (
+  id integer primary key autoincrement,
+  record_id integer not null,
+  action_id integer not null,
+
+  -- 添加外键约束
+  foreign key (record_id) references record(id) on delete cascade,  -- 删除record时自动删除关联记录
+  foreign key (action_id) references actions(id) on delete cascade,  -- 删除action时自动删除关联记录
+
+  -- 添加唯一约束，防止重复关联
+  unique (record_id, action_id)
+);
