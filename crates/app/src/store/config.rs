@@ -26,6 +26,13 @@ impl RiboConfig {
     }
     false
   }
+
+  pub(crate) fn get_exit_confirm(&self) -> bool {
+    if let Some(conf) = &self.general {
+      return conf.exit_confirm;
+    }
+    true
+  }
 }
 
 impl Default for RiboConfig {
@@ -34,6 +41,7 @@ impl Default for RiboConfig {
       general: Some(RiboGeneral {
         max: None,
         auto_start: false,
+        exit_confirm: true,
       }),
       options: None,
       theme: Some(RiboTheme::default()),
@@ -56,6 +64,7 @@ pub enum RiboTheme {
 pub struct RiboGeneral {
   pub max: Option<usize>,
   pub auto_start: bool,
+  pub exit_confirm: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

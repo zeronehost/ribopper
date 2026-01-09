@@ -1,11 +1,11 @@
 <template>
-  <dialog class="ribo-dialog-add-action" ref="rootEl" @close="closeDialogHandle">
-    <section class="ribo-dialog-add-action__container">
-      <header class="ribo-dialog-add-action__header">
-        <div class="ribo-dialog-add-action__title">操作配置</div>
+  <dialog class="ribo-dialog-action" ref="rootEl" @close="closeDialogHandle">
+    <section class="ribo-dialog-action__container">
+      <header class="ribo-dialog-action__header">
+        <div class="ribo-dialog-action__title">操作配置</div>
         <s-icon name="close" class="close" @click="closeHandle"></s-icon>
       </header>
-      <RiboField class="ribo-dialog-add-action__body">
+      <RiboField class="ribo-dialog-action__body">
         <RiboFieldItem class="action" title="匹配模式" tip="匹配模式是一条正则表达式">
           <s-text-field v-model.lazy="innerAction.pattern"></s-text-field>
         </RiboFieldItem>
@@ -22,17 +22,21 @@
             </s-tr>
           </s-thead>
           <s-tbody>
-            <s-tr v-for="(option, i) in innerAction.options">
+            <s-tr v-for="(option, index) in innerAction.options">
               <s-td class="command">{{ option.command }}</s-td>
-              <s-td></s-td>
+              <s-td>
+                <span v-if="option.out === 'append'">添加到剪贴板</span>
+                <span v-if="option.out === 'replace'">替换当前剪贴板内容</span>
+                <span v-if="option.out === 'ingore'">忽略</span>
+              </s-td>
               <s-td>{{ option.description }}</s-td>
               <s-td class="option">
-                <s-icon-button @click="editOption(i)">
+                <s-icon-button @click="editOption(option, index)">
                   <s-icon>
                     <RiboIconEdit />
                   </s-icon>
                 </s-icon-button>
-                <s-icon-button class="delete" @click="deleteOption(i)">
+                <s-icon-button class="delete" @click="deleteOption(option.id, index)">
                   <s-icon>
                     <RiboIconDelete />
                   </s-icon>
@@ -48,20 +52,20 @@
           </s-button>
         </RiboFieldItem>
       </RiboField>
-      <footer class="ribo-dialog-add-action__actions">
+      <footer class="ribo-dialog-action__actions">
         <s-button type="filled" @click="confirmHandle">确定</s-button>
         <s-button type="elevated" @click="cancelHandle">取消</s-button>
       </footer>
     </section>
     <RiboDialogDelete v-model="optionDeleteShow" @confirm="deleteOptionConfirm" />
     <RiboDialogOption v-model="addOptionShow" @confirm="addOptionConfirm" />
-    <RiboDialogOption v-model="updateOptionShow" :data="selectedOption" @confirm="updateOptionConfirm" />
+    <RiboDialogOption v-model="updateOptionShow" :data="isNew ? selectedOption : editOptionData" @confirm="updateOptionConfirm" />
   </dialog>
 </template>
 <script setup lang="ts">
 import { RiboField, RiboFieldItem } from '@/components/field';
 import { RiboIconDelete, RiboIconEdit } from '@/components/icons';
-import type { Action, Option } from '@ribo/api';
+import type { Action, NewAction, NewOption, Option, UpdateAction, UpdateOption } from '@ribo/api';
 import { computed, ref, watch, type PropType } from 'vue';
 import RiboDialogOption from "./option.vue";
 import RiboDialogDelete from './delete.vue';
@@ -75,20 +79,21 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  data: {
+  action: {
     type: Object as PropType<Action>,
   }
 });
 
 const rootEl = ref<HTMLDialogElement>();
-const innerAction = ref<Partial<Action>>(props.data ?? {
+const innerAction = ref<Partial<Action>>(props.action ?? {
   options: [],
 });
+const isNew = computed(() => !Object.hasOwn(innerAction.value, "id"));
 
 watch(() => props.modelValue, (val) => {
   if (val) {
     rootEl.value?.showModal();
-    innerAction.value = props.data ?? {
+    innerAction.value = props.action ?? {
       options: [],
     };
   }
@@ -96,8 +101,12 @@ watch(() => props.modelValue, (val) => {
 
 const emit = defineEmits<{
   "update:modelValue": [val: boolean],
-  confirm: [data: any],
+  deleteOption: [id: number],
+  addOption: [option: NewOption],
+  updateOption: [option: UpdateOption],
+  confirm: [data: UpdateAction | NewAction],
   cancel: [],
+  close: [],
 }>();
 
 const closeDialogHandle = () => {
@@ -106,23 +115,30 @@ const closeDialogHandle = () => {
 
 const closeHandle = () => {
   rootEl.value?.close();
+  emit("close");
 }
 
 const confirmHandle = () => {
+  emit("confirm", isNew.value ? innerAction.value as NewAction : {
+    id: props.action?.id,
+    pattern: innerAction.value.pattern,
+    description: innerAction.value.description,
+  } as UpdateAction);
   closeHandle();
-  emit("confirm", innerAction.value);
 }
 const cancelHandle = () => {
-  closeHandle();
   emit("cancel");
+  closeHandle();
 }
 
 //--------------------------------------
 const addOptionShow = ref(false);
 const updateOptionShow = ref(false);
 const optionDeleteShow = ref(false);
+const deletedId = ref<number>();
 const deletedIndex = ref<number>();
 const editIndex = ref<number>();
+const editOptionData = ref<Option>();
 const selectedOption = computed(() =>
   editIndex.value !== undefined ?
     innerAction.value.options?.[editIndex.value] :
@@ -131,40 +147,74 @@ const selectedOption = computed(() =>
 const addOption = () => {
   addOptionShow.value = true;
 }
-const editOption = (index: number) => {
+const editOption = (option: Option, index: number) => {
   updateOptionShow.value = true;
+  editOptionData.value = option;
   editIndex.value = index;
 }
-const deleteOption = (index: number) => {
+const deleteOption = (optionId: number, index: number) => {
   optionDeleteShow.value = true;
+  deletedId.value = optionId;
   deletedIndex.value = index;
 }
 const deleteOptionConfirm = () => {
-  if (deletedIndex.value!==undefined) {
-    innerAction.value.options?.splice(deletedIndex.value, 1);
+  if (isNew.value) {
+    if (deletedIndex.value!==undefined) {
+      innerAction.value.options?.splice(deletedIndex.value, 1);
+    }
+  } else {
+    if (deletedId.value !== undefined) {
+      emit("deleteOption", deletedId.value);
+    }
   }
   deletedIndex.value = undefined;
+  deletedId.value = undefined;
 }
 
 const addOptionConfirm = (option: Option) => {
-  if (innerAction.value.options) {
-    option.actionId = 0;
-    innerAction.value.options.push(option);
+  if (isNew.value) {
+    if (innerAction.value.options) {
+      option.actionId = 0;
+      innerAction.value.options.push(option);
+    } else {
+      innerAction.value.options = [option];
+    }
   } else {
-    innerAction.value.options = [option];
+    emit("addOption", {
+      command: option.command,
+      description: option.description,
+      out: option.out,
+      actionId: props.action?.id,
+    } as UpdateOption);
+
   }
 }
 const updateOptionConfirm = (option: Option) => {
-  if (editIndex.value !== undefined) {
-    (innerAction.value.options as Option[])[editIndex.value] = option;
+  if (isNew.value) {
+    if (editIndex.value !== undefined) {
+      (innerAction.value.options as Option[])[editIndex.value] = option;
+    }
+    editIndex.value = undefined;
+  } else {
+    emit("updateOption", {
+      id: option.id,
+      command: option.command,
+      description: option.description,
+      out: option.out,
+      actionId: props.action?.id,
+    } as UpdateOption);
   }
-  editIndex.value = undefined;
 }
 //--------------------------------------
-
+defineExpose({
+  //刷新
+  refresh(options: Option[]){
+    innerAction.value.options = options;
+  }
+})
 </script>
 <style lang="scss">
-.ribo-dialog-add-action {
+.ribo-dialog-action {
   border: none;
   padding: 1rem;
   border-radius: 5px;

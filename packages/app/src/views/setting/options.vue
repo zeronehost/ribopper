@@ -34,15 +34,15 @@
     </s-card>
   </RiboOptionSection>
   <RiboDialogDelete v-model="deleteDialogShow" @confirm="deleteConfirmHandle" />
-  <RiboDialogAddAction v-model="addActionShow" @confirm="addActionConfirmHandle" />
-  <RiboDialogUpdateAction
-    v-model="updateActionShow"
+  <RiboDialogAction
+    v-model="actionShow"
     :action="selected"
-    @confirm="updateActionConfirmHandle"
+    @confirm="actionConfirmHandle"
     @add-option="addOptionHandle"
     @delete-option="deleteOptionHandle"
     @update-option="updateOptionHandle"
     @close="closeHandle"
+    ref="actionDialogEl"
   />
 </template>
 <script setup lang="ts">
@@ -52,8 +52,7 @@ import { computed, ref } from 'vue';
 import { RiboOption } from "@/components/option";
 import {
   RiboDialogDelete,
-  RiboDialogAddAction,
-  RiboDialogUpdateAction,
+  RiboDialogAction,
 } from "@/components/dialog";
 import {
   logger,
@@ -75,28 +74,27 @@ const selectedHandle = (data: Action) => {
   selected.value = data;
 }
 
-const addActionShow = ref(false);
-const updateActionShow = ref(false);
+const actionShow = ref(false);
 
 const addHandle = () => {
-  addActionShow.value = true;
+  actionShow.value = true;
 }
 const editHandle = () => {
-  updateActionShow.value = true;
+  actionShow.value = true;
 }
 
-const addActionConfirmHandle = async (action: NewAction) => {
-  await actionStore.addAction(action).catch(e => {
-    logger.error(e);
-  })
-}
-
-const updateActionConfirmHandle = async (action: UpdateAction) => {
-  await actionStore.updateAction(action).catch(e => {
-    logger.error(e);
-  });
-  selected.value = undefined;
-  optionEl.value?.reset();
+const actionConfirmHandle = async (action: UpdateAction|NewAction) => {
+  if (Object.hasOwn(action, "id")) {
+    await actionStore.updateAction(action as UpdateAction).catch(e => {
+      logger.error(e);
+    });
+  } else {
+    await actionStore.addAction(action as NewAction).catch(e => {
+      logger.error(e);
+    });
+    selected.value = undefined;
+    optionEl.value?.reset();
+  }
 }
 
 const deleteDialogShow = ref(false);
@@ -110,22 +108,41 @@ const deleteConfirmHandle = async () => {
     optionEl.value?.reset();
   }
 }
+const actionDialogEl = ref<typeof RiboDialogAction>();
 
 const addOptionHandle = async (option: NewOption) => {
   await actionStore.addOption(option).catch(e => {
     logger.error(e);
   });
+  if (selected.value?.id) {
+    let options = await actionStore.getOptionsByActionId(selected.value?.id).catch(e => {
+      logger.error(e);
+    });
+    actionDialogEl.value?.refresh(options);
+  }
 }
 
 const deleteOptionHandle = async (optionId: number) => {
   await actionStore.deleteOption(optionId).catch(e => {
     logger.error(e);
   });
+  if (selected.value?.id) {
+    let options = await actionStore.getOptionsByActionId(selected.value?.id).catch(e => {
+      logger.error(e);
+    });
+    actionDialogEl.value?.refresh(options);
+  }
 }
 const updateOptionHandle = async (option: UpdateOption) => {
   await actionStore.updateOption(option).catch(e => {
     logger.error(e);
   });
+  if (selected.value?.id) {
+    let options = await actionStore.getOptionsByActionId(selected.value?.id).catch(e => {
+      logger.error(e);
+    });
+    actionDialogEl.value?.refresh(options);
+  }
 }
 
 const closeHandle = () => {

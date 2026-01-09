@@ -26,6 +26,9 @@ export const useSettingStore = defineStore("setting", {
     },
     hotkeys(): RiboHotkey {
       return this.config?.hotkey as RiboHotkey ?? {};
+    },
+    exitConfirm(): boolean {
+      return this.config?.general?.exitConfirm as boolean
     }
   },
   actions: {
@@ -43,6 +46,9 @@ export const useSettingStore = defineStore("setting", {
         this.config.hotkey = {};
       }
       (this.config.hotkey as RiboHotkey)[label] = data;
+    },
+    setExitConfirm(exitConfirm: boolean) {
+      (this.config.general as GeneralOptions).exitConfirm = exitConfirm;
     },
 
     saveConfig() {

@@ -5,7 +5,7 @@ use tauri::{
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
-use crate::utils::constant::APP_NAME;
+use crate::{commands::config::config_load, utils::constant::APP_NAME};
 
 pub(crate) struct Tray;
 
@@ -62,19 +62,29 @@ impl Tray {
           ..
         } = ev
         {
-          log::info!("左键点击托盘图标");
+          log::info!("tray::on_tray_icon_event::click");
           let app = icon.app_handle();
           crate::window::open_tray_pane(app).unwrap();
         }
       })
       .on_menu_event(|app, ev| match ev.id().as_ref() {
         "main" => {
-          log::info!("打开主窗口");
+          log::info!("tray::on_menu_event::main open");
           crate::window::open_tray_pane(app).unwrap();
         }
         "quit" => {
-          log::info!("确认退出应用");
+          log::info!("tray::on_menu_event::quit");
           let app_handle = app.clone();
+          let exit_confirm = if let Ok(Some(config)) = config_load(app_handle.clone()) {
+            config.get_exit_confirm()
+          } else {
+            true
+          };
+          if !exit_confirm {
+            log::info!("tray::on_menu_event::quit::exit");
+            log::info!("================================");
+            app_handle.exit(0);
+          }
           app
             .dialog()
             .message("确认要退出应用？")
@@ -85,22 +95,22 @@ impl Tray {
             ))
             .show(move |result| {
               if result {
-                log::info!("退出应用");
+                log::info!("tray::on_menu_event::quit::exit");
                 log::info!("================================");
                 app_handle.exit(0);
               }
             });
         }
         "clear" => {
-          log::info!("清空历史记录");
+          log::info!("tray::on_menu_event::clear");
           crate::commands::record::clear_records(app.clone()).unwrap();
         }
         "setting" => {
-          log::info!("打开设置窗口");
+          log::info!("tray::on_menu_event::setting");
           crate::window::open_setting_window(app).unwrap();
         }
         "about" => {
-          log::info!("打开关于");
+          log::info!("tray::on_menu_event::about");
           let pkg_info = app.package_info();
           app
             .dialog()

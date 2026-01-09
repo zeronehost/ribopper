@@ -88,9 +88,8 @@ pub fn open_tray_pane<R: Runtime>(
       
       set_tray_window_pos(app, &win)?;
       win.show()?;
-      if cfg!(debug_assertions) {
-        win.open_devtools();
-      }
+      #[cfg(debug_assertions)]
+      win.open_devtools();
       win.set_focus()?;
       Ok(())
     }

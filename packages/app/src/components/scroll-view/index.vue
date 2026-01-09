@@ -23,10 +23,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  immediate: {
-    type: Boolean,
-    default: true,
-  }
 });
 
 const emits = defineEmits<{
@@ -69,11 +65,6 @@ const onScroll = () => {
 onMounted(() => {
   if (rootEl.value) {
     observer.value = new MutationObserver(checkFull);
-    
-    if (props.immediate) {
-      observer.value.observe(rootEl.value, { childList: true, subtree: true });
-      checkFull();
-    }
 
     rootEl.value?.addEventListener("scroll", onScroll);
   }

@@ -25,7 +25,6 @@ provide(rootContextKey, {
 
 const unlisten = listenNotify<any>(async (data) => {
   logger.debug("listenNotify =>", data.type);
-  console.countReset("store -> getRecords");
   let arr = hookCache.values();
   let item = arr.next();
   while (!item.done) {

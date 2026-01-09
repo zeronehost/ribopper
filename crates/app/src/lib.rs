@@ -126,6 +126,7 @@ pub fn run() {
       // action commands
       crate::commands::action::get_actions,
       crate::commands::action::get_action_by_id,
+      crate::commands::action::get_options_by_action_id,
       crate::commands::action::create_action,
       crate::commands::action::create_action_option,
       crate::commands::action::create_option,

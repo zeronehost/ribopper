@@ -15,7 +15,7 @@
         <RiboFieldItem title="指令输出">
           <s-radio-button v-model.lazy="innerOption.out" type="radio" value="ingore">忽略</s-radio-button>
           <s-radio-button v-model.lazy="innerOption.out" type="radio" value="replace">替换当前剪贴板内容</s-radio-button>
-          <s-radio-button v-model.lazy="innerOption.out" type="radio" value="add">添加到剪贴板</s-radio-button>
+          <s-radio-button v-model.lazy="innerOption.out" type="radio" value="append">添加到剪贴板</s-radio-button>
         </RiboFieldItem>
       </RiboField>
       <footer class="ribo-dialog-option__actions">
@@ -46,12 +46,12 @@ const props = defineProps({
 });
 
 const rootEl = ref<HTMLDialogElement>();
-const innerOption = ref<Partial<Option>>({...props.data});
+const innerOption = ref<Partial<Option>>(Object.assign({}, {out: "ingore"}, props.data));
 
 watch(() => props.modelValue, (val) => {
   if (val) {
     rootEl.value?.showModal();
-    innerOption.value = {...props.data};
+    innerOption.value = Object.assign({}, {out: "ingore"}, props.data);
   }
 });
 

@@ -17,7 +17,7 @@ export interface Option {
   createdAt: Date,
 }
 
-export type OptionOut = "ingore" | "replace" | "add";
+export type OptionOut = "ingore" | "replace" | "append";
 
 export type NewOption = Omit<Option, "id" | "createdAt" | "updatedAt">;
 

@@ -21,22 +21,22 @@ class Logger {
   }
   
   warn(...message: any[]) {
-    console.warn(message);
+    console.warn(...message);
     this._print("warn", ...message);
   }
 
   info(...message: any[]) {
-    console.info(message);
+    console.info(...message);
     this._print("info", ...message);
   }
 
   debug(...message: any[]) {
-    console.debug(message);
+    console.debug(...message);
     this._print("debug", ...message);
   }
 
   trace(...message: any[]) {
-    console.trace(message);
+    console.trace(...message);
     this._print("trace", ...message);
   }
 }

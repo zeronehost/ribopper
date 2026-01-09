@@ -10,6 +10,7 @@ export type Theme = "light" | "dark" | "auto";
 export interface GeneralOptions {
   max?: number | null;
   autoStart: boolean;
+  exitConfirm: boolean;
 }
 
 export interface RiboEvent<T> {

@@ -127,6 +127,19 @@ pub fn get_action_by_id(state: State<'_, Db>, id: u64) -> CommandResult<ActionWi
 }
 
 #[tauri::command]
+pub fn get_options_by_action_id(state: State<'_, Db>, id: u64) -> CommandResult<Vec<RiboOption>> {
+  log::debug!("commands::action::get_options_by_action_id called id={}", id);
+  let db = state.0.lock().map_err(|e| {
+    log::error!("commands::action::get_options_by_action_id - failed to local db: {}", e);
+    e.to_string()
+  })?;
+  db.get_options_by_action_id(id).map_err(|e| {
+    log::error!("commands::action::get_options_by_action_id - failed to get options id={id}");
+    e.to_string()
+  })
+}
+
+#[tauri::command]
 pub fn delete_action<R: Runtime>(app: AppHandle<R>, id: u64) -> CommandResult<bool> {
   log::debug!("commands::action::delete_action called id={}", id);
   let state = app.state::<crate::store::db::Db>();

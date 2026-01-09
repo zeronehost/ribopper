@@ -36,8 +36,6 @@ export const useRecordStore = defineStore('record', {
       }
     },
     async getRecords() {
-      console.trace(`store -> getRecords => ${new Date().toLocaleTimeString()}`);
-      console.count("store -> getRecords");
       if (this.loadEnable) {
         const offset = this.index * this.size;
         this.loading = true;

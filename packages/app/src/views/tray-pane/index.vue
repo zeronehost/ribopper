@@ -153,8 +153,6 @@ useListenHotKey(settingStore.hotkeys, (type) => {
         break;
       case "clear":
         currentIndex.value = -1;
-        // cleanHandle().then(() => {
-        // });
         break;
     }
   }
@@ -182,7 +180,6 @@ const loadRecords = async (event: RiboEvent<void>) => {
       || event.label === EVENT_LABEL_TARGET
       || event.label === EVENT_LABEL_ALL
     )) {
-    console.trace("loadRecords", event);
     await nextTick();
     await recordStore.initRecords();
   }
@@ -192,12 +189,13 @@ const loadRecords = async (event: RiboEvent<void>) => {
       event.label === EVENT_LABEL_CONFIG
       || event.label === EVENT_LABEL_ALL
     ) {
-      settingStore.loadConfig();
+      await settingStore.loadConfig();
     }
   }
 };
 
 onMounted(() => {
+  recordStore.initRecords();
   context?.register(loadRecords);
 });
 onUnmounted(() => {

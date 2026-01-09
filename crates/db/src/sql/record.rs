@@ -165,6 +165,7 @@ impl Database {
     begin transaction;
     delete from record;
     delete from sqlite_sequence where name = 'record';
+    delete from sqlite_sequence where name = 'record_action';
     commit"#,
     )?;
 

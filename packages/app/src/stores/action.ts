@@ -36,7 +36,7 @@ export const useActionStore = defineStore("action", {
       await createOption(option);
     },
     async getOptionsByActionId(id: number) {
-      await getOptionsByActionId(id);
+      return await getOptionsByActionId(id);
     },
     async deleteOption(id: number) {
       await deleteOption(id);
