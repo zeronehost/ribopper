@@ -10,7 +10,7 @@
     </code>
     <footer>
       <s-button type="elevated" @click.stop="cancelHandle">取消</s-button>
-      <s-button @click.stop="confirmHandle">确定</s-button>
+      <s-button @click.stop="confirmHandle" :disabled="!key">确定</s-button>
     </footer>
   </dialog>
 </template>

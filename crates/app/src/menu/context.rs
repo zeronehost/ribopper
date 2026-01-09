@@ -1,5 +1,8 @@
 use ribo_db::models::ActionWithOption;
-use tauri::{Manager, Runtime, menu::{Menu, MenuItem, Submenu, SubmenuBuilder}};
+use tauri::{
+  Manager, Runtime,
+  menu::{Menu, MenuItem, SubmenuBuilder},
+};
 
 pub struct Context<'a, R: Runtime> {
   menu: Menu<R>,
@@ -15,10 +18,25 @@ impl<'a, R: Runtime> Context<'a, R> {
   }
 
   pub fn set_menu(&mut self, actions: Vec<ActionWithOption>) -> anyhow::Result<()> {
+    if actions.is_empty() {
+      self.menu.append(&MenuItem::with_id(
+        self.app,
+        "inner_empty",
+        "未查询到匹配的命令",
+        false,
+        None::<&str>,
+      )?)?;
+    }
     for action in actions {
       let mut submenu = SubmenuBuilder::new(self.app, action.name);
       for option in action.options {
-        submenu = submenu.item(&MenuItem::with_id(self.app, option.id, option.name, true, None::<&str>)?);
+        submenu = submenu.item(&MenuItem::with_id(
+          self.app,
+          option.id,
+          option.name,
+          true,
+          None::<&str>,
+        )?);
       }
       let menu = submenu.build()?;
       self.menu.append(&menu)?;

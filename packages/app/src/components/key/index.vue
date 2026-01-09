@@ -1,5 +1,5 @@
 <template>
-  <s-tr>
+  <s-tr class="ribo-key" :class="{ disabled, selected }">
     <s-td class="index" @click="editHandle">
       <s-icon>
         <svg viewBox="0 -960 960 960">
@@ -22,19 +22,87 @@
 <script setup lang="ts">
 import type { RiboHotkey, RiboKey } from '@ribo/api';
 
-  defineOptions({
-    name: "riboKey"
-  });
-  const props = defineProps<{
-    desc: string,
-    data?: RiboKey,
-    label: keyof RiboHotkey,
-  }>();
-  const emit = defineEmits<{
-    (e: 'edit', label: keyof RiboHotkey): void,
-  }>();
+defineOptions({
+  name: "riboKey"
+});
+const props = defineProps<{
+  desc: string,
+  data?: RiboKey,
+  label: keyof RiboHotkey,
+  disabled?: boolean,
+  selected?: boolean
+}>();
+const emit = defineEmits<{
+  (e: 'edit', label: keyof RiboHotkey): void,
+}>();
 
-  const editHandle = () => {
-    emit("edit", props.label);
-  }
+const editHandle = () => {
+  if (props.disabled) return;
+  emit("edit", props.label);
+}
 </script>
+<style scoped lang="scss">
+.ribo-key {
+  &.disabled {
+    cursor: not-allowed;
+    color: color-mix(in srgb, var(--s-color-on-surface, #191C1E) 38%, transparent);
+
+    * {
+      cursor: not-allowed;
+      color: color-mix(in srgb, var(--s-color-on-surface, #191C1E) 38%, transparent);
+    }
+  }
+
+  &:not(.disabled) {
+    &:hover {
+      s-icon {
+        visibility: visible;
+      }
+
+      .key {
+        cursor: text;
+
+        * {
+          cursor: text;
+        }
+      }
+    }
+    &.selected {
+      s-icon {
+        visibility: visible;
+      }
+    }
+  }
+
+  s-td {
+    &:not(:last-child) {
+      border-right: solid 1px var(--s-color-outline-variant, #C0C8CC);
+    }
+
+    s-icon {
+      width: 1rem;
+      height: 1rem;
+      visibility: hidden;
+    }
+
+    kbd {
+      background-color: var(--s-color-surface-container-low);
+      padding: 3px 5px;
+      border-radius: 4px;
+
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
+
+  }
+
+  .index {
+    width: 3rem;
+  }
+
+  .option {
+    width: 10rem;
+  }
+}
+</style>

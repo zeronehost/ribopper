@@ -126,6 +126,8 @@ const cancelHandle = () => {
 
     .ribo-field-item__content {
       width: 100%;
+      flex-direction: column;
+      align-items: start;
     }
 
     s-text-field {

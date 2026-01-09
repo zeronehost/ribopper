@@ -49,6 +49,9 @@ defineProps({
   }
   &__content {
     align-self: flex-end;
+    display: flex;
+    align-items: center;
+    height: 2rem;
   }
   &__tip {
     align-self: flex-start;

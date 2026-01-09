@@ -28,6 +28,12 @@ s-divider {
 s-switch {
   width: 3rem;
   height: 1.5rem;
+
+  &[checked="true"] {
+    &::part(ripple) {
+      transform: translateX(70%);
+    }
+  }
 }
 
 s-navigation[mode="rail"] {
