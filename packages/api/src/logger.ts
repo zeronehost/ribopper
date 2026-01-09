@@ -9,6 +9,8 @@ class Logger {
     invoke("web_log", {
       level,
       message: str
+    }).catch((e) => {
+      console.error(e);
     });
   }
   error(error: Error) {
