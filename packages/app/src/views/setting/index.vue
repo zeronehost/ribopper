@@ -155,8 +155,8 @@ onUnmounted(() => {
   grid-template-areas:
     "setting content"
     "setting option";
-  grid-template-columns: 80px auto;
-  grid-template-rows: auto 80px;
+  grid-template-columns: 4rem auto;
+  grid-template-rows: auto 4rem;
 
   s-navigation {
     grid-area: setting;

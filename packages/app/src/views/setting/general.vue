@@ -53,13 +53,3 @@ const exitConfirm = computed({
 })
 
 </script>
-<style lang="scss">
-  .options-panel {
-    s-text-field {
-      min-height: 1.5rem;
-    }
-    s-divider {
-      margin: 0.5rem 0;
-    }
-  }
-</style>

@@ -91,11 +91,11 @@ section.edit-pane {
   }
 
   footer {
-    padding: 1rem;
+    padding: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: end;
-    gap: 1rem;
+    gap: 0.5rem;
 
     s-button {
       border-radius: 6px;

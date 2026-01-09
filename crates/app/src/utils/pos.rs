@@ -14,7 +14,7 @@ pub fn set_tray_window_pos<R: Runtime>(
   let scale = window.scale_factor()?;
   log::info!("Scale: {}", scale);
   let baseline_h_physical = (600. * scale).round() as u32;
-  let baseline_w_physical = (350. * scale).round() as u32;
+  let baseline_w_physical = (360. * scale).round() as u32;
   log::info!("Baseline size: {baseline_w_physical}x{baseline_h_physical}");
   let monitor_size = monitor.work_area().size;
   log::info!("Monitor size: {:?}", monitor_size);

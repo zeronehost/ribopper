@@ -32,7 +32,6 @@ defineProps({
 
   &+& {
     margin-top: 0.5rem;
-    padding-top: .5rem;
   }
 
   &__title {
@@ -40,7 +39,7 @@ defineProps({
     width: 10rem;
     color: var(--s-color-on-surface-variant, #40484C);
     align-self: start;
-    line-height: 48px;
+    line-height: 2rem;
   }
 
   &__wrapper {

@@ -2,10 +2,46 @@
   box-sizing: border-box;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   margin: 0;
   padding: 0;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+}
+
+s-text-field {
+  min-height: 2rem;
+}
+
+s-button {
+  height: 2rem;
+  padding: 0 1rem;
+}
+
+s-divider {
+  margin: 0.5rem 0;
+}
+
+s-switch {
+  width: 3rem;
+  height: 1.5rem;
+}
+
+s-navigation[mode="rail"] {
+  width: 4rem;
+}
+
+s-radio-button {
+  height: 2rem;
+}
+
+s-search {
+  min-height: 2rem;
+}
+
+s-popup-menu-item {
+  height: 2rem;
 }

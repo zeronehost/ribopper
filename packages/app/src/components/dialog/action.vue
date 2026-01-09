@@ -237,7 +237,8 @@ defineExpose({
     height: 100%;
     display: grid;
     grid-template-columns: auto;
-    grid-template-rows: 2rem auto 3rem;
+    grid-template-rows: 2rem auto 2.5rem;
+    gap: 0.5rem;
   }
 
   &__header {
@@ -256,7 +257,7 @@ defineExpose({
 
   &__body {
     overflow: hidden;
-    margin: 1rem 0;
+    margin: 0;
     padding: 1rem;
     box-shadow: none;
 
