@@ -11,9 +11,9 @@ impl Database {
       "db.actions: create_action invoked (pattern={:?})",
       new_action.pattern
     );
-    let mut stmt = self.conn().prepare("insert into actions (description, pattern) values (?1, ?2) RETURNING id, description, pattern, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into actions (description, pattern, name) values (?1, ?2, ?3) RETURNING id, name, description, pattern, created_at, updated_at")?;
     let action = stmt.query_row(
-      params![new_action.description, new_action.pattern],
+      params![new_action.description, new_action.pattern, new_action.name],
       |row| Ok(models::Action::from_row(row)),
     )??;
 
@@ -27,10 +27,10 @@ impl Database {
       "db.actions: create_action invoked (pattern={:?})",
       new_action.pattern
     );
-    let mut stmt = self.conn().prepare("insert into actions (description, pattern) values (?1, ?2) RETURNING id, description, pattern, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into actions (description, pattern, name) values (?1, ?2, ?3) RETURNING id, name, description, pattern, created_at, updated_at")?;
     let action = stmt
       .query_row(
-        params![new_action.description, new_action.pattern],
+        params![new_action.description, new_action.pattern, new_action.name],
         |row| Ok(models::Action::from_row(row)),
       )??
       .into();
@@ -53,7 +53,7 @@ impl Database {
   pub fn get_action_by_id(&self, id: u64) -> Result<Option<models::ActionWithOption>> {
     log::info!("db.action: get_action_by_id id={}", id);
     let mut stmt = self.conn().prepare(
-      "select id, description, pattern, created_at, updated_at from actions where id = ?1",
+      "select id, name, description, pattern, created_at, updated_at from actions where id = ?1",
     )?;
     match stmt.query_row(params![id], |row| Ok(models::Action::from_row(row))) {
       Ok(action) => {
@@ -61,6 +61,7 @@ impl Database {
         let options = self.get_options_by_action_id(action.id)?;
         Ok(Some(models::ActionWithOption {
           id: action.id,
+          name: action.name,
           description: action.description,
           pattern: action.pattern,
           created_at: action.created_at,
@@ -77,7 +78,7 @@ impl Database {
     log::info!("db.action: get_actions invoked");
     let mut stmt = self
       .conn()
-      .prepare("select id, description, pattern, created_at, updated_at from actions")?;
+      .prepare("select id, name, description, pattern, created_at, updated_at from actions")?;
     let actions = stmt.query_map(params![], |row| Ok(models::Action::from_row(row)))?;
     let mut result = Vec::new();
     for action in actions {
@@ -90,7 +91,7 @@ impl Database {
     log::info!("db.action: get_action_options invoked");
     let mut stmt = self
       .conn()
-      .prepare("select id, description, pattern, created_at, updated_at from actions")?;
+      .prepare("select id, name, description, pattern, created_at, updated_at from actions")?;
     let actions = stmt.query_map(params![], |row| Ok(models::Action::from_row(row)))?;
     let mut result = Vec::new();
     for action in actions {
@@ -98,6 +99,7 @@ impl Database {
       let options = self.get_options_by_action_id(action.id)?;
       let action = models::ActionWithOption {
         id: action.id,
+        name: action.name,
         description: action.description,
         pattern: action.pattern,
         created_at: action.created_at,
@@ -121,7 +123,7 @@ impl Database {
     log::info!("db.action: get_options_by_action_id invoked id={}", id);
     let mut stmt = self
       .conn()
-      .prepare("select id, action_id, description, command, out, created_at, updated_at from options where action_id = ?1")?;
+      .prepare("select id, action_id, name, description, command, out, created_at, updated_at from options where action_id = ?1")?;
     let res = stmt.query_map(params![id], |row| Ok(models::RiboOption::from_row(row)))?;
     let mut options = vec![];
     for option in res {
@@ -136,13 +138,14 @@ impl Database {
       new_option.action_id,
       new_option.command
     );
-    let mut stmt = self.conn().prepare("insert into options (action_id, command, description, out) values (?1, ?2, ?3, ?4) RETURNING id, action_id, description, command, out, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into options (action_id, command, description, out, name) values (?1, ?2, ?3, ?4, ?5) RETURNING id, action_id, name, description, command, out, created_at, updated_at")?;
     let option = stmt.query_row(
       params![
         new_option.action_id,
         new_option.command,
         new_option.description,
-        new_option.out
+        new_option.out,
+        new_option.name
       ],
       |row| Ok(models::RiboOption::from_row(row)),
     );
@@ -160,8 +163,8 @@ impl Database {
   pub fn update_action(&self, action: models::UpdateAction) -> Result<bool> {
     log::info!("db.actions: update_action invoked (id={:?})", action.id);
     let rows_affected = self.conn().execute(
-      "update actions set description = ?1, pattern = ?2 where id = ?3",
-      params![action.description, action.pattern, action.id],
+      "update actions set description = ?1, pattern = ?2, name = ?3 where id = ?4",
+      params![action.description, action.pattern, action.name, action.id],
     )?;
     Ok(rows_affected > 0)
   }
@@ -169,36 +172,12 @@ impl Database {
   pub fn update_option(&self, option: models::UpdateRiboOption) -> Result<bool> {
     log::info!("db.actions: update_option invoked (id={:?})", option.id);
     let rows_affected = self.conn().execute(
-      "update options set command = ?1, description = ?2, out = ?3 where id = ?4",
-      params![option.command, option.description, option.out, option.id],
+      "update options set command = ?1, description = ?2, out = ?3, name = ?4 where id = ?5",
+      params![option.command, option.description, option.out, option.name, option.id],
     )?;
     Ok(rows_affected > 0)
   }
 
-  // pub fn get_action_record_by_record(
-  //   &self,
-  //   record: &models::Record,
-  // ) -> Result<Vec<models::ActionWithOption>> {
-  //   let actions = self.get_actions()?;
-
-  //   if actions.is_empty() {
-  //     return Ok(vec![]);
-  //   }
-
-  //   Ok(
-  //     actions
-  //       .iter()
-  //       .filter(|i| {
-  //         let reg = regex::Regex::new(&i.pattern);
-  //         match reg {
-  //           Ok(reg) => reg.is_match(&record.content),
-  //           _ => false,
-  //         }
-  //       })
-  //       .cloned()
-  //       .collect::<Vec<models::ActionWithOption>>(),
-  //   )
-  // }
 }
 
 #[cfg(test)]
@@ -220,6 +199,7 @@ mod tests {
     let action = db.create_action(models::NewAction {
       description: Some("test".to_string()),
       pattern: "*".to_string(),
+      name: "test".to_string()
     });
     println!("{:?}", action);
     assert!(action.is_ok());

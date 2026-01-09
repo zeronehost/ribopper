@@ -6,7 +6,10 @@
         <s-icon name="close" class="close" @click="closeHandle"></s-icon>
       </header>
       <RiboField class="ribo-dialog-option__body">
-        <RiboFieldItem title="指令">
+        <RiboFieldItem title="名称">
+          <s-text-field v-model.lazy="innerOption.name"></s-text-field>
+        </RiboFieldItem>
+        <RiboFieldItem title="指令" tip="指令中 <%s> 将被替换为完整剪贴板内容">
           <s-text-field v-model.lazy="innerOption.command"></s-text-field>
         </RiboFieldItem>
         <RiboFieldItem title="描述">

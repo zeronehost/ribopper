@@ -23,3 +23,4 @@ export const UPDATE_OPTION = "update_option";
 export const DELETE_OPTION = "delete_option";
 export const GET_EXEC_ACTION = "get_exec_action";
 export const EXEC_ACTION = "exec_action";
+export const SHOW_RECORD_ACTIONS = "show_record_actions"

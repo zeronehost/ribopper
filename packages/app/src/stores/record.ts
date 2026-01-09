@@ -1,4 +1,4 @@
-import { getRecords, deleteRecord, clearRecord, type RiboRecord } from "@ribo/api"
+import { getRecords, deleteRecord, clearRecord, type RiboRecord, showRecordActions } from "@ribo/api"
 import { defineStore } from "pinia"
 import { shallowReactive } from "vue";
 
@@ -63,5 +63,8 @@ export const useRecordStore = defineStore('record', {
     async clearRecord() {
       return await clearRecord();
     },
+    async showRecordActions(id: number, label: string) {
+      await showRecordActions(id, label);
+    }
   }
 })

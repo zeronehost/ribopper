@@ -1,5 +1,6 @@
 export interface Action {
   id: number;
+  name: string;
   pattern: string;
   description: string;
   options: Option[];
@@ -9,6 +10,7 @@ export interface Action {
 
 export interface Option {
   id: number;
+  name: string;
   command: string;
   out: OptionOut;
   actionId: number;

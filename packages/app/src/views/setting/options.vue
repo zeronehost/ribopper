@@ -77,6 +77,7 @@ const selectedHandle = (data: Action) => {
 const actionShow = ref(false);
 
 const addHandle = () => {
+  selected.value = undefined;
   actionShow.value = true;
 }
 const editHandle = () => {

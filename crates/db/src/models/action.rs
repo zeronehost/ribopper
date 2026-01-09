@@ -7,6 +7,7 @@ use crate::models::FromRow;
 #[serde(rename_all = "camelCase")]
 pub struct Action {
   pub id: u64,
+  pub name: String,
   pub description: Option<String>,
   pub pattern: String,
   pub created_at: DateTime<Local>,
@@ -17,10 +18,11 @@ impl FromRow for Action {
   fn from_row(row: &rusqlite::Row) -> crate::Result<Self> {
     Ok(Self {
       id: row.get(0)?,
-      description: row.get(1)?,
-      pattern: row.get(2)?,
-      created_at: row.get(3)?,
-      updated_at: row.get(4)?,
+      name: row.get(1)?,
+      description: row.get(2)?,
+      pattern: row.get(3)?,
+      created_at: row.get(4)?,
+      updated_at: row.get(5)?,
     })
   }
 }
@@ -29,6 +31,7 @@ impl FromRow for Action {
 pub struct NewAction {
   pub description: Option<String>,
   pub pattern: String,
+  pub name: String,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -36,6 +39,7 @@ pub struct UpdateAction {
   pub id: u64,
   pub description: Option<String>,
   pub pattern: String,
+  pub name: String,
 }
 
 
@@ -45,6 +49,7 @@ pub struct RiboOption {
   pub id: u64,
   pub description: Option<String>,
   pub command: String,
+  pub name: String,
   pub action_id: u64, // foreign key
   pub out: OutModel,
   pub created_at: DateTime<Local>,
@@ -56,11 +61,12 @@ impl FromRow for RiboOption {
     Ok(Self {
       id: row.get(0)?,
       action_id: row.get(1)?,
-      description: row.get(2)?,
-      command: row.get(3)?,
-      out: row.get(4)?,
-      created_at: row.get(5)?,
-      updated_at: row.get(6)?,
+      name: row.get(2)?,
+      description: row.get(3)?,
+      command: row.get(4)?,
+      out: row.get(5)?,
+      created_at: row.get(6)?,
+      updated_at: row.get(7)?,
     })
   }
 }
@@ -71,6 +77,7 @@ pub struct NewRiboOption {
   pub description: Option<String>,
   pub action_id: u64,
   pub command: String,
+  pub name: String,
   pub out: OutModel,
 }
 
@@ -79,6 +86,7 @@ pub struct UpdateRiboOption {
   pub id: u64,
   pub description: Option<String>,
   pub command: String,
+  pub name: String,
   pub out: OutModel,
 }
 
@@ -86,6 +94,7 @@ pub struct UpdateRiboOption {
 #[serde(rename_all = "camelCase")]
 pub struct ActionWithOption {
   pub id: u64,
+  pub name: String,
   pub description: Option<String>,
   pub pattern: String,
   pub options: Vec<RiboOption>,
@@ -97,6 +106,7 @@ impl From<Action> for ActionWithOption {
   fn from(val: Action) -> Self {
     ActionWithOption {
       id: val.id,
+      name: val.name,
       description: val.description,
       pattern: val.pattern,
       options: vec![],
@@ -110,6 +120,7 @@ impl From<Action> for ActionWithOption {
 pub struct NewActionWithOption {
   pub description: Option<String>,
   pub pattern: String,
+  pub name: String,
   pub options: Vec<NewRiboOption>,
 }
 

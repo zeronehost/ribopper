@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS actions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   description TEXT,
   pattern TEXT NOT NULL,
+  name text NOT NULL,
   -- options TEXT NOT NULL,  -- 存储为 JSON 字符串
   created_at datetime default (DATETIME('now', 'localtime')),
   updated_at datetime default (DATETIME('now', 'localtime'))
@@ -98,6 +99,7 @@ END;
 -- options
 CREATE TABLE IF NOT EXISTS options (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
   command TEXT NOT NULL,
   description TEXT,
   out char(1) NOT NULL,

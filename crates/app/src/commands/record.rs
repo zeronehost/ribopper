@@ -7,7 +7,8 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use super::CommandResult;
 use crate::{
   events::EventLabel,
-  models::{Record, /*RecordWithTargets, */ UpdateRecord},
+  menu::Context,
+  models::{Record, UpdateRecord},
   store::db::Db,
   utils::qrcode::create_qrcode,
 };
@@ -123,7 +124,8 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Com
     Ok((id, content)) => match db.update_record_content(id, content.clone()) {
       Ok(success) => {
         if success {
-          db.update_action_option_by_record(id, &content).map_err(|e| e.to_string())?;
+          db.update_action_option_by_record(id, &content)
+            .map_err(|e| e.to_string())?;
           crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
             .emit(&app)
             .map_err(|e| e.to_string())?;
@@ -260,4 +262,34 @@ pub fn qrcode_record(state: State<'_, Db>, id: u64) -> CommandResult<Vec<u8>> {
     log::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
     e.to_string()
   })
+}
+
+#[tauri::command]
+pub fn show_record_actions<R: Runtime>(
+  app: AppHandle<R>,
+  id: u64,
+  label: &str,
+) -> CommandResult<()> {
+  log::info!("commands::record::show_record_action called id={id}");
+  let state = app.state::<crate::store::db::Db>();
+  let db = state.0.lock().map_err(|e| {
+    log::error!(
+      "commands::record::show_record_action - failed to lock db: {}",
+      e
+    );
+    e.to_string()
+  })?;
+  let actions = db.get_actions_by_record_id(id).map_err(|e| {
+    log::info!(
+      "commands::record::show_record_action - failed to get actions: {}",
+      e
+    );
+    e.to_string()
+  })?;
+
+  let app = app.app_handle();
+  let mut ctx = Context::new(app).map_err(|e| e.to_string())?;
+  ctx.set_menu(actions).map_err(|e| e.to_string())?;
+  ctx.show(label).map_err(|e| e.to_string())?;
+  Ok(())
 }

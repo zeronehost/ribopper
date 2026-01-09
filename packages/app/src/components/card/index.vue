@@ -11,7 +11,7 @@
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
-      <s-icon-button v-if="false" class="btn" @click.prevent.stop="playHandle">
+      <s-icon-button class="btn" @click.prevent.stop="playHandle">
         <RiboIconPlay />
       </s-icon-button>
       <!-- 二维码 -->

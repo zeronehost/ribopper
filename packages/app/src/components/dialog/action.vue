@@ -6,6 +6,9 @@
         <s-icon name="close" class="close" @click="closeHandle"></s-icon>
       </header>
       <RiboField class="ribo-dialog-action__body">
+        <RiboFieldItem class="action" title="操作名称" tip="将菜单中显示">
+          <s-text-field v-model.lazy="innerAction.name"></s-text-field>
+        </RiboFieldItem>
         <RiboFieldItem class="action" title="匹配模式" tip="匹配模式是一条正则表达式">
           <s-text-field v-model.lazy="innerAction.pattern"></s-text-field>
         </RiboFieldItem>
@@ -15,6 +18,7 @@
         <s-table>
           <s-thead>
             <s-tr>
+              <s-th>名称</s-th>
               <s-th class="command">指令</s-th>
               <s-th>输出</s-th>
               <s-th>描述</s-th>
@@ -23,6 +27,7 @@
           </s-thead>
           <s-tbody>
             <s-tr v-for="(option, index) in innerAction.options">
+              <s-td>{{ option.name }}</s-td>
               <s-td class="command">{{ option.command }}</s-td>
               <s-td>
                 <span v-if="option.out === 'append'">添加到剪贴板</span>

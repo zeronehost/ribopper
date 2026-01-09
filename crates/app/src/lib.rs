@@ -8,7 +8,7 @@ mod events;
 mod logger;
 mod models;
 mod store;
-mod tray;
+mod menu;
 mod utils;
 mod window;
 
@@ -118,6 +118,7 @@ pub fn run() {
       crate::commands::record::clear_records,
       crate::commands::record::copy_record,
       crate::commands::record::qrcode_record,
+      crate::commands::record::show_record_actions,
       //-------------------------------------------
       // store commands
       crate::commands::config::config_load,
@@ -140,7 +141,7 @@ pub fn run() {
     ])
     .setup(|app| {
       crate::store::Store::init(app.handle())?;
-      crate::tray::Tray::init(app.handle())?;
+      crate::menu::Tray::init(app.handle())?;
 
       let store = app.store(STORE_FILE)?;
       if let Some(config) = store.get("config") {

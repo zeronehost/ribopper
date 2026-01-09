@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { RiboRecord, RecordQuery, UpdateRecord } from "@/models";
-import { CLEAR_RECORD, DELETE_RECORD, GET_RECORD, GET_RECORDS, COPY_RECORD, UPDATE_RECORD, QRCODE_RECORD } from "./constants";
+import { CLEAR_RECORD, DELETE_RECORD, GET_RECORD, GET_RECORDS, COPY_RECORD, UPDATE_RECORD, QRCODE_RECORD, SHOW_RECORD_ACTIONS } from "./constants";
 
 export const getRecords = async (query: RecordQuery = {}) => await invoke<RiboRecord[]>(GET_RECORDS, { query });
 export const getRecord = async (id: number) => await invoke<RiboRecord>(GET_RECORD, { id });
@@ -17,3 +17,5 @@ export const qrcodeRecord = async (id: number) => {
   const arr = Uint8Array.from(data);
   return new Blob([arr], { type: "image/png" });
 };
+
+export const showRecordActions = async (recordId: number, label: string) => await invoke<void>(SHOW_RECORD_ACTIONS, {id: recordId, label});
