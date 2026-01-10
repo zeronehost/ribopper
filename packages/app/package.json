@@ -13,7 +13,8 @@
     "pinia": "^3.0.4",
     "sober": "^1.1.9",
     "vue": "^3.5.24",
-    "vue-router": "^4.6.3"
+    "vue-router": "^4.6.3",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

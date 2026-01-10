@@ -17,7 +17,7 @@
   </RiboOptionSection>  
 </template>
 <script setup lang="ts">
-import type { GeneralOptions } from "@ribo/api";
+import { General } from "@ribo/api";
 import { computed } from "vue";
 import { RiboField, RiboFieldItem } from "@/components/field";
 import { RiboOptionSection } from "@/components/section";
@@ -30,7 +30,7 @@ const max = computed({
     return store.max;
   },
   set(value) {
-    store.setMax(value as GeneralOptions["max"]);
+    store.setMax(value as General["max"]);
   },
 });
 
@@ -39,7 +39,7 @@ const autoStart = computed({
     return store.autoStart;
   },
   set(value) {
-    store.setAutoStart(value as GeneralOptions["autoStart"])
+    store.setAutoStart(value as General["autoStart"])
   }
 });
 
@@ -48,7 +48,7 @@ const exitConfirm = computed({
     return store.exitConfirm;
   },
   set(value) {
-    store.setExitConfirm(value as GeneralOptions["exitConfirm"])
+    store.setExitConfirm(value as General["exitConfirm"])
   }
 })
 

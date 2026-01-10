@@ -56,11 +56,11 @@ import {
 } from "@/components/dialog";
 import {
   logger,
-  type Action,
-  type NewAction,
-  type NewOption,
-  type UpdateAction,
-  type UpdateOption
+  Action,
+  NewAction,
+  NewOption,
+  UpdateAction,
+  UpdateOption
 } from "@ribo/api";
 import { useActionStore } from "@/stores/action";
 

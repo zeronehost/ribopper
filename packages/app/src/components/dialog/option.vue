@@ -6,16 +6,16 @@
         <s-icon name="close" class="close" @click="closeHandle"></s-icon>
       </header>
       <RiboField class="ribo-dialog-option__body">
-        <RiboFieldItem title="名称">
+        <RiboFieldItem title="名称" :error="errors?.name?.errors?.[0]">
           <s-text-field v-model.lazy="innerOption.name"></s-text-field>
         </RiboFieldItem>
-        <RiboFieldItem title="指令" tip="指令中 <%s> 将被替换为完整剪贴板内容">
+        <RiboFieldItem title="指令" tip="指令中 <%s> 将被替换为完整剪贴板内容" :error="errors?.command?.errors?.[0]">
           <s-text-field v-model.lazy="innerOption.command"></s-text-field>
         </RiboFieldItem>
-        <RiboFieldItem title="描述">
+        <RiboFieldItem title="描述" :error="errors?.description?.errors?.[0]">
           <s-text-field v-model.lazy="innerOption.description"></s-text-field>
         </RiboFieldItem>
-        <RiboFieldItem title="指令输出">
+        <RiboFieldItem title="指令输出" :error="errors?.out?.errors?.[0]">
           <s-radio-button v-model.lazy="innerOption.out" type="radio" value="ingore">忽略</s-radio-button>
           <s-radio-button v-model.lazy="innerOption.out" type="radio" value="replace">替换当前剪贴板内容</s-radio-button>
           <s-radio-button v-model.lazy="innerOption.out" type="radio" value="append">添加到剪贴板</s-radio-button>
@@ -30,8 +30,9 @@
 </template>
 <script setup lang="ts">
 import { RiboField, RiboFieldItem } from '@/components/field';
-import type { Option } from '@ribo/api';
+import { NewOption, Option } from '@ribo/api';
 import { ref, watch, type PropType } from 'vue';
+import { treeifyError } from "zod";
 
 defineOptions({
   name: "RiboDialogOption"
@@ -45,7 +46,7 @@ const props = defineProps({
   data: {
     type: Object as PropType<Option>,
     default: () => ({})
-  }
+  },
 });
 
 const rootEl = ref<HTMLDialogElement>();
@@ -71,10 +72,27 @@ const closeDialogHandle = () => {
 const closeHandle = () => {
   rootEl.value?.close();
   innerOption.value = {};
+  errors.value = undefined;
 }
-
+const errors = ref();
 const confirmHandle = () => {
-  emit("confirm", innerOption.value);
+  if (props.data?.id) {
+    // update
+    const { success, error, data } = NewOption.safeParse(innerOption.value);
+    if (!success) {
+      errors.value = treeifyError(error).properties;
+      return;
+    }
+    emit("confirm", data);
+  } else {
+    // create
+    const { success, error, data } = NewOption.safeParse(innerOption.value);
+    if (!success) {
+      errors.value = treeifyError(error).properties;
+      return;
+    }
+    emit("confirm", data);
+  }
   closeHandle();
 }
 const cancelHandle = () => {

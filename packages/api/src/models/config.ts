@@ -1,41 +1,39 @@
-export interface Config {
-  theme: Theme;
-  general: GeneralOptions;
-  options: Array<Record<string, string>>;
-  hotkey: RiboHotkey;
-  schema: string;
-}
+import * as z from "zod";
 
-export type Theme = "light" | "dark" | "auto";
-export interface GeneralOptions {
-  max?: number | null;
-  autoStart: boolean;
-  exitConfirm: boolean;
-}
+export const General = z.object({
+  max: z.number().int().min(1).max(1000).optional(),
+  autoStart: z.boolean(),
+  exitConfirm: z.boolean()
+});
+export type General = z.infer<typeof General>;
 
-export interface RiboEvent<T> {
-  type: RiboEventType;
-  label: string;
-  payload?: T | null;
-}
+export const Key = z.object({
+  alt: z.boolean(),
+  ctrl: z.boolean(),
+  meta: z.boolean(),
+  shift: z.boolean(),
+  key: z.string(),
+});
+export type Key = z.infer<typeof Key>;
 
-export type RiboEventType = "init" | "update" | "refresh";
+export const Hotkey = z.object({
+  clear: Key,
+  edit: Key,
+  next: Key,
+  pane: Key,
+  prev: Key,
+  qrcode: Key,
+  delete: Key,
+  copy: Key,
+}).partial();
+export type Hotkey = z.infer<typeof Hotkey>;
 
-export interface RiboHotkey {
-  clear?: RiboKey,
-  edit?: RiboKey,
-  next?: RiboKey,
-  pane?: RiboKey,
-  prev?: RiboKey,
-  qrcode?: RiboKey,
-  delete?: RiboKey,
-  copy?: RiboKey,
-}
+export const Theme = z.enum(["light", "dark", "auto"]);
+export type Theme = z.infer<typeof Theme>;
 
-export interface RiboKey {
-  altKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-  key?: string;
-}
+export const Config = z.object({
+  theme: Theme,
+  general: General,
+  hotkey: Hotkey,
+});
+export type Config = z.infer<typeof Config>;

@@ -7,11 +7,11 @@ import {
   deleteOption,
   updateOption,
   getOptionsByActionId,
-  type Action,
-  type NewAction,
-  type NewOption,
-  type UpdateAction,
-  type UpdateOption,
+  Action,
+  NewAction,
+  NewOption,
+  UpdateAction,
+  UpdateOption,
 } from "@ribo/api";
 import { defineStore } from "pinia";
 

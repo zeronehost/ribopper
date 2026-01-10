@@ -6,13 +6,13 @@
         <s-icon name="close" class="close" @click="closeHandle"></s-icon>
       </header>
       <RiboField class="ribo-dialog-action__body">
-        <RiboFieldItem class="action" title="操作名称" tip="将菜单中显示">
+        <RiboFieldItem class="action" title="操作名称" tip="将菜单中显示" :error="errors?.name?.errors?.[0]">
           <s-text-field v-model.lazy="innerAction.name"></s-text-field>
         </RiboFieldItem>
-        <RiboFieldItem class="action" title="匹配模式" tip="匹配模式是一条正则表达式">
+        <RiboFieldItem class="action" title="匹配模式" tip="匹配模式是一条正则表达式" :error="errors?.pattern?.errors?.[0]">
           <s-text-field v-model.lazy="innerAction.pattern"></s-text-field>
         </RiboFieldItem>
-        <RiboFieldItem class="action" title="描述">
+        <RiboFieldItem class="action" title="描述" :error="errors?.description?.errors?.[0]">
           <s-text-field v-model.lazy="innerAction.description"></s-text-field>
         </RiboFieldItem>
         <s-table>
@@ -70,10 +70,11 @@
 <script setup lang="ts">
 import { RiboField, RiboFieldItem } from '@/components/field';
 import { RiboIconDelete, RiboIconEdit } from '@/components/icons';
-import type { Action, NewAction, NewOption, Option, UpdateAction, UpdateOption } from '@ribo/api';
+import { NewAction, UpdateAction, Action, NewOption, Option, UpdateOption } from '@ribo/api';
 import { computed, ref, watch, type PropType } from 'vue';
 import RiboDialogOption from "./option.vue";
 import RiboDialogDelete from './delete.vue';
+import { treeifyError } from "zod";
 
 defineOptions({
   name: "RiboDialogAction"
@@ -120,15 +121,31 @@ const closeDialogHandle = () => {
 
 const closeHandle = () => {
   rootEl.value?.close();
+  errors.value = undefined;
   emit("close");
 }
-
+const errors = ref();
 const confirmHandle = () => {
-  emit("confirm", isNew.value ? innerAction.value as NewAction : {
-    id: props.action?.id,
-    pattern: innerAction.value.pattern,
-    description: innerAction.value.description,
-  } as UpdateAction);
+  if (isNew.value) {
+    const { success, data, error } = NewAction.safeParse(innerAction.value);
+    if (!success) {
+      errors.value = treeifyError(error).properties;
+      return;
+    }
+    emit("confirm", data);
+  } else {
+    const { success, data, error } = UpdateAction.safeParse({
+      id: props.action?.id,
+      pattern: innerAction.value.pattern,
+      description: innerAction.value.description,
+      name: innerAction.value.name,
+    });
+    if (!success) {
+      errors.value = treeifyError(error).properties;
+      return;
+    }
+    emit("confirm", data);
+  }
   closeHandle();
 }
 const cancelHandle = () => {

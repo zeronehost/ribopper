@@ -32,7 +32,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, type RiboEvent } from "@ribo/api";
+import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, RiboEvent } from "@ribo/api";
 import { computed, inject, nextTick, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
@@ -172,7 +172,7 @@ useListenHotKey(settingStore.hotkeys, (type) => {
 
 const context = inject(rootContextKey);
 
-const loadRecords = async (event: RiboEvent<void>) => {
+const loadRecords = async (event: RiboEvent) => {
   if (
     (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)
     && (

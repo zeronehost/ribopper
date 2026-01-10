@@ -1,10 +1,10 @@
-import { getRecords, deleteRecord, clearRecord, type RiboRecord, showRecordActions } from "@ribo/api"
+import { getRecords, deleteRecord, clearRecord, Record, showRecordActions } from "@ribo/api"
 import { defineStore } from "pinia"
 import { shallowReactive } from "vue";
 
 export const useRecordStore = defineStore('record', {
   state: (): {
-    list: RiboRecord[],
+    list: Record[],
     size: number,
     index: number,
     loadEnable: boolean,

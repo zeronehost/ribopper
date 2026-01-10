@@ -1,4 +1,4 @@
-import { type Config, type GeneralOptions, configSave, type Theme, type RiboKey, type RiboHotkey, type AppInfo, getAppInfo, logger, configLoad } from "@ribo/api";
+import { Config, General, configSave, Theme, Key, Hotkey, AppInfo, getAppInfo, logger, configLoad } from "@ribo/api";
 import { defineStore } from "pinia";
 
 export const useSettingStore = defineStore("setting", {
@@ -17,17 +17,14 @@ export const useSettingStore = defineStore("setting", {
     theme(): Theme {
       return this.config.theme || "auto";
     },
-    max(): GeneralOptions["max"] | "" {
+    max(): General["max"] | "" {
       return this.config?.general?.max ?? "";
-    },
-    schema(): string {
-      return this.config.schema as string
     },
     autoStart(): boolean {
       return this.config?.general?.autoStart as boolean
     },
-    hotkeys(): RiboHotkey {
-      return this.config?.hotkey as RiboHotkey ?? {};
+    hotkeys(): Hotkey {
+      return this.config?.hotkey as Hotkey ?? {};
     },
     exitConfirm(): boolean {
       return this.config?.general?.exitConfirm as boolean
@@ -37,20 +34,20 @@ export const useSettingStore = defineStore("setting", {
     toggleTheme(name: Config["theme"]) {
       this.config.theme = name;
     },
-    setMax(max?: GeneralOptions["max"]) {
-      (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? (max < 1000 ? max : 1000) : null;
+    setMax(max?: General["max"]) {
+      (this.config.general as General).max = typeof max === "number" && max > 0 ? (max < 1000 ? max : 1000) : undefined;
     },
     setAutoStart(autoStart: boolean) {
-      (this.config.general as GeneralOptions).autoStart = autoStart;
+      (this.config.general as General).autoStart = autoStart;
     },
-    setHotkey(label: keyof RiboHotkey, data: RiboKey) {
+    setHotkey(label: keyof Hotkey, data: Key) {
       if (!this.config.hotkey) {
         this.config.hotkey = {};
       }
-      (this.config.hotkey as RiboHotkey)[label] = data;
+      (this.config.hotkey as Hotkey)[label] = data;
     },
     setExitConfirm(exitConfirm: boolean) {
-      (this.config.general as GeneralOptions).exitConfirm = exitConfirm;
+      (this.config.general as General).exitConfirm = exitConfirm;
     },
 
     saveConfig() {

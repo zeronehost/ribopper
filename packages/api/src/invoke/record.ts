@@ -1,9 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { RiboRecord, RecordQuery, UpdateRecord } from "@/models";
+import { Record, RecordQuery, UpdateRecord } from "@/models";
 import { CLEAR_RECORD, DELETE_RECORD, GET_RECORD, GET_RECORDS, COPY_RECORD, UPDATE_RECORD, QRCODE_RECORD, SHOW_RECORD_ACTIONS } from "./constants";
 
-export const getRecords = async (query: RecordQuery = {}) => await invoke<RiboRecord[]>(GET_RECORDS, { query });
-export const getRecord = async (id: number) => await invoke<RiboRecord>(GET_RECORD, { id });
+export const getRecords = async (query: RecordQuery = {}) => await invoke<Record[]>(GET_RECORDS, { query });
+export const getRecord = async (id: number) => await invoke<Record>(GET_RECORD, { id });
 
 export const updateRecord = async (record: UpdateRecord) => await invoke<boolean>(UPDATE_RECORD, { record });
 

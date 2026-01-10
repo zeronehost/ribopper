@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { CREATE_ACTION, CREATE_ACTION_OPTION, CREATE_OPTION, DELETE_ACTION, DELETE_OPTION, EXEC_ACTION, GET_ACTION_BY_ID, GET_ACTIONS, GET_EXEC_ACTION, GET_OPTIONS_BY_ACTION_ID, UPDATE_ACTION, UPDATE_OPTION } from "./constants";
-import type { Option, Action, NewAction, NewOption, UpdateAction, UpdateOption } from "@/models";
+import { Option, Action, NewAction, NewOption, UpdateAction, UpdateOption } from "@/models";
 
 export const getActions = async () => await invoke<Action[]>(GET_ACTIONS);
 

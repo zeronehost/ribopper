@@ -7,6 +7,9 @@
       <div class="ribo-field-item__content">
         <slot>{{ content }}</slot>
       </div>
+      <div class="ribo-field-item__error" v-if="error || $slots.error">
+        <slot name="error">{{ error }}</slot>
+      </div>
       <div class="ribo-field-item__tip" v-if="tip || $slots.tip">
         <slot name="tip">{{ tip }}</slot>
       </div>
@@ -22,6 +25,7 @@ defineProps({
   title: String,
   content: String,
   tip: String,
+  error: String,
 });
 </script>
 <style lang="scss">
@@ -53,10 +57,17 @@ defineProps({
     align-items: center;
     height: 2rem;
   }
+  &__error {
+    align-self: flex-start;
+    width: 100%;
+    color: var(--s-color-error);
+    font-size: 1rem;
+  }
   &__tip {
     align-self: flex-start;
     width: 100%;
     color: var(--s-color-tertiary);
+    font-size: 1rem;
   }
 }
 </style>
