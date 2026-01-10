@@ -139,6 +139,7 @@ onMounted(() => {
   context?.register(loadConfig);
   context?.register(loadAction);
   store.loadConfig();
+  store.getAppInfo();
   actionStore.getActions();
 });
 onUnmounted(() => {

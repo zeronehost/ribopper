@@ -8,6 +8,8 @@ export const QRCODE_RECORD = "qrcode_record";
 export const CONFIG_LOAD = "config_load";
 export const CONFIG_SAVE = "config_save";
 
+export const GET_APP_INFO = "get_app_info";
+
 export const CLOSE_WINDOW = "close_window";
 export const COPY_RECORD = "copy_record";
 

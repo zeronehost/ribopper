@@ -7,6 +7,9 @@ resolver = "3"
 version = "0.0.1"
 authors = ["jinbin<1447281971@qq.com>"]
 edition = "2024"
+homepage = ""
+license = ""
+repository = ""
 
 [workspace.dependencies]
 serde_json = "1.0"

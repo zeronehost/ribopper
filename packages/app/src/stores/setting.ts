@@ -1,15 +1,17 @@
-import { type Config, type GeneralOptions, configSave, type Theme, type RiboKey, type RiboHotkey, logger, configLoad } from "@ribo/api";
+import { type Config, type GeneralOptions, configSave, type Theme, type RiboKey, type RiboHotkey, type AppInfo, getAppInfo, logger, configLoad } from "@ribo/api";
 import { defineStore } from "pinia";
 
 export const useSettingStore = defineStore("setting", {
   state: (): {
     config: Partial<Config>;
+    appInfo?: AppInfo;
     _initData: Partial<Config>;
     isUpdate: boolean;
   } => ({
     config: {},
     _initData: {},
     isUpdate: false,
+    appInfo: undefined,
   }),
   getters: {
     theme(): Theme {
@@ -36,7 +38,7 @@ export const useSettingStore = defineStore("setting", {
       this.config.theme = name;
     },
     setMax(max?: GeneralOptions["max"]) {
-      (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? (max < 1000 ? max : 1000): null;
+      (this.config.general as GeneralOptions).max = typeof max === "number" && max > 0 ? (max < 1000 ? max : 1000) : null;
     },
     setAutoStart(autoStart: boolean) {
       (this.config.general as GeneralOptions).autoStart = autoStart;
@@ -65,6 +67,15 @@ export const useSettingStore = defineStore("setting", {
         const config = await configLoad();
         this.config = config;
         this._initData = JSON.parse(JSON.stringify(this.config));
+      } catch (e) {
+        logger.error(e as Error);
+      }
+    },
+
+    async getAppInfo() {
+      try {
+        const appInfo = await getAppInfo();
+        this.appInfo = appInfo;
       } catch (e) {
         logger.error(e as Error);
       }

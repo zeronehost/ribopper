@@ -135,8 +135,9 @@ pub fn run() {
       crate::commands::action::delete_option,
       crate::commands::action::update_action,
       crate::commands::action::update_option,
-      crate::commands::action::get_exec_action,
-      crate::commands::action::exec_action,
+      //-------------------------------------------
+      // common
+      crate::commands::common::get_app_info,
       //-------------------------------------------
     ])
     .setup(|app| {

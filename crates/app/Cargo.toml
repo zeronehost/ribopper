@@ -3,9 +3,9 @@ name = "ribopper"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
-description = "A Tauri App"
-license = ""
-repository = ""
+description = "一个跨平台剪贴板管理工具，支持文本、图片和文件格式，提供系统托盘、快捷键操作和数据持久化功能。"
+license.workspace = true
+repository.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
