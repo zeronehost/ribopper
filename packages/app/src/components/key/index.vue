@@ -11,29 +11,29 @@
     </s-td>
     <s-td class="option">{{ desc }}</s-td>
     <s-td class="key">
-      <kbd v-if="data?.ctrlKey">Ctrl</kbd>
-      <kbd v-if="data?.shiftKey">Shift</kbd>
-      <kbd v-if="data?.altKey">Alt</kbd>
-      <kbd v-if="data?.metaKey">Win/Super</kbd>
+      <kbd v-if="data?.ctrl">Ctrl</kbd>
+      <kbd v-if="data?.shift">Shift</kbd>
+      <kbd v-if="data?.alt">Alt</kbd>
+      <kbd v-if="data?.meta">Win/Super</kbd>
       <kbd v-if="data?.key">{{ data.key }}</kbd>
     </s-td>
   </s-tr>
 </template>
 <script setup lang="ts">
-import type { RiboHotkey, RiboKey } from '@ribo/api';
+import { Hotkey, Key } from '@ribo/api';
 
 defineOptions({
   name: "riboKey"
 });
 const props = defineProps<{
   desc: string,
-  data?: RiboKey,
-  label: keyof RiboHotkey,
+  data?: Key,
+  label: keyof Hotkey,
   disabled?: boolean,
   selected?: boolean
 }>();
 const emit = defineEmits<{
-  (e: 'edit', label: keyof RiboHotkey): void,
+  (e: 'edit', label: keyof Hotkey): void,
 }>();
 
 const editHandle = () => {

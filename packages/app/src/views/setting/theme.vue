@@ -1,7 +1,7 @@
 <template>
   <RiboOptionSection class="theme" title="主题设置">
     <s-card>
-      <div slot="headline">内置主题</div>
+      <div slot="headline" class="header">内置主题</div>
       <s-segmented-button v-model.lazy="currentTheme" mode="fixed">
         <s-segmented-button-item value="light">
           <s-icon slot="start" name="light_mode"></s-icon>
@@ -45,6 +45,12 @@ const currentTheme = computed({
     max-width: unset;
     margin: 1rem;
     padding: .5rem;
+    .header {
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 0;
+      margin-bottom: 1rem;
+    }
   }
 }
 </style>

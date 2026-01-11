@@ -73,7 +73,12 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
   } else if (option === "edit") {
     router.push({ name: "trayPaneEdit", query: { id } });
   } else if (option === "exec") {
-    await recordStore.showRecordActions(id, "tray_pane");
+    Snackbar.builder({
+      text: "暂不支持",
+      duration: 1000,
+      type: "warning",
+    });
+    // await recordStore.showRecordActions(id, "tray_pane");
   } else if (option === "copy") {
     copyRecord(id)
       .then(() => {

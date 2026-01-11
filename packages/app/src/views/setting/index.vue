@@ -17,7 +17,7 @@
           主题
         </div>
       </s-navigation-item>
-      <s-navigation-item value="/setting/options">
+      <s-navigation-item value="/setting/options" v-if="false">
         <s-icon slot="icon">
           <RiboIconOption />
         </s-icon>

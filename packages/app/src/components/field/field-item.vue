@@ -55,7 +55,7 @@ defineProps({
     align-self: flex-end;
     display: flex;
     align-items: center;
-    height: 2rem;
+    min-height: 2rem;
   }
   &__error {
     align-self: flex-start;

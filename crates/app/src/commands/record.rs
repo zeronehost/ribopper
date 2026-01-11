@@ -279,6 +279,13 @@ pub fn show_record_actions<R: Runtime>(
     );
     e.to_string()
   })?;
+  let record = db.get_record_by_id(id).map_err(|e| {
+    log::info!("commands::record::show_record_action - failed to get record: {}", e);
+    e.to_string()
+  })?.ok_or_else(|| {
+    log::info!("commands::record::show_record_action - record not found");
+    "Record not found".to_string()
+  })?;
   let actions = db.get_actions_by_record_id(id).map_err(|e| {
     log::info!(
       "commands::record::show_record_action - failed to get actions: {}",
@@ -288,7 +295,7 @@ pub fn show_record_actions<R: Runtime>(
   })?;
 
   let app = app.app_handle();
-  let mut ctx = Context::new(app).map_err(|e| e.to_string())?;
+  let mut ctx = Context::new(app, &record.content).map_err(|e| e.to_string())?;
   ctx.set_menu(actions).map_err(|e| e.to_string())?;
   ctx.show(label).map_err(|e| e.to_string())?;
   Ok(())

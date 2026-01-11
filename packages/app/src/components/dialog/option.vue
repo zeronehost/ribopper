@@ -17,8 +17,9 @@
         </RiboFieldItem>
         <RiboFieldItem title="指令输出" :error="errors?.out?.errors?.[0]">
           <s-radio-button v-model.lazy="innerOption.out" type="radio" value="ingore">忽略</s-radio-button>
-          <s-radio-button v-model.lazy="innerOption.out" type="radio" value="replace">替换当前剪贴板内容</s-radio-button>
-          <s-radio-button v-model.lazy="innerOption.out" type="radio" value="append">添加到剪贴板</s-radio-button>
+          <s-radio-button v-model.lazy="innerOption.out" type="radio" disabled
+            value="replace">替换当前剪贴板内容</s-radio-button>
+          <s-radio-button v-model.lazy="innerOption.out" type="radio" disabled value="append">添加到剪贴板</s-radio-button>
         </RiboFieldItem>
       </RiboField>
       <footer class="ribo-dialog-option__actions">
@@ -50,12 +51,12 @@ const props = defineProps({
 });
 
 const rootEl = ref<HTMLDialogElement>();
-const innerOption = ref<Partial<Option>>(Object.assign({}, {out: "ingore"}, props.data));
+const innerOption = ref<Partial<Option>>(Object.assign({}, { out: "ingore" }, props.data));
 
 watch(() => props.modelValue, (val) => {
   if (val) {
     rootEl.value?.showModal();
-    innerOption.value = Object.assign({}, {out: "ingore"}, props.data);
+    innerOption.value = Object.assign({}, { out: "ingore" }, props.data);
   }
 });
 
@@ -81,6 +82,7 @@ const confirmHandle = () => {
     const { success, error, data } = NewOption.safeParse(innerOption.value);
     if (!success) {
       errors.value = treeifyError(error).properties;
+      console.log(error);
       return;
     }
     emit("confirm", data);
@@ -88,6 +90,7 @@ const confirmHandle = () => {
     // create
     const { success, error, data } = NewOption.safeParse(innerOption.value);
     if (!success) {
+      console.log(error);
       errors.value = treeifyError(error).properties;
       return;
     }
@@ -126,6 +129,7 @@ const cancelHandle = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-weight: bold;
 
     .close {
       cursor: pointer;
@@ -144,15 +148,11 @@ const cancelHandle = () => {
 
     .ribo-field-item__content {
       width: 100%;
-      flex-direction: column;
       align-items: start;
     }
 
     s-text-field {
       width: 100%;
-    }
-    s-radio-button {
-      display: flex;
     }
   }
 

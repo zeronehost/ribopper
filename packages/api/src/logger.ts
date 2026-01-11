@@ -1,11 +1,10 @@
-// import { error, warn, info, debug, trace } from "@tauri-apps/plugin-log";
 import { invoke } from "@tauri-apps/api/core";
 
 type Level = "error" | "warn" | "info" | "debug" | "trace";
 
 class Logger {
   _print(level: Level, ...msg: unknown[]) {
-    const str = msg.map(i => `${i}`).join(" ");
+    const str = msg.map((i: any) => `${i}`).join(" ");
     invoke("web_log", {
       level,
       message: str

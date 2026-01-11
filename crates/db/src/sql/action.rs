@@ -178,6 +178,14 @@ impl Database {
     Ok(rows_affected > 0)
   }
 
+  pub fn get_option_by_id(&self, id: u64) -> Result<models::RiboOption> {
+    log::info!("db.action: get_option_by_id invoked id={}", id);
+    let mut stmt = self
+      .conn()
+      .prepare("select id, action_id, name, description, command, out, created_at, updated_at from options where id = ?1")?;
+    let res = stmt.query_row(params![id], |row| Ok(models::RiboOption::from_row(row)))??;
+    Ok(res)
+  }
 }
 
 #[cfg(test)]

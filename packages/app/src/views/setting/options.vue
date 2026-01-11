@@ -193,11 +193,12 @@ const closeHandle = () => {
       }
 
       &__header {
-        border-bottom: 1px solid var(--s-color-outline);
+        border-bottom: 1px solid var(--s-color-outline-variant);
         line-height: 2rem;
+        font-weight: bold;
 
         .pattern {
-          border-right: 1px solid var(--s-color-outline);
+          border-right: 1px solid var(--s-color-outline-variant);
         }
       }
 

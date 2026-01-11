@@ -31,7 +31,7 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import type { RiboFileRecord, RiboRecord, RiboTextRecord } from "@ribo/api";
+import type { FileRecord, Record, TextRecord } from "@ribo/api";
 import { computed, type PropType } from "vue";
 import {
   RiboIconDelete,
@@ -46,7 +46,7 @@ defineOptions({
 });
 const props = defineProps({
   data: {
-    type: Object as PropType<RiboRecord>,
+    type: Object as PropType<Record>,
     required: true,
   },
   collectible: Boolean,
@@ -61,7 +61,7 @@ const isText = computed(() => props.data.type === "text");
 const isFile = computed(() => props.data.type === "files");
 const content = computed(() => {
   if (isFile.value) {
-    const files = (props.data as RiboFileRecord).files;
+    const files = (props.data as FileRecord).files;
     const file = files[0]?.split(/\\\\|\\|\//g) ?? [];
     let filename;
     do {
@@ -74,7 +74,7 @@ const content = computed(() => {
 
     return `${filename}... (${files.length})`
   }
-  if (isText.value) return (props.data as RiboTextRecord)?.text ?? "";
+  if (isText.value) return (props.data as TextRecord)?.text ?? "";
 })
 const id = computed(() => props.data.id);
 

@@ -5,7 +5,7 @@ export const Option = z.object({
   name: z.string("请输入指令名称"),
   command: z.string("请输入指令内容"),
   out: z.enum(["ingore", "replace", "append"]),
-  actionId: z.number(),
+  actionId: z.number().optional(),
   description: z.string("请输入指令描述"),
   updatedAt: z.date(),
   createdAt: z.date(),

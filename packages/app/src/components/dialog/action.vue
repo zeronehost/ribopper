@@ -262,6 +262,7 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-weight: bold;
 
     .close {
       cursor: pointer;
