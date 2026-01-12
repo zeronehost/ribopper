@@ -44,3 +44,4 @@ tauri-plugin-single-instance = "2"
 default = ["file"]
 image = ["ribo-clipboard/image", "ribo-db/image"]
 file = ["ribo-clipboard/file", "ribo-db/file"]
+action = ["ribo-db/action"]

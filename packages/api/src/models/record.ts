@@ -2,7 +2,6 @@ import * as z from "zod";
 
 export const RecordQuery = z.object({
   contentContains: z.string().optional(),
-  targetId: z.number().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   limit: z.number().optional(),

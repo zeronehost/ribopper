@@ -6,7 +6,11 @@ export const AppInfo = z.object({
   description: z.string(),
   authors: z.string(),
   license: z.string(),
-  website: z.string()
+  website: z.string(),
+  features: z.object({
+    action: z.boolean().optional(),
+    image: z.boolean().optional(),
+  })
 });
 
 export type AppInfo = z.infer<typeof AppInfo>;

@@ -16,8 +16,6 @@ clipboard-master = "4.0.0"
 arboard = { version = "3.6.1", features = []}
 image = { version = "0.25.9", optional = true}
 
-ribo-db = { path = "../db" }
-
 [features]
 default = []
 image = ["dep:image"]

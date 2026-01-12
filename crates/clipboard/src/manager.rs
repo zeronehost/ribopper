@@ -167,7 +167,7 @@ pub struct Content {
 }
 
 impl Content {
-  fn get_type(&self) -> ribo_db::models::RecordType {
+  fn get_type(&self) -> crate::models::RecordType {
     self.content.get_type()
   }
 }
@@ -183,18 +183,18 @@ pub enum FormatContent {
 }
 
 impl FormatContent {
-  fn get_type(&self) -> ribo_db::models::RecordType {
+  fn get_type(&self) -> crate::models::RecordType {
     match self {
-      Self::Text(_) => ribo_db::models::RecordType::Text,
+      Self::Text(_) => crate::models::RecordType::Text,
       #[cfg(feature = "image")]
-      Self::Image(_) => ribo_db::models::RecordType::Image,
+      Self::Image(_) => crate::models::RecordType::Image,
       #[cfg(feature = "file")]
-      Self::Files(_) => ribo_db::models::RecordType::Files,
+      Self::Files(_) => crate::models::RecordType::Files,
     }
   }
 }
 
-impl TryFrom<Content> for ribo_db::models::NewRecord {
+impl TryFrom<Content> for crate::models::Record {
   type Error = serde_json::Error;
   fn try_from(value: Content) -> Result<Self, Self::Error> {
     let typ = value.get_type();
@@ -205,7 +205,7 @@ impl TryFrom<Content> for ribo_db::models::NewRecord {
       #[cfg(feature = "file")]
       FormatContent::Files(data) => serde_json::to_string(&data)?,
     };
-    Ok(ribo_db::models::NewRecord {
+    Ok(crate::models::Record {
       content,
       data: serde_json::to_string(&value.data)?,
       typ,

@@ -1,6 +1,9 @@
 use std::sync::LazyLock;
 
 pub const SCHEMA: &str = include_str!("../../sql/init.sql");
+pub const RECOED_SCHEMA: &str = include_str!("../../sql/record.sql");
+
+pub const ACTION_SCHEMA: &str = if cfg!(feature = "action") { include_str!("../../sql/action.sql") } else { "" };
 
 pub struct Migration {
   pub version: u16,
@@ -19,4 +22,4 @@ impl Migration {
 }
 
 pub static MIGRATIONS: LazyLock<Vec<Migration>> =
-  LazyLock::new(|| vec![Migration::new(1, SCHEMA, "Initial schema")]);
+  LazyLock::new(|| vec![Migration::new(1, &format!("{}{}{}", SCHEMA, RECOED_SCHEMA, ACTION_SCHEMA), "Initial schema")]);

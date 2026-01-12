@@ -1,4 +1,8 @@
 mod tray;
+
+#[cfg(feature = "action")]
 mod context;
 
-pub(crate) use self::{tray::Tray, context::Context};
+#[cfg(feature = "action")]
+pub(crate) use self::context::Context;
+pub(crate) use self::tray::Tray;

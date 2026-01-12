@@ -1,5 +1,7 @@
-mod action;
 mod record;
+#[cfg(feature = "action")]
+mod action;
+#[cfg(feature = "action")]
 mod record_action;
 
 use crate::error::Result;
@@ -9,8 +11,9 @@ pub trait FromRow: Sized {
   fn from_row(row: &Row) -> Result<Self>;
 }
 
+#[cfg(feature = "action")]
 pub use self::{
   action::*,
-  record::*,
   record_action::*,
 };
+pub use self::record::*;

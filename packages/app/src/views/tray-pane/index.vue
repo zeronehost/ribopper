@@ -25,8 +25,8 @@
     <RiboScrollView @load="scrollHandle">
       <s-empty v-if="isEmpty">暂时没有内容</s-empty>
       <template v-else>
-        <RiboCard :class="{ selected: currentId === record.id }" v-for="record in list" :key="record.id" :data="record"
-          @option="optionHandle" />
+        <RiboCard :enabled="settingStore.appInfo?.features" :class="{ selected: currentId === record.id }"
+          v-for="record in list" :key="record.id" :data="record" @option="optionHandle" />
       </template>
     </RiboScrollView>
   </section>
@@ -201,6 +201,7 @@ const loadRecords = async (event: RiboEvent) => {
 
 onMounted(() => {
   recordStore.initRecords();
+  settingStore.getAppInfo();
   context?.register(loadRecords);
 });
 onUnmounted(() => {

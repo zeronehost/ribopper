@@ -11,7 +11,7 @@
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
-      <s-icon-button class="btn" @click.prevent.stop="playHandle">
+      <s-icon-button class="btn" @click.prevent.stop="playHandle" v-if="enabled.action">
         <RiboIconPlay />
       </s-icon-button>
       <!-- 二维码 -->
@@ -31,7 +31,7 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import type { FileRecord, Record, TextRecord } from "@ribo/api";
+import type { AppInfo, FileRecord, Record, TextRecord } from "@ribo/api";
 import { computed, type PropType } from "vue";
 import {
   RiboIconDelete,
@@ -49,11 +49,10 @@ const props = defineProps({
     type: Object as PropType<Record>,
     required: true,
   },
-  collectible: Boolean,
-  deletable: Boolean,
-  editable: Boolean,
-  executable: Boolean,
-  scannable: Boolean,
+  enabled: {
+    type: Object as PropType<AppInfo["features"]>,
+    default: () => ({})
+  }
 });
 
 

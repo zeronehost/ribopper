@@ -7,11 +7,12 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use super::CommandResult;
 use crate::{
   events::EventLabel,
-  menu::Context,
   models::{Record, UpdateRecord},
   store::db::Db,
   utils::qrcode::create_qrcode,
 };
+#[cfg(feature = "action")]
+use crate::menu::Context;
 
 #[tauri::command]
 pub fn get_records(state: State<'_, Db>, query: RecordQuery) -> CommandResult<Vec<Record>> {
@@ -116,6 +117,7 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Com
 pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> CommandResult<bool> {
   log::info!("commands::record::update_record called");
   let state = app.state::<crate::store::db::Db>();
+  #[allow(unused_mut)]
   let mut db = state.0.lock().map_err(|e| {
     log::error!("commands::record::update_record - failed to lock db: {}", e);
     e.to_string()
@@ -124,6 +126,7 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Com
     Ok((id, content)) => match db.update_record_content(id, content.clone()) {
       Ok(success) => {
         if success {
+          #[cfg(feature = "action")]
           db.update_action_option_by_record(id, &content)
             .map_err(|e| e.to_string())?;
           crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
@@ -262,41 +265,4 @@ pub fn qrcode_record(state: State<'_, Db>, id: u64) -> CommandResult<Vec<u8>> {
     log::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
     e.to_string()
   })
-}
-
-#[tauri::command]
-pub fn show_record_actions<R: Runtime>(
-  app: AppHandle<R>,
-  id: u64,
-  label: &str,
-) -> CommandResult<()> {
-  log::info!("commands::record::show_record_action called id={id}");
-  let state = app.state::<crate::store::db::Db>();
-  let db = state.0.lock().map_err(|e| {
-    log::error!(
-      "commands::record::show_record_action - failed to lock db: {}",
-      e
-    );
-    e.to_string()
-  })?;
-  let record = db.get_record_by_id(id).map_err(|e| {
-    log::info!("commands::record::show_record_action - failed to get record: {}", e);
-    e.to_string()
-  })?.ok_or_else(|| {
-    log::info!("commands::record::show_record_action - record not found");
-    "Record not found".to_string()
-  })?;
-  let actions = db.get_actions_by_record_id(id).map_err(|e| {
-    log::info!(
-      "commands::record::show_record_action - failed to get actions: {}",
-      e
-    );
-    e.to_string()
-  })?;
-
-  let app = app.app_handle();
-  let mut ctx = Context::new(app, &record.content).map_err(|e| e.to_string())?;
-  ctx.set_menu(actions).map_err(|e| e.to_string())?;
-  ctx.show(label).map_err(|e| e.to_string())?;
-  Ok(())
 }

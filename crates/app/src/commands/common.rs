@@ -1,6 +1,6 @@
 use tauri::{AppHandle, Runtime};
 
-use crate::models::AppInfo;
+use crate::models::{AppInfo, Features};
 
 use super::CommandResult;
 
@@ -14,6 +14,7 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> CommandResult<AppInfo> {
     authors: info.authors.to_string(),
     description: info.description.to_string(),
     license: env!("CARGO_PKG_LICENSE").to_string(),
-    website: env!("CARGO_PKG_HOMEPAGE").to_string()
+    website: env!("CARGO_PKG_HOMEPAGE").to_string(),
+    features: Features::default(),
   })
 }

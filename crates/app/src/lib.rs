@@ -118,23 +118,34 @@ pub fn run() {
       crate::commands::record::clear_records,
       crate::commands::record::copy_record,
       crate::commands::record::qrcode_record,
-      crate::commands::record::show_record_actions,
       //-------------------------------------------
       // store commands
       crate::commands::config::config_load,
       crate::commands::config::config_save,
       //-------------------------------------------
       // action commands
+      #[cfg(feature = "action")]
       crate::commands::action::get_actions,
+      #[cfg(feature = "action")]
       crate::commands::action::get_action_by_id,
+      #[cfg(feature = "action")]
       crate::commands::action::get_options_by_action_id,
+      #[cfg(feature = "action")]
       crate::commands::action::create_action,
+      #[cfg(feature = "action")]
       crate::commands::action::create_action_option,
+      #[cfg(feature = "action")]
       crate::commands::action::create_option,
+      #[cfg(feature = "action")]
       crate::commands::action::delete_action,
+      #[cfg(feature = "action")]
       crate::commands::action::delete_option,
+      #[cfg(feature = "action")]
       crate::commands::action::update_action,
+      #[cfg(feature = "action")]
       crate::commands::action::update_option,
+      #[cfg(feature = "action")]
+      crate::commands::action::show_record_actions,
       //-------------------------------------------
       // common
       crate::commands::common::get_app_info,

@@ -17,7 +17,7 @@
           主题
         </div>
       </s-navigation-item>
-      <s-navigation-item value="/setting/options" v-if="false">
+      <s-navigation-item value="/setting/options" v-if="actionEnabled">
         <s-icon slot="icon">
           <RiboIconOption />
         </s-icon>
@@ -86,6 +86,7 @@ const router = useRouter();
 const store = useSettingStore();
 const actionStore = useActionStore();
 const isSubmit = computed(() => !store.isUpdate);
+const actionEnabled = computed(() => store.appInfo?.features?.action);
 
 const active = computed({
   get: () => route.path,
