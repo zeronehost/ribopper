@@ -3,12 +3,10 @@ use std::sync::{
   atomic::{AtomicBool, Ordering},
 };
 
-#[cfg(debug_assertions)]
-use crate::utils::constant::WIN_URL_CONTEXT_PANE;
 use crate::utils::{
   constant::{
     WIN_LABEL_CONTEXT_PANE, WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING,
-    WIN_URL_TRAY_PANE,
+    WIN_URL_TRAY_PANE, WIN_URL_CONTEXT_PANE,
   },
   pos::{set_context_window_pos, set_tray_window_pos},
 };
@@ -140,7 +138,6 @@ pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
       .always_on_top(true)
       .maximizable(false)
       .resizable(false)
-      // .devtools(cfg!(debug_assertions))
       .build()?;
 
       set_context_window_pos(app, &win)?;
@@ -148,9 +145,6 @@ pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
       win.show()?;
 
       win.set_focus()?;
-
-      // #[cfg(debug_assertions)]
-      // win.open_devtools();
       let app = app.clone();
       let is_initialized = Arc::new(AtomicBool::new(false));
       let is_initialized_clone = is_initialized.clone();

@@ -19,6 +19,6 @@ export const isEqual = (a: any, b: any): boolean => {
 
 export const rootContextKey: InjectionKey<RootContext> = Symbol("ribopper-root");
 export type RootContext = {
-  register: <T>(cb: (event: RiboEvent<T>) => Promise<void>|void) => void;
-  unregister: <T>(cb: (event: RiboEvent<T>) => Promise<void>|void) => void;
+  register: (cb: (event: RiboEvent) => Promise<void>|void) => void;
+  unregister: (cb: (event: RiboEvent) => Promise<void>|void) => void;
 }
