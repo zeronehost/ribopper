@@ -9,7 +9,7 @@
         </s-tr>
       </s-thead>
       <s-tbody>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'pane'" disabled desc="显示剪贴板" label="pane" :data="settingStore.config.hotkey?.pane">
+        <RiboKey @edit="editHandle" :selected="currentEdit === 'pane'" desc="显示剪贴板" label="pane" :data="settingStore.config.hotkey?.pane">
         </RiboKey>
         <RiboKey @edit="editHandle" :selected="currentEdit === 'clear'" desc="清除历史记录" label="clear" :data="settingStore.config.hotkey?.clear"></RiboKey>
         <RiboKey @edit="editHandle" :selected="currentEdit === 'edit'" desc="编辑内容" label="edit" :data="settingStore.config.hotkey?.edit"></RiboKey>

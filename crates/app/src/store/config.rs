@@ -86,10 +86,10 @@ pub struct RiboHotkey {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RiboKey {
-  pub(crate) alt_key: bool,
-  pub(crate) ctrl_key: bool,
-  pub(crate) shift_key: bool,
-  pub(crate) meta_key: bool,
+  pub(crate) alt: bool,
+  pub(crate) ctrl: bool,
+  pub(crate) shift: bool,
+  pub(crate) meta: bool,
   pub(crate) key: String,
 }
 
@@ -97,16 +97,16 @@ impl TryInto<Shortcut> for &RiboKey {
   type Error = anyhow::Error;
   fn try_into(self) -> Result<Shortcut, Self::Error> {
     let mut mods = Modifiers::empty();
-    if self.alt_key {
+    if self.alt {
       mods |= Modifiers::ALT;
     }
-    if self.ctrl_key {
+    if self.ctrl {
       mods |= Modifiers::CONTROL;
     }
-    if self.shift_key {
+    if self.shift {
       mods |= Modifiers::SHIFT;
     }
-    if self.meta_key {
+    if self.meta {
       mods |= Modifiers::SUPER;
     }
     let k = Shortcut::from_str(&self.key)?.key;

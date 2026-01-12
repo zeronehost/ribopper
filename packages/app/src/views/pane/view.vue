@@ -1,6 +1,6 @@
 <template>
   <section class="tray-pane">
-    <s-appbar>
+    <s-appbar v-if="appbar">
       <s-icon-button slot="navigation" @click="closeHandle">
         <s-icon name="close"></s-icon>
       </s-icon-button>
@@ -32,8 +32,8 @@
   </section>
 </template>
 <script setup lang="ts">
-import { closeWindow, copyRecord, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_RECORD, EVENT_LABEL_TARGET, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, logger, WIN_LABEL_TRAY_PANE, RiboEvent } from "@ribo/api";
-import { computed, inject, nextTick, onMounted, onUnmounted } from "vue";
+import { closeWindow, copyRecord, logger, WIN_LABEL_TRAY_PANE } from "@ribo/api";
+import { computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
@@ -43,12 +43,18 @@ import { Snackbar } from "sober";
 import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
 import { useSettingStore } from "@/stores/setting";
-import { rootContextKey } from "@/utils/types";
 import { RiboScrollView } from "@/components/scroll-view";
 
 defineOptions({
   name: "tray_pane",
 });
+
+defineProps({
+  appbar: {
+    type: Boolean,
+    default: false,
+  }
+})
 
 const router = useRouter();
 const recordStore = useRecordStore();
@@ -175,38 +181,7 @@ useListenHotKey(settingStore.hotkeys, (type) => {
   })
 });
 
-const context = inject(rootContextKey);
 
-const loadRecords = async (event: RiboEvent) => {
-  if (
-    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)
-    && (
-      event.label === EVENT_LABEL_RECORD
-      || event.label === EVENT_LABEL_TARGET
-      || event.label === EVENT_LABEL_ALL
-    )) {
-    await nextTick();
-    await recordStore.initRecords();
-  }
-  if (
-    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
-    if (
-      event.label === EVENT_LABEL_CONFIG
-      || event.label === EVENT_LABEL_ALL
-    ) {
-      await settingStore.loadConfig();
-    }
-  }
-};
-
-onMounted(() => {
-  recordStore.initRecords();
-  settingStore.getAppInfo();
-  context?.register(loadRecords);
-});
-onUnmounted(() => {
-  context?.unregister(loadRecords);
-});
 </script>
 <style lang="scss">
 section.tray-pane {

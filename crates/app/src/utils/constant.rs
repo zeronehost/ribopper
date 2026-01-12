@@ -14,10 +14,10 @@ pub const WIN_LABEL_CONTEXT_PANE: &str = "context_pane";
 /// 设置窗口URL
 pub const WIN_URL_SETTING: &str = "#/setting";
 /// 托盘窗口URL
-pub const WIN_URL_TRAY_PANE: &str = "#/tray-pane/";
+pub const WIN_URL_TRAY_PANE: &str = "#/tray/";
 /// 上下文窗口URL
 #[allow(unused)]
-pub const WIN_URL_CONTEXT_PANE: &str = "#/context";
+pub const WIN_URL_CONTEXT_PANE: &str = "#/context/";
 
 /// 配置文件名
 pub const STORE_FILE: &str = "config.json";

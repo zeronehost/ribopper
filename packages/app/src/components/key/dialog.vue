@@ -27,7 +27,7 @@ const props = defineProps({
 
 const emits = defineEmits<{
   (e: 'update:modelValue', value: boolean): void,
-  (e: "confirm", value: RiboKey): void,
+  (e: "confirm", value: Key): void,
   (e: "cancel"): void,
   (e: "close"): void,
   (e: "show"): void,
@@ -69,13 +69,18 @@ const key = ref<string>();
   }
 
 const confirmHandle = () => {
-  emits("confirm", {
-    altKey: altKey.value,
-    ctrlKey: ctrlKey.value,
-    metaKey: metaKey.value,
-    shiftKey: shiftKey.value,
+  const { success, data, error } = Key.safeParse({
+    alt: altKey.value,
+    ctrl: ctrlKey.value,
+    meta: metaKey.value,
+    shift: shiftKey.value,
     key: key.value
   });
+  if (!success) {
+    console.error(error);
+    return;
+  }
+  emits("confirm", data);
   closeHandle();
 }
 
@@ -89,7 +94,7 @@ const keydownHandle = (e: Event) => {
 }
 </script>
 <script lang="ts">
-import type { RiboKey } from '@ribo/api';
+import { Key } from '@ribo/api';
 import { ref, watch } from 'vue';
 
 </script>
