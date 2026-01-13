@@ -8,6 +8,9 @@
       <!-- <p class="authors">{{ appInfo?.authors }}</p> -->
       <!-- <p class="license">{{ appInfo?.license }}</p> -->
       <!-- <p class="website"><a :href="appInfo?.website">主页</a></p> -->
+      <div>
+        <s-button class="update" @click="settingStore.updateApp">检查更新</s-button>
+      </div>
     </s-card>
   </RiboOptionSection>
 </template>

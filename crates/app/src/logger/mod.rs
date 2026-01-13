@@ -1,8 +1,8 @@
 pub(crate) fn targets() -> Vec<tauri_plugin_log::Target> {
   if cfg!(debug_assertions) {
-    vec![
-      tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
-    ]
+    vec![tauri_plugin_log::Target::new(
+      tauri_plugin_log::TargetKind::Stdout,
+    )]
   } else {
     vec![tauri_plugin_log::Target::new(
       tauri_plugin_log::TargetKind::LogDir {

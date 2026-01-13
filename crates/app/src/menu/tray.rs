@@ -5,12 +5,12 @@ use tauri::{
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
-use crate::{commands::config::config_load, utils::constant::APP_NAME};
+use crate::{commands::config::config_load, utils::{constant::APP_NAME, error::Result}};
 
 pub(crate) struct Tray;
 
 impl Tray {
-  pub fn init<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<()> {
+  pub fn init<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     // let pkg_info = app.package_info();
     #[allow(unused_mut)]
     let mut menu = MenuBuilder::new(app);

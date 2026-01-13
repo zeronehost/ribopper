@@ -5,20 +5,25 @@ use std::sync::{
 
 use crate::utils::{
   constant::{
-    WIN_LABEL_CONTEXT_PANE, WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_SETTING,
-    WIN_URL_TRAY_PANE, WIN_URL_CONTEXT_PANE,
+    WIN_LABEL_CONTEXT_PANE, WIN_LABEL_MAIN, WIN_LABEL_TRAY_PANE, WIN_NANE, WIN_URL_CONTEXT_PANE,
+    WIN_URL_SETTING, WIN_URL_TRAY_PANE,
   },
+  error::Result,
   pos::{set_context_window_pos, set_tray_window_pos},
 };
 use tauri::{AppHandle, Manager, Runtime, WindowEvent};
 
-pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   match app.get_webview_window(WIN_LABEL_MAIN) {
     Some(win) => match win.is_visible() {
-      Ok(true) => win.hide(),
+      Ok(true) => {
+        win.hide()?;
+        Ok(())
+      }
       Ok(false) => {
         win.show()?;
-        win.set_focus()
+        win.set_focus()?;
+        Ok(())
       }
       _ => Ok(()),
     },
@@ -35,7 +40,7 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
             .clone()
             .unwrap()
             .join(WIN_URL_SETTING)
-            .unwrap(),
+            .map_err(tauri::Error::InvalidUrl)?,
         ),
         #[cfg(not(debug_assertions))]
         tauri::WebviewUrl::App(format!("index.html{}", WIN_URL_SETTING).into()),
@@ -53,14 +58,18 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> 
   }
 }
 
-pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   match app.get_webview_window(WIN_LABEL_TRAY_PANE) {
     Some(win) => match win.is_visible() {
-      Ok(true) => win.hide(),
+      Ok(true) => {
+        win.hide()?;
+        Ok(())
+      }
       Ok(false) => {
         set_tray_window_pos(app, &win)?;
         win.show()?;
-        win.set_focus()
+        win.set_focus()?;
+        Ok(())
       }
       _ => Ok(()),
     },
@@ -77,7 +86,7 @@ pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             .clone()
             .unwrap()
             .join(WIN_URL_TRAY_PANE)
-            .unwrap(),
+            .map_err(tauri::Error::InvalidUrl)?,
         ),
         #[cfg(not(debug_assertions))]
         tauri::WebviewUrl::App(format!("index.html{}", WIN_URL_TRAY_PANE).into()),
@@ -102,14 +111,18 @@ pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
   }
 }
 
-pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   match app.get_webview_window(WIN_LABEL_CONTEXT_PANE) {
     Some(win) => match win.is_visible() {
-      Ok(true) => win.hide(),
+      Ok(true) => {
+        win.hide()?;
+        Ok(())
+      }
       Ok(false) => {
         set_context_window_pos(app, &win)?;
         win.show()?;
-        win.set_focus()
+        win.set_focus()?;
+        Ok(())
       }
       _ => Ok(()),
     },

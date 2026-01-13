@@ -131,7 +131,9 @@ const loadAction = (event: RiboEvent) => {
       || event.label === EVENT_LABEL_OPTION
       || event.label === EVENT_LABEL_ALL
     ) {
-      actionStore.getActions();
+      if (store.appInfo?.features.action) {
+        actionStore.getActions();
+      }
     }
   }
 }
@@ -141,7 +143,9 @@ onMounted(() => {
   context?.register(loadAction);
   store.loadConfig();
   store.getAppInfo();
-  actionStore.getActions();
+  if (store.appInfo?.features.action) {
+    actionStore.getActions();
+  }
 });
 onUnmounted(() => {
   context?.unregister(loadConfig);

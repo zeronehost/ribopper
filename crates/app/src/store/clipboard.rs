@@ -1,12 +1,12 @@
 use tauri::{AppHandle, Manager, Runtime};
 
-use crate::{commands::config::config_load, events::EventLabel};
+use crate::{commands::config::config_load, events::EventLabel, utils::error::Result};
 pub struct Clipboard(
   pub(crate) ribo_clipboard::Manager<Box<dyn Fn(ribo_clipboard::Content) + Send + 'static>>,
 );
 
 impl Clipboard {
-  pub fn new<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<Self> {
+  pub fn new<R: Runtime>(app: &AppHandle<R>) -> Result<Self> {
     let app_handle = app.clone();
     let callback: Box<dyn Fn(ribo_clipboard::Content) + Send + 'static> =
       Box::new(move |c: ribo_clipboard::Content| {

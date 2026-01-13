@@ -1,9 +1,10 @@
 use tauri::{PhysicalPosition, Runtime};
+use super::error::Result;
 
 pub fn set_tray_window_pos<R: Runtime>(
   app: &tauri::AppHandle<R>,
   window: &tauri::WebviewWindow<R>,
-) -> tauri::Result<()> {
+) -> Result<()> {
   log::info!("Setting tray window position");
   let pos = app.cursor_position()?;
   log::info!("Cursor position: {:?}", pos);
@@ -57,8 +58,8 @@ pub fn set_context_window_pos<R: Runtime>(
   let monitor_pos = monitor.position();
   log::info!("Monitor pos: {:?}", monitor_pos);
 
-  let cursor_x = pos.x.round() ;
-  let cursor_y = pos.y.round() ;
+  let cursor_x = pos.x.round();
+  let cursor_y = pos.y.round();
   let x = cursor_x.min(monitor_pos.x as f64 + monitor_size.width as f64 - baseline_w_physical);
   let y = cursor_y.min(monitor_pos.y as f64 + monitor_size.height as f64 - baseline_h_physical);
   log::info!("Window position: {x}x{y}");

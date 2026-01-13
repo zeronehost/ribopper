@@ -1,6 +1,6 @@
 use tauri::{AppHandle, Emitter, Runtime};
 
-use crate::utils::constant::RIBO_EVENT;
+use crate::utils::{constant::RIBO_EVENT, error::Result};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RiboEvent<D> {
@@ -31,14 +31,14 @@ where
     Self::new(EventType::Update, payload, label)
   }
 
-  pub fn emit<R: Runtime>(&self, app: &AppHandle<R>) -> tauri::Result<()> {
+  pub fn emit<R: Runtime>(&self, app: &AppHandle<R>) -> Result<()> {
     log::debug!(
       "events: emitting {:?} to {} (label={})",
       self.typ,
       RIBO_EVENT,
       self.label
     );
-    app.emit(RIBO_EVENT, self)
+    app.emit(RIBO_EVENT, self).map_err(Into::into)
   }
 }
 

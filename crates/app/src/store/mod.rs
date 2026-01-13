@@ -1,6 +1,6 @@
 use crate::{
   store::config::RiboConfig,
-  utils::constant::{APP_NAME, STORE_DB_FILE, STORE_FILE},
+  utils::{constant::{APP_NAME, STORE_DB_FILE, STORE_FILE}, error::Result},
 };
 use serde_json::json;
 use tauri::{AppHandle, Manager, Runtime};
@@ -13,7 +13,7 @@ pub mod db;
 pub struct Store;
 
 impl Store {
-  pub fn init<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<()> {
+  pub fn init<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     log::info!("store: initializing (file={})", STORE_FILE);
     let store = app.store(STORE_FILE)?;
     if !store.has("config") {

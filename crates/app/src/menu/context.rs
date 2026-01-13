@@ -3,7 +3,8 @@ use tauri::{
   Manager, Runtime, WebviewWindow,
   menu::{Menu, MenuItem, SubmenuBuilder},
 };
-use tauri_plugin_opener::OpenerExt;
+use crate::utils::error::Result;
+
 pub struct Context<'a, R: Runtime> {
   menu: Menu<R>,
   app: &'a tauri::AppHandle<R>,
@@ -12,7 +13,7 @@ pub struct Context<'a, R: Runtime> {
 }
 
 impl<'a, R: Runtime> Context<'a, R> {
-  pub fn new(app: &'a tauri::AppHandle<R>, content: &str) -> anyhow::Result<Self> {
+  pub fn new(app: &'a tauri::AppHandle<R>, content: &str) -> Result<Self> {
     Ok(Self {
       menu: Menu::new(app)?,
       app,
@@ -21,7 +22,7 @@ impl<'a, R: Runtime> Context<'a, R> {
     })
   }
 
-  pub fn set_menu(&mut self, actions: Vec<ActionWithOption>) -> anyhow::Result<()> {
+  pub fn set_menu(&mut self, actions: Vec<ActionWithOption>) -> Result<()> {
     if actions.is_empty() {
       self.menu.append(&MenuItem::with_id(
         self.app,
@@ -50,7 +51,7 @@ impl<'a, R: Runtime> Context<'a, R> {
     Ok(())
   }
 
-  pub fn show(self, label: &str) -> anyhow::Result<()> {
+  pub fn show(self, label: &str) -> Result<()> {
     let win = self.app.get_webview_window(label);
     if let Some(win) = win {
       win.popup_menu(&self.menu)?;
@@ -59,12 +60,12 @@ impl<'a, R: Runtime> Context<'a, R> {
     Ok(())
   }
 
-  fn on_event(&self, win: WebviewWindow<R>) -> anyhow::Result<()> {
+  fn on_event(&self, win: WebviewWindow<R>) -> Result<()> {
     // 在闭包外部克隆 actions，使其拥有独立的所有权
     let actions = self.actions.clone();
     let content = self.content.clone();
 
-    win.on_menu_event(move |win, event| {
+    win.on_menu_event(move |_win, event| {
       // 现在闭包使用的是外部的 actions，而不是 self.actions
       let parts: Vec<&str> = event.id.as_ref().split('_').collect();
       // 使用 match 处理不同长度的切片
@@ -99,19 +100,30 @@ impl<'a, R: Runtime> Context<'a, R> {
           log::info!("Executing command: {}", cmd);
           #[cfg(target_os = "windows")]
           {
-            if let Err(e) = std::process::Command::new("powershell").arg(&format!("-e {cmd}")).spawn() {
+            if let Err(e) = std::process::Command::new("powershell")
+              .arg(&format!("-e {cmd}"))
+              .spawn()
+            {
               log::error!("Failed to execute command: {}", e);
             }
           }
           #[cfg(target_os = "linux")]
           {
-            if let Err(e) = std::process::Command::new("xfce4-terminal").arg(&format!("-e {cmd}")).spawn() {
+            if let Err(e) = std::process::Command::new("xfce4-terminal")
+              .arg(&format!("-e {cmd}"))
+              .spawn()
+            {
               log::error!("Failed to execute command: {}", e);
             }
           }
           #[cfg(target_os = "macos")]
           {
-            if let Err(e) = std::process::Command::new("open").arg("-a").arg("Terminal").arg(&format!("-e {cmd}")).spawn() {
+            if let Err(e) = std::process::Command::new("open")
+              .arg("-a")
+              .arg("Terminal")
+              .arg(&format!("-e {cmd}"))
+              .spawn()
+            {
               log::error!("Failed to execute command: {}", e);
             }
           }

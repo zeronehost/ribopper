@@ -2,16 +2,18 @@ use std::{fs::create_dir_all, path::PathBuf};
 
 use tauri::{AppHandle, Manager, Runtime};
 
+use super::error::Result;
+
 #[allow(unused)]
-pub fn get_ribo_db_path<R: Runtime>(app: &AppHandle<R>) -> anyhow::Result<PathBuf> {
+pub fn get_ribo_db_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf> {
   #[cfg(debug_assertions)]
   {
     let p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-    .parent()
-    .unwrap()
-    .parent()
-    .unwrap()
-    .join("tmp");
+      .parent()
+      .unwrap()
+      .parent()
+      .unwrap()
+      .join("tmp");
     if !p.exists() {
       create_dir_all(&p)?;
     }

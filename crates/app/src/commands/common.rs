@@ -1,11 +1,14 @@
 use tauri::{AppHandle, Runtime};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+use tauri_plugin_updater::UpdaterExt;
 
-use crate::models::{AppInfo, Features};
-
-use super::CommandResult;
+use crate::{
+  models::{AppInfo, Features},
+  utils::error::Result,
+};
 
 #[tauri::command]
-pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> CommandResult<AppInfo> {
+pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> Result<AppInfo> {
   let info = app.package_info();
 
   Ok(AppInfo {
@@ -17,4 +20,61 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> CommandResult<AppInfo> {
     website: env!("CARGO_PKG_HOMEPAGE").to_string(),
     features: Features::default(),
   })
+}
+
+// TODO 优化更新逻辑
+#[tauri::command]
+pub async fn update<R: Runtime>(app: AppHandle<R>) -> Result<()> {
+  if let Some(update) = app.updater()?.check().await? {
+    app
+      .dialog()
+      .message("存在新版本，是否更新？")
+      .title("应用更新")
+      .buttons(MessageDialogButtons::OkCancelCustom(
+        "立即更新".to_string(),
+        "稍后更新".to_string(),
+      ))
+      .show(move |res| {
+        if res {
+          tauri::async_runtime::block_on(async move {
+            let mut downloaded = 0;
+
+            update
+              .download_and_install(
+                |chunk_length, content_length| {
+                  downloaded += chunk_length;
+                  if let Some(size) = content_length {
+                    let progress = downloaded as f64 / size as f64 * 100.0;
+                    log::info!("download progress: {:.2}%", progress);
+                  } else {
+                    log::info!("download progress: {}", downloaded);
+                  }
+                },
+                || {
+                  log::info!("download finished");
+                },
+              )
+              .await
+              .unwrap();
+            log::info!("update installed");
+            app
+              .dialog()
+              .message("下载完成，立即安装")
+              .kind(MessageDialogKind::Info)
+              .title("应用更新")
+              .buttons(MessageDialogButtons::OkCancelCustom(
+                "立即安装".to_string(),
+                "稍后安装".to_string(),
+              ))
+              .show(move |result| {
+                if result {
+                  let _ = app.restart();
+                }
+              });
+          })
+        }
+      });
+  }
+
+  Ok(())
 }

@@ -6,9 +6,9 @@ use crate::{store::config::RiboConfig, utils::constant::STORE_FILE};
 mod commands;
 mod events;
 mod logger;
+mod menu;
 mod models;
 mod store;
-mod menu;
 mod utils;
 mod window;
 
@@ -17,6 +17,7 @@ pub fn run() {
   let ctx = tauri::generate_context!();
   let mut builder = tauri::Builder::default()
     .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
+    .plugin(tauri_plugin_updater::Builder::new().build())
     .plugin(
       tauri_plugin_log::Builder::new()
         .targets(crate::logger::targets())
@@ -152,6 +153,7 @@ pub fn run() {
       //-------------------------------------------
       // common
       crate::commands::common::get_app_info,
+      crate::commands::common::update,
       //-------------------------------------------
     ])
     .setup(|app| {

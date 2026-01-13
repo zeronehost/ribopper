@@ -1,13 +1,15 @@
-pub fn create_qrcode(data: crate::models::Record) -> anyhow::Result<Vec<u8>> {
+use super::error::Result;
+
+pub fn create_qrcode(data: crate::models::Record) -> Result<Vec<u8>> {
   let binary = match data.typ {
     ribo_db::models::RecordType::Text => match data.text {
       Some(text) => text.as_bytes().to_vec(),
-      None => return Err(anyhow::anyhow!("No text provided")),
+      None => return Err(anyhow::anyhow!("No text provided").into()),
     },
     #[cfg(feature = "image")]
     ribo_db::models::RecordType::Image => match data.image {
       Some(image) => image,
-      None => return Err(anyhow::anyhow!("No image provided")),
+      None => return Err(anyhow::anyhow!("No text provided").into()),
     },
     #[cfg(feature = "file")]
     ribo_db::models::RecordType::Files => match data.files {
@@ -18,7 +20,7 @@ pub fn create_qrcode(data: crate::models::Record) -> anyhow::Result<Vec<u8>> {
         .join("\n")
         .as_bytes()
         .to_vec(),
-      None => return Err(anyhow::anyhow!("No files provided")),
+      None => return Err(anyhow::anyhow!("No files provided").into()),
     },
   };
   let qrcode_img = qrcode::QrCode::new(binary.as_slice())?

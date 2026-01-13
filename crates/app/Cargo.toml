@@ -23,6 +23,7 @@ chrono.workspace = true
 anyhow.workspace = true
 log.workspace = true
 tokio.workspace = true
+thiserror.workspace = true
 
 ribo-db = { path = "../db" }
 ribo-clipboard = { path = "../clipboard"}
@@ -39,6 +40,7 @@ image = "0.25.9"
 tauri-plugin-autostart = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-single-instance = "2"
+tauri-plugin-updater = "2"
 
 [features]
 default = ["file"]

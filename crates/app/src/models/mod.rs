@@ -1,7 +1,7 @@
-mod record;
 mod common;
+mod record;
 
 pub(crate) use self::{
   common::*,
-  record::{Record, /*RecordWithTargets, */UpdateRecord}
+  record::{Record, UpdateRecord},
 };
