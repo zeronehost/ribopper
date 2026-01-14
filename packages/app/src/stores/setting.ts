@@ -1,4 +1,4 @@
-import { Config, General, configSave, Theme, Key, Hotkey, AppInfo, getAppInfo, logger, configLoad, updateApp } from "@ribo/api";
+import { Config, General, configSave, Theme, Key, Hotkey, AppInfo, getAppInfo, logger, configLoad } from "@ribo/api";
 import { defineStore } from "pinia";
 
 export const useSettingStore = defineStore("setting", {
@@ -77,13 +77,5 @@ export const useSettingStore = defineStore("setting", {
         logger.error(e as Error);
       }
     },
-
-    async updateApp() {
-      try {
-        await updateApp();
-      } catch (e) {
-        logger.error(e as Error);
-      }
-    }
   },
 });

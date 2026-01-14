@@ -14,3 +14,13 @@ export const AppInfo = z.object({
 });
 
 export type AppInfo = z.infer<typeof AppInfo>;
+
+export const UpdateApp = z.object({
+  done: z.boolean(),
+  indeterminate: z.boolean(),
+  total: z.number().optional(),
+  downloaded: z.number().optional(),
+  progress: z.number().optional(),
+});
+
+export type UpdateApp = z.infer<typeof UpdateApp>;
