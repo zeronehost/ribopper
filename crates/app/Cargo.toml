@@ -30,7 +30,7 @@ ribo-clipboard = { path = "../clipboard"}
 
 tauri = { version = "2.9.2", features = ["tray-icon"] }
 tauri-plugin-log = { version = "2", features = ["colored"] }
-tauri-plugin-opener = "2"
+tauri-plugin-opener = {version = "2", optional = true}
 tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"
 qrcode = "0.14.1"
@@ -46,4 +46,4 @@ tauri-plugin-updater = "2"
 default = ["file"]
 image = ["ribo-clipboard/image", "ribo-db/image"]
 file = ["ribo-clipboard/file", "ribo-db/file"]
-action = ["ribo-db/action"]
+action = ["ribo-db/action", "dep:tauri-plugin-opener"]
