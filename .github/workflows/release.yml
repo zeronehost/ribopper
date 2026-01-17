@@ -65,6 +65,13 @@ jobs:
         run: |
           $version = node scripts/read-version.js
           echo "version=$version" >> $env:GITHUB_OUTPUT
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            $version = node scripts/read-version.js
+            echo "version=$version" >> $env:GITHUB_OUTPUT
+          else
+            VERSION=$(node scripts/read-version.js)
+            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          fi
 
       - uses: tauri-apps/tauri-action@v0
         id: tauri-action
@@ -86,6 +93,6 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04' && matrix.target == 'x86_64-unknown-linux-gnu'
         run: |
           # 从 scripts/.version 文件获取版本号
-          $version = node scripts/read-version.js
+          VERSION=$(node scripts/read-version.js)
           echo "appVersion=${VERSION}" >> $GITHUB_OUTPUT
           echo "Retrieved version: ${VERSION}"
