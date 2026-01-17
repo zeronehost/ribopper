@@ -60,18 +60,41 @@ jobs:
       # - name: Set version from scripts/.version
       #   run: pnpm sync-version
 
+      # - name: Read version from scripts/.version
+      #   id: read_version
+      #   run: |
+      #     if [ "${{ runner.os }}" == "Windows" ]; then
+      #       $version = node scripts/read-version.js
+      #       echo "version=$version" >> $env:GITHUB_OUTPUT
+      #     else
+      #       VERSION=$(node scripts/read-version.js)
+      #       echo "version=${VERSION}" >> $GITHUB_OUTPUT
+      #     fi
       - name: Read version from scripts/.version
         id: read_version
+        shell: pwsh
+        if: runner.os == 'Windows'
         run: |
           $version = node scripts/read-version.js
           echo "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Read version from scripts/.version
+        id: read_version_unix
+        shell: bash
+        if: runner.os != 'Windows'
+        run: |
+          VERSION=$(node scripts/read-version.js)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set unified version output
+        id: unified_version
+        run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
-            $version = node scripts/read-version.js
-            echo "version=$version" >> $env:GITHUB_OUTPUT
+            echo "version=${{ steps.read_version.outputs.version }}" >> $GITHUB_OUTPUT
           else
-            VERSION=$(node scripts/read-version.js)
-            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.read_version_unix.outputs.version }}" >> $GITHUB_OUTPUT
           fi
+        shell: bash
 
       - uses: tauri-apps/tauri-action@v0
         id: tauri-action
@@ -81,8 +104,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: v${{ steps.read_version.outputs.version }}
-          releaseName: 'v${{ steps.read_version.outputs.version }}'
+          tagName: v${{ steps.unified_version.outputs.version }}
+          releaseName: 'v${{ steps.unified_version.outputs.version }}'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: false
           prerelease: false
