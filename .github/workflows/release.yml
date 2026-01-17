@@ -62,6 +62,7 @@ jobs:
 
       - name: Read version from scripts/.version
         id: read_version
+	shell: bash
         run: |
           VERSION=$(cat scripts/.version)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
@@ -74,8 +75,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: tauri-demo-v${{ steps.read_version.outputs.version }}
-          releaseName: 'tauri-demo v${{ steps.read_version.outputs.version }}'
+          tagName: v${{ steps.read_version.outputs.version }}
+          releaseName: 'v${{ steps.read_version.outputs.version }}'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: false
           prerelease: false
@@ -84,6 +85,7 @@ jobs:
       - name: Generate release tag
         id: save_tag
         if: matrix.platform == 'ubuntu-22.04' && matrix.target == 'x86_64-unknown-linux-gnu'
+	shell: bash
         run: |
           # 从 scripts/.version 文件获取版本号
           VERSION=$(cat scripts/.version)
