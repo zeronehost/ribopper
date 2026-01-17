@@ -1,0 +1,49 @@
+[package]
+name = "ribopper"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "一个跨平台剪贴板管理工具，支持文本、图片和文件格式，提供系统托盘、快捷键操作和数据持久化功能。"
+license.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.1", features = [] }
+
+[dependencies]
+serde_json.workspace = true
+serde.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+log.workspace = true
+tokio.workspace = true
+thiserror.workspace = true
+
+ribo-db = { path = "../db" }
+ribo-clipboard = { path = "../clipboard"}
+
+tauri = { version = "2.9.2", features = ["tray-icon"] }
+tauri-plugin-log = { version = "2", features = ["colored"] }
+tauri-plugin-opener = {version = "2", optional = true}
+tauri-plugin-dialog = "2"
+tauri-plugin-store = "2"
+qrcode = "0.14.1"
+image = "0.25.9"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-autostart = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-updater = "2"
+
+[features]
+default = ["file"]
+image = ["ribo-clipboard/image", "ribo-db/image"]
+file = ["ribo-clipboard/file", "ribo-db/file"]
+action = ["ribo-db/action", "dep:tauri-plugin-opener"]

@@ -1,0 +1,192 @@
+<template>
+  <section class="setting">
+    <s-navigation mode="rail" v-model.lazy="active">
+      <s-navigation-item value="/setting">
+        <s-icon slot="icon">
+          <RiboIconSetting />
+        </s-icon>
+        <div slot="text">
+          通用
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/theme">
+        <s-icon slot="icon">
+          <RiboIconTheme />
+        </s-icon>
+        <div slot="text">
+          主题
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/options" v-if="actionEnabled">
+        <s-icon slot="icon">
+          <RiboIconOption />
+        </s-icon>
+        <div slot="text">
+          操作
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/hot-key">
+        <s-icon slot="icon">
+          <RiboIconKeyboard />
+        </s-icon>
+        <div slot="text">
+          快捷键
+        </div>
+      </s-navigation-item>
+      <s-navigation-item value="/setting/helper">
+        <s-icon slot="icon">
+          <RiboIconHelper />
+        </s-icon>
+        <div slot="text">
+          帮助
+        </div>
+      </s-navigation-item>
+    </s-navigation>
+    <section class="content">
+      <router-view />
+    </section>
+    <section class="options">
+      <s-button type="elevated" @click="cancelHandle">
+        <s-icon slot="start">
+          <RiboIconCancel />
+        </s-icon>
+        取消</s-button>
+      <s-button type="elevated" :disabled="isSubmit" @click="submitHandle">
+        <s-icon slot="start">
+          <RiboIconCheck />
+        </s-icon>
+        应用</s-button>
+      <s-button type="elevated" @click="confirmHandle">
+        <s-icon slot="start">
+          <RiboIconCheck />
+        </s-icon>
+        确定</s-button>
+    </section>
+  </section>
+</template>
+<script setup lang="ts">
+import { closeWindow, EVENT_LABEL_ACTION, EVENT_LABEL_ACTIONOPTION, EVENT_LABEL_ALL, EVENT_LABEL_CONFIG, EVENT_LABEL_OPTION, EVENT_TYPE_INIT, EVENT_TYPE_UPDATE, WIN_LABEL_SETTING, RiboEvent } from "@ribo/api";
+import { computed, inject, onMounted, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  RiboIconCancel,
+  RiboIconCheck,
+  RiboIconHelper,
+  RiboIconKeyboard,
+  RiboIconSetting,
+  RiboIconTheme,
+  RiboIconOption,
+} from "@/components/icons";
+import { useSettingStore } from "@/stores/setting";
+import { useActionStore } from "@/stores/action";
+import { rootContextKey } from "@/utils/types";
+
+const route = useRoute();
+const router = useRouter();
+const store = useSettingStore();
+const actionStore = useActionStore();
+const isSubmit = computed(() => !store.isUpdate);
+const actionEnabled = computed(() => store.appInfo?.features?.action);
+
+const active = computed({
+  get: () => route.path,
+  set: (path) => {
+    router.push(path);
+  }
+});
+
+const submitHandle = async () => {
+  await store.saveConfig();
+};
+
+const confirmHandle = async () => {
+  await store.saveConfig();
+  await cancelHandle();
+};
+
+const cancelHandle = async () => {
+  await closeWindow(WIN_LABEL_SETTING);
+};
+
+const context = inject(rootContextKey);
+
+const loadConfig = (event: RiboEvent) => {
+  if (
+    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
+    if (
+      event.label === EVENT_LABEL_CONFIG
+      || event.label === EVENT_LABEL_ALL
+    ) {
+      store.loadConfig();
+    }
+  }
+};
+
+const loadAction = (event: RiboEvent) => {
+  if (
+    (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
+    if (
+      event.label === EVENT_LABEL_ACTION
+      || event.label === EVENT_LABEL_ACTIONOPTION
+      || event.label === EVENT_LABEL_OPTION
+      || event.label === EVENT_LABEL_ALL
+    ) {
+      if (store.appInfo?.features.action) {
+        actionStore.getActions();
+      }
+    }
+  }
+}
+
+onMounted(() => {
+  context?.register(loadConfig);
+  context?.register(loadAction);
+  store.loadConfig();
+  store.getAppInfo();
+  if (store.appInfo?.features.action) {
+    actionStore.getActions();
+  }
+});
+onUnmounted(() => {
+  context?.unregister(loadConfig);
+  context?.unregister(loadAction);
+});
+</script>
+<style lang="scss">
+.setting {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: grid;
+  grid-template-areas:
+    "setting content"
+    "setting option";
+  grid-template-columns: 4rem auto;
+  grid-template-rows: auto 4rem;
+
+  s-navigation {
+    grid-area: setting;
+    background: var(--s-color-surface-container-low, #F2F4F5);
+  }
+
+  .options {
+    grid-area: option;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    width: 100%;
+    gap: 1rem;
+    padding: 0 1rem;
+    background: var(--s-color-surface-container, #ECEEF0);
+
+    s-button {
+      border-radius: 6px;
+    }
+  }
+
+  .content {
+    grid-area: content;
+    overflow: hidden;
+  }
+}
+</style>

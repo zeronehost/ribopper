@@ -1,0 +1,30 @@
+{
+  "name": "@ribo/api",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "tsdown": "^0.18.1",
+    "typescript": "~5.9.3",
+    "vite": "npm:rolldown-vite@7.2.5"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.9.1",
+    "zod": "^4.3.5"
+  },
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  }
+}
