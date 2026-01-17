@@ -1,7 +1,7 @@
 {
   "name": "app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "run-p dev:*",
@@ -12,7 +12,9 @@
     "build:api": "pnpm --filter=@ribo/api build",
     "lint": "oxlint --type-aware --fix",
     "r-init": "lefthook install",
-    "postinstall": "pnpm build:api"
+    "postinstall": "pnpm build:api",
+    "sync-version": "node scripts/sync-version.js",
+    "update-version": "node scripts/update-version.js"
   },
   "pnpm": {
     "overrides": {

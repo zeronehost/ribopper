@@ -8,7 +8,7 @@ version = "0.0.1"
 authors = ["jinbin<1447281971@qq.com>"]
 edition = "2024"
 homepage = ""
-license = ""
+license = "MulanPSL-2.0"
 repository = ""
 
 [workspace.dependencies]
