@@ -1,7 +1,7 @@
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
 
-use crate::{store::config::RiboConfig, utils::constant::STORE_FILE};
+use crate::{commands::common::check_update, store::config::RiboConfig, utils::constant::STORE_FILE};
 
 mod commands;
 mod events;
@@ -169,11 +169,19 @@ pub fn run() {
         crate::commands::config::autostart_setting(app.handle(), &config);
         crate::commands::config::shortcut_setting(app.handle(), &config, None)?;
       }
+      // 启动时检查更新
+      #[cfg(not(debug_assertions))]
+      {
+        let app_handle = app.handle().clone();
+        tauri::async_runtime::spawn(async move {
+          let _ = check_update(app_handle, None).await;
+        });
+      }
       Ok(())
     })
     .build(ctx)
     .expect("error while running tauri application");
-
+  
   app.run(|app, event| {
     if let tauri::RunEvent::WindowEvent {
       label,

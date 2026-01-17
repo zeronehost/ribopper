@@ -25,6 +25,16 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> Result<AppInfo> {
 // TODO 优化更新逻辑
 #[tauri::command]
 pub async fn update<R: Runtime>(app: AppHandle<R>, channel: tauri::ipc::Channel) -> Result<()> {
+  check_update(app, Some(channel)).await?;
+  Ok(())
+}
+
+pub(crate) async fn check_update<R: Runtime>(
+  app: AppHandle<R>,
+  channel: Option<tauri::ipc::Channel>,
+) -> Result<()> {
+  log::info!("commands::common::check_update called");
+  #[cfg(not(debug_assertions))]
   if let Some(update) = app.updater()?.check().await? {
     app
       .dialog()
@@ -45,33 +55,39 @@ pub async fn update<R: Runtime>(app: AppHandle<R>, channel: tauri::ipc::Channel)
                   downloaded += chunk_length;
                   if let Some(size) = content_length {
                     let progress = downloaded as f64 / size as f64 * 100.0;
-                    let payload = serde_json::json!({
-                      "progress": progress,
-                      "total": size,
-                      "downloaded": downloaded,
-                      "indeterminate": true,
-                      "done": false
-                    });
-                    channel.send(payload.to_string().into()).unwrap();
+                    if let Some(channel) = &channel {
+                      let payload = serde_json::json!({
+                        "progress": progress,
+                        "total": size,
+                        "downloaded": downloaded,
+                        "indeterminate": true,
+                        "done": false
+                      });
+                      channel.send(payload.to_string().into()).unwrap();
+                    }
                     log::info!("download progress: {:.2}%", progress);
                   } else {
                     log::info!("download progress: {}", downloaded);
-                    let payload = serde_json::json!({
-                      "downloaded": downloaded,
-                      "done": false,
-                      "indeterminate": false,
-                    });
-                    channel.send(payload.to_string().into()).unwrap();
+                    if let Some(channel) = &channel {
+                      let payload = serde_json::json!({
+                        "downloaded": downloaded,
+                        "done": false,
+                        "indeterminate": false,
+                      });
+                      channel.send(payload.to_string().into()).unwrap();
+                    }
                   }
                 },
                 || {
                   log::info!("download finished");
-                  let payload = serde_json::json!({
-                    "done": true,
-                    "progress": 100.0,
-                    "indeterminate": true,
-                  });
-                  channel.send(payload.to_string().into()).unwrap();
+                  if let Some(channel) = &channel {
+                    let payload = serde_json::json!({
+                      "done": true,
+                      "progress": 100.0,
+                      "indeterminate": true,
+                    });
+                    channel.send(payload.to_string().into()).unwrap();
+                  }
                 },
               )
               .await
