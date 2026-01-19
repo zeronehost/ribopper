@@ -4,8 +4,8 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 description = "clipboard utilities for ribopper"
-license = ""
-repository = ""
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde_json.workspace = true
