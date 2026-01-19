@@ -4,7 +4,6 @@
   - [什么是 Ribopper](./intro/what-is.md)
   - [功能特性](./intro/features.md)
   - [安装指南](./intro/installation.md)
-- [快速开始](./quick_start.md)
 - [使用指南](./usage.md)
   - [系统托盘](./usage/tray.md)
   - [剪贴板历史](./usage/clipboard.md)
