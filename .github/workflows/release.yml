@@ -57,8 +57,8 @@ jobs:
       - name: install frontend dependencies
         run: pnpm install
 
-      # - name: Set version from scripts/.version
-      #   run: pnpm sync-version
+      - name: Set version from scripts/.version
+        run: pnpm v:sync
 
       # - name: Read version from scripts/.version
       #   id: read_version
@@ -70,7 +70,7 @@ jobs:
       #       VERSION=$(node scripts/read-version.js)
       #       echo "version=${VERSION}" >> $GITHUB_OUTPUT
       #     fi
-      - name: Read version from scripts/.version
+      - name: Read version for windows
         id: read_version
         shell: pwsh
         if: runner.os == 'Windows'
@@ -78,7 +78,7 @@ jobs:
           $version = node scripts/read-version.js
           echo "version=$version" >> $env:GITHUB_OUTPUT
 
-      - name: Read version from scripts/.version
+      - name: Read version for unix
         id: read_version_unix
         shell: bash
         if: runner.os != 'Windows'
