@@ -1,6 +1,8 @@
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
 
+#[cfg(not(debug_assertions))]
+use crate::commands::common::check_update;
 use crate::{store::config::RiboConfig, utils::constant::STORE_FILE};
 
 mod commands;
@@ -112,6 +114,45 @@ pub fn run() {
     .plugin(tauri_plugin_store::Builder::new().build());
 
   let app = builder
+    .register_asynchronous_uri_scheme_protocol("ribopper", |ctx, request, responder| {
+      let p = request.uri().path()[1..].to_string();
+      log::info!("ribopper: request image: {}", p);
+      let app = ctx.app_handle();
+      let root = match crate::utils::path::get_images_path(app) {
+        Ok(root) => root,
+        Err(e) => {
+          log::error!("ribopper: get images path failed: {}", e);
+          return responder.respond(
+            tauri::http::Response::builder()
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body("服务器内部错误".as_bytes().to_vec())
+              .unwrap(),
+          );
+        }
+      };
+      tauri::async_runtime::spawn(async move {
+        let path = root.join(p);
+        if path.exists() {
+          if let Ok(data) = std::fs::read(&path) {
+            responder.respond(
+              tauri::http::Response::builder()
+                .status(200)
+                .body(data)
+                .unwrap(),
+            );
+          } else {
+            log::error!("ribopper: read file failed: {}", &path.display());
+            responder.respond(
+              tauri::http::Response::builder()
+                .status(tauri::http::StatusCode::BAD_REQUEST)
+                .header(tauri::http::header::CONTENT_TYPE, "text/plain")
+                .body("failed to read file".as_bytes().to_vec())
+                .unwrap(),
+            )
+          }
+        }
+      });
+    })
     .invoke_handler(tauri::generate_handler![
       crate::commands::window::close_window,
       crate::commands::window::web_log,
@@ -168,6 +209,14 @@ pub fn run() {
         let config: RiboConfig = serde_json::from_value(config).unwrap_or_default();
         crate::commands::config::autostart_setting(app.handle(), &config);
         crate::commands::config::shortcut_setting(app.handle(), &config, None)?;
+      }
+      // 启动时检查更新
+      #[cfg(not(debug_assertions))]
+      {
+        let app_handle = app.handle().clone();
+        tauri::async_runtime::spawn(async move {
+          let _ = check_update(app_handle, None).await;
+        });
       }
       Ok(())
     })

@@ -27,29 +27,74 @@ impl Clipboard {
             return;
           }
         };
-        let record: ribo_clipboard::Record = match c.try_into() {
-          Ok(record) => record,
-          Err(e) => {
-            log::error!(
-              "store::clipboard::Clipboard::new::callback: failed to convert content: {}",
-              e
-            );
-            return;
+        let record: ribo_db::models::NewRecord = match c.content {
+          ribo_clipboard::FormatContent::Text(text) => ribo_db::models::NewRecord {
+            content: text.clone(),
+            data: text,
+            typ: ribo_db::models::RecordType::Text,
+          },
+          ribo_clipboard::FormatContent::Files(files) => {
+            let data = match serde_json::to_string(&files) {
+              Ok(data) => data,
+              Err(e) => {
+                log::error!(
+                  "store::clipboard::Clipboard::new::callback: failed to serialize files: {}",
+                  e
+                );
+                return;
+              }
+            };
+            ribo_db::models::NewRecord {
+              content: data.clone(),
+              data,
+              typ: ribo_db::models::RecordType::Files,
+            }
+          }
+          #[cfg(feature = "image")]
+          ribo_clipboard::FormatContent::Image(img) => {
+            use crate::utils::path::get_images_path;
+
+            let id = uuid::Uuid::new_v4();
+            let filename = if cfg!(debug_assertions) {
+              format!("{id}.png")
+            } else {
+              id.to_string()
+            };
+            let p = match get_images_path(&app_handle) {
+              Ok(p) => p.join(filename.clone()),
+              Err(e) => {
+                log::error!(
+                  "store::clipboard::Clipboard::new::callback: failed to get images path: {}",
+                  e
+                );
+                return;
+              }
+            };
+            let image = image::ImageBuffer::from_raw(img.width, img.height, img.data);
+            if let Some(image) = image {
+              match image::DynamicImage::ImageRgba8(image).save(p) {
+                Ok(_) => ribo_db::models::NewRecord {
+                  content: filename.clone(),
+                  data: filename,
+                  typ: ribo_db::models::RecordType::Image,
+                },
+                Err(e) => {
+                  log::error!(
+                    "store::clipboard::Clipboard::new::callback: failed to save image: {}",
+                    e
+                  );
+                  return;
+                }
+              }
+            } else {
+              log::error!(
+                "store::clipboard::Clipboard::new::callback: failed to load image",
+              );
+              return;
+            }
           }
         };
-        match db.create_record(
-          ribo_db::models::NewRecord {
-            content: record.content,
-            data: record.data,
-            typ: match record.typ {
-              ribo_clipboard::RecordType::Text => ribo_db::models::RecordType::Text,
-              #[cfg(feature = "image")]
-              ribo_clipboard::RecordType::Image => ribo_db::models::RecordType::Image,
-              ribo_clipboard::RecordType::Files => ribo_db::models::RecordType::Files,
-            },
-          },
-          max,
-        ) {
+        match db.create_record(record, max) {
           #[allow(unused_variables)]
           Ok(record) => {
             #[cfg(feature = "action")]

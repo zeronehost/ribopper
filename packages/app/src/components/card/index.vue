@@ -7,19 +7,22 @@
         </s-icon>
         <span>{{ content }}</span>
       </div>
+      <div v-else-if="isImage" class="image">
+        <img :src="content" />
+      </div>
       <pre v-else class="text">{{ content }}</pre>
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
-      <s-icon-button class="btn" @click.prevent.stop="playHandle" v-if="enabled.action">
+      <s-icon-button v-if="isText && enabled.action" class="btn" @click.prevent.stop="playHandle">
         <RiboIconPlay />
       </s-icon-button>
       <!-- 二维码 -->
-      <s-icon-button class="btn" @click.prevent.stop="qrcodeHandle">
+      <s-icon-button v-if="!isImage" class="btn" @click.prevent.stop="qrcodeHandle">
         <RiboIconQrcode />
       </s-icon-button>
       <!-- 编辑 -->
-      <s-icon-button v-if="data.type === 'text'" class="btn" @click.prevent.stop="editHandle">
+      <s-icon-button v-if="isText" class="btn" @click.prevent.stop="editHandle">
         <RiboIconEdit />
       </s-icon-button>
       <!-- 删除 -->
@@ -31,7 +34,7 @@
   </s-card>
 </template>
 <script lang="ts" setup>
-import type { AppInfo, FileRecord, Record, TextRecord } from "@ribo/api";
+import type { AppInfo, FileRecord, ImageRecord, Record, TextRecord } from "@ribo/api";
 import { computed, type PropType } from "vue";
 import {
   RiboIconDelete,
@@ -58,6 +61,7 @@ const props = defineProps({
 
 const isText = computed(() => props.data.type === "text");
 const isFile = computed(() => props.data.type === "files");
+const isImage = computed(() => props.data.type === "image");
 const content = computed(() => {
   if (isFile.value) {
     const files = (props.data as FileRecord).files;
@@ -74,6 +78,12 @@ const content = computed(() => {
     return `${filename}... (${files.length})`
   }
   if (isText.value) return (props.data as TextRecord)?.text ?? "";
+  if (isImage.value) {
+    let image = (props.data as ImageRecord)?.image;
+    return image ? `${
+      navigator.platform === "Win32" ? "http://ribopper.localhost" : "ribopper://localhost"
+    }/${image}` : ""
+  }
 })
 const id = computed(() => props.data.id);
 
@@ -122,6 +132,16 @@ s-card.ribo-card {
       margin: 0;
       max-height: 5rem;
       overflow: hidden;
+    }
+
+    .image {
+      min-height: 3rem;
+      max-height: 10rem;
+      overflow: hidden;
+      img {
+        width: 100%;
+        object-fit: scale-down;
+      }
     }
 
     .files {

@@ -10,7 +10,7 @@ use crate::{
   events::EventLabel,
   models::{Record, UpdateRecord},
   store::db::Db,
-  utils::{error::Result, qrcode::create_qrcode},
+  utils::{error::Result, path::get_images_path, qrcode::create_qrcode},
 };
 
 #[tauri::command]
@@ -70,7 +70,14 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
     log::error!("commands::record::delete_record - failed to lock db: {}", e);
     e
   })?;
+  let record = db.get_record_by_id(id)?;
 
+  if let Some(record) = record {
+    let path = get_images_path(&app)?.join(record.content.to_string());
+    if path.exists() {
+      std::fs::remove_dir_all(path)?;
+    }
+  }
   match db.delete_record(id) {
     Ok(success) => {
       if success {
@@ -167,6 +174,17 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
           .unwrap();
         match db.clear_records() {
           Ok(_) => {
+            match get_images_path(&app) {
+              Ok(path) => {
+                let _ = std::fs::remove_dir_all(path);
+              }
+              Err(e) => {
+                log::error!(
+                  "commands::record::clear_records - failed to get images path: {}",
+                  e
+                );
+              }
+            }
             match crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
               .emit(&app_handle)
             {
@@ -217,20 +235,27 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
       }
       #[cfg(feature = "image")]
       ribo_db::models::RecordType::Image => {
-        let data = serde_json::from_str::<Vec<ribo_clipboard::FormatContent>>(&record.data)
-          .map_err(|e| {
+        let p = get_images_path(&app)?.join(record.content);
+        if p.exists() {
+          let data = image::open(p).map_err(|e| {
             log::error!("commands::record::copy_record - failed to parse image json: {e}");
-            e.to_string()
+            e
           })?;
-        clipboard.0.paste(ribo_clipboard::Content {
-          content: ribo_clipboard::FormatContent::Image(
-            serde_json::from_str(&record.content).map_err(|e| {
-              log::error!("commands::record::copy_record - failed to parse image: {e}");
-              e.to_string()
-            })?,
-          ),
-          data,
-        })
+          clipboard.0.paste(ribo_clipboard::Content {
+            content: ribo_clipboard::FormatContent::Image(ribo_clipboard::Image {
+              width: data.width(),
+              height: data.height(),
+              data: data.into_rgba8().into_raw(),
+            }),
+            data: vec![],
+          })
+        } else {
+          log::error!(
+            "commands::record::copy_record - image file not exists: {}",
+            p.display()
+          );
+          Ok(())
+        }
       }
       #[cfg(feature = "file")]
       ribo_db::models::RecordType::Files => {
@@ -256,10 +281,16 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
 }
 
 #[tauri::command]
-pub fn qrcode_record(state: State<'_, Db>, id: u64) -> Result<Vec<u8>> {
+pub fn qrcode_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<Vec<u8>> {
   log::info!("commands::record::qrcode_record called id={id}");
+  let state = app.state::<crate::store::db::Db>();
+
   let record = get_record(state, id)?;
-  create_qrcode(record).map_err(|e| {
+  create_qrcode(
+    record,
+    #[cfg(feature = "image")]
+    &app,
+  ).map_err(|e| {
     log::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
     e
   })

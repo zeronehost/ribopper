@@ -4,6 +4,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "ribo": "ribo",
+    "-----npm hook 相关命令，请勿改动": "",
+    "postinstall": "pnpm run -r --parallel stub",
+    "preinstall": "npx only-allow pnpm",
+    "r-init": "lefthook install",
     "dev": "run-p dev:*",
     "dev:app": "pnpm --filter=@ribo/app dev",
     "dev:api": "pnpm --filter=@ribo/api dev",
@@ -11,10 +16,8 @@
     "build:app": "pnpm --filter=@ribo/app build",
     "build:api": "pnpm --filter=@ribo/api build",
     "lint": "oxlint --type-aware --fix",
-    "r-init": "lefthook install",
-    "postinstall": "pnpm build:api",
-    "sync-version": "node scripts/sync-version.js",
-    "update-version": "node scripts/update-version.js"
+    "v:sync": "ribo v -s",
+    "v:update": "ribo v -u"
   },
   "pnpm": {
     "overrides": {
@@ -22,15 +25,22 @@
     }
   },
   "devDependencies": {
+    "@ribo/build": "workspace:*",
     "@types/node": "^24.10.1",
+    "@types/semver": "^7.7.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "inquirer": "^13.2.0",
     "lefthook": "^2.0.4",
     "npm-run-all2": "^8.0.4",
     "oxlint": "^1.33.0",
     "oxlint-tsgolint": "^0.9.1",
     "pinia": "^3.0.4",
     "sass": "^1.94.2",
+    "semver": "^7.7.3",
+    "strip-ansi": "^7.1.2",
     "tsdown": "^0.18.1",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@7.2.5",

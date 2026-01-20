@@ -5,6 +5,9 @@ use std::{
   thread,
 };
 
+#[cfg(feature = "image")]
+use crate::models::Image;
+
 pub struct Manager<F> {
   inner: Arc<Mutex<InnerManager<F>>>,
 }
@@ -54,7 +57,7 @@ where
   pub fn paste(&self, content: Content) -> crate::error::Result<()> {
     log::info!(
       "clipboard: paste called with content type={:?}",
-      content.content
+      content.get_type()
     );
     let res = self.inner.lock().unwrap().paste(content);
     if let Err(ref e) = res {
@@ -138,21 +141,21 @@ where
       "clipboard: InnerManager::paste content_type={:?}",
       content.get_type()
     );
-    for data in content.data {
-      match data {
-        FormatContent::Text(data) => {
-          self.clipboard.set_text(data.as_str())?;
-        }
-        #[cfg(feature = "image")]
-        FormatContent::Image(data) => {
-          self.clipboard.set_image(data.as_slice())?;
-        }
-        #[cfg(feature = "file")]
-        FormatContent::Files(data) => {
-          self.clipboard.set_files(data.as_slice())?;
-        }
+    match content.content {
+      FormatContent::Text(data) => {
+        self.clipboard.set_text(data.as_str())?;
+      }
+      #[cfg(feature = "image")]
+      FormatContent::Image(data) => {
+        self.clipboard.set_image(data)?;
+      }
+      #[cfg(feature = "file")]
+      FormatContent::Files(data) => {
+        self.clipboard.set_files(data.as_slice())?;
       }
     }
+    // for data in content.content {
+    // }
     self.flag = true;
     log::debug!("clipboard: paste completed, flag set");
     Ok(())
@@ -177,7 +180,7 @@ impl Content {
 pub enum FormatContent {
   Text(String),
   #[cfg(feature = "image")]
-  Image(Vec<u8>),
+  Image(Image),
   #[cfg(feature = "file")]
   Files(Vec<PathBuf>),
 }
