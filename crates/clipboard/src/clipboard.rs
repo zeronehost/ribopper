@@ -1,6 +1,8 @@
 use std::path::{Path, PathBuf};
 
 use crate::error::Result;
+#[cfg(feature = "image")]
+use crate::models::Image;
 
 pub struct Clipboard(pub(crate) arboard::Clipboard);
 
@@ -23,21 +25,22 @@ impl Clipboard {
   }
 
   #[cfg(feature = "image")]
-  pub(crate) fn get_image(&mut self) -> Result<Vec<u8>> {
+  pub(crate) fn get_image(&mut self) -> Result<Image> {
+
     let image = self.0.get_image()?;
-    Ok(image.into_owned_bytes().to_vec())
+    Ok(Image {
+      width: image.width as u32,
+      height: image.height as u32,
+      data: image.bytes.to_vec(),
+    })
   }
 
   #[cfg(feature = "image")]
-  pub(crate) fn set_image(&mut self, data: &[u8]) -> Result<()> {
-    let image_data = image::load_from_memory(data)?;
-    let width = image_data.width() as usize;
-    let height = image_data.height() as usize;
-    let bytes = image_data.into_bytes().into();
+  pub(crate) fn set_image(&mut self, data: Image) -> Result<()> {
     let data = arboard::ImageData {
-      width,
-      height,
-      bytes,
+      width: data.width as usize,
+      height: data.height as usize,
+      bytes: data.data.into(),
     };
     self.0.set_image(data).map_err(Into::into)
   }

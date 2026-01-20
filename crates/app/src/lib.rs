@@ -1,7 +1,9 @@
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
 
-use crate::{commands::common::check_update, store::config::RiboConfig, utils::constant::STORE_FILE};
+#[cfg(not(debug_assertions))]
+use crate::commands::common::check_update;
+use crate::{store::config::RiboConfig, utils::constant::STORE_FILE};
 
 mod commands;
 mod events;
@@ -112,6 +114,45 @@ pub fn run() {
     .plugin(tauri_plugin_store::Builder::new().build());
 
   let app = builder
+    .register_asynchronous_uri_scheme_protocol("ribopper", |ctx, request, responder| {
+      let p = request.uri().path()[1..].to_string();
+      log::info!("ribopper: request image: {}", p);
+      let app = ctx.app_handle();
+      let root = match crate::utils::path::get_images_path(app) {
+        Ok(root) => root,
+        Err(e) => {
+          log::error!("ribopper: get images path failed: {}", e);
+          return responder.respond(
+            tauri::http::Response::builder()
+              .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
+              .body("服务器内部错误".as_bytes().to_vec())
+              .unwrap(),
+          );
+        }
+      };
+      tauri::async_runtime::spawn(async move {
+        let path = root.join(p);
+        if path.exists() {
+          if let Ok(data) = std::fs::read(&path) {
+            responder.respond(
+              tauri::http::Response::builder()
+                .status(200)
+                .body(data)
+                .unwrap(),
+            );
+          } else {
+            log::error!("ribopper: read file failed: {}", &path.display());
+            responder.respond(
+              tauri::http::Response::builder()
+                .status(tauri::http::StatusCode::BAD_REQUEST)
+                .header(tauri::http::header::CONTENT_TYPE, "text/plain")
+                .body("failed to read file".as_bytes().to_vec())
+                .unwrap(),
+            )
+          }
+        }
+      });
+    })
     .invoke_handler(tauri::generate_handler![
       crate::commands::window::close_window,
       crate::commands::window::web_log,
@@ -181,7 +222,7 @@ pub fn run() {
     })
     .build(ctx)
     .expect("error while running tauri application");
-  
+
   app.run(|app, event| {
     if let tauri::RunEvent::WindowEvent {
       label,

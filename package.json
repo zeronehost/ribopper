@@ -16,8 +16,8 @@
     "build:app": "pnpm --filter=@ribo/app build",
     "build:api": "pnpm --filter=@ribo/api build",
     "lint": "oxlint --type-aware --fix",
-    "v:sync": "ribo -s",
-    "v:update": "ribo -u"
+    "v:sync": "ribo v -s",
+    "v:update": "ribo v -u"
   },
   "pnpm": {
     "overrides": {

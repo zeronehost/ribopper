@@ -1,6 +1,12 @@
+use tauri::{AppHandle, Runtime};
+
 use super::error::Result;
 
-pub fn create_qrcode(data: crate::models::Record) -> Result<Vec<u8>> {
+pub fn create_qrcode<R: Runtime>(
+  data: crate::models::Record,
+  #[cfg(feature = "image")]
+  app: &AppHandle<R>,
+) -> Result<Vec<u8>> {
   let binary = match data.typ {
     ribo_db::models::RecordType::Text => match data.text {
       Some(text) => text.as_bytes().to_vec(),
@@ -8,7 +14,14 @@ pub fn create_qrcode(data: crate::models::Record) -> Result<Vec<u8>> {
     },
     #[cfg(feature = "image")]
     ribo_db::models::RecordType::Image => match data.image {
-      Some(image) => image,
+      Some(image) => {
+        use crate::utils::path::get_images_path;
+        let p = get_images_path(app)?.join(image);
+        let image = image::open(p)?;
+        let mut buffer = Vec::new();
+        image.write_to(&mut std::io::Cursor::new(&mut buffer), image::ImageFormat::Png)?;
+        buffer
+      },
       None => return Err(anyhow::anyhow!("No text provided").into()),
     },
     #[cfg(feature = "file")]

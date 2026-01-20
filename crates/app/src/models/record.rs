@@ -8,7 +8,7 @@ pub(crate) struct Record {
   id: u64,
   pub(crate) text: Option<String>,
   #[cfg(feature = "image")]
-  pub(crate) image: Option<Vec<u8>>,
+  pub(crate) image: Option<String>,
   #[cfg(feature = "file")]
   pub(crate) files: Option<Vec<PathBuf>>,
   #[serde(rename = "type")]
@@ -37,7 +37,7 @@ impl TryInto<Record> for ribo_db::models::Record {
         id: self.id,
         text: None,
         #[cfg(feature = "image")]
-        image: Some(serde_json::from_str(&self.content)?),
+        image: Some(self.content),
         #[cfg(feature = "file")]
         files: None,
         typ: self.typ,
@@ -73,7 +73,7 @@ pub(crate) struct UpdateRecord {
   id: u64,
   text: Option<String>,
   #[cfg(feature = "image")]
-  image: Option<Vec<u8>>,
+  image: Option<String>,
   #[cfg(feature = "file")]
   files: Option<Vec<PathBuf>>,
   #[serde(rename = "type")]
@@ -88,7 +88,7 @@ impl TryInto<(u64, String)> for UpdateRecord {
       #[cfg(feature = "image")]
       ribo_db::models::RecordType::Image => Ok((
         self.id,
-        serde_json::to_string(&self.image.unwrap_or_default())?,
+        self.image.unwrap_or("".to_string()),
       )),
       #[cfg(feature = "file")]
       ribo_db::models::RecordType::Files => Ok((

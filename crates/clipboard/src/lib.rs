@@ -3,4 +3,4 @@ mod error;
 mod manager;
 mod models;
 
-pub use self::{manager::{Content, FormatContent, Manager}, models::{Record, RecordType}, error::Error};
+pub use self::{manager::{Content, FormatContent, Manager}, models::{Record, RecordType, Image}, error::Error};

@@ -1,5 +1,7 @@
 use tauri::{AppHandle, Runtime};
+#[cfg(not(debug_assertions))]
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+#[cfg(not(debug_assertions))]
 use tauri_plugin_updater::UpdaterExt;
 
 use crate::{
@@ -30,7 +32,9 @@ pub async fn update<R: Runtime>(app: AppHandle<R>, channel: tauri::ipc::Channel)
 }
 
 pub(crate) async fn check_update<R: Runtime>(
+  #[allow(unused)]
   app: AppHandle<R>,
+  #[allow(unused)]
   channel: Option<tauri::ipc::Channel>,
 ) -> Result<()> {
   log::info!("commands::common::check_update called");

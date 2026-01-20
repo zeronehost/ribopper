@@ -15,3 +15,11 @@ pub struct Record {
   #[serde(rename = "type")]
   pub typ: RecordType,
 }
+
+#[cfg(feature = "image")]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct Image {
+  pub width: u32,
+  pub height: u32,
+  pub data: Vec<u8>,
+}
