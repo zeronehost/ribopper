@@ -1,4 +1,4 @@
-# ribo-pper
+# Ribopper
 
 一个基于 Tauri 和 Vue.js 的跨平台剪贴板管理工具，支持文本、图片和文件格式，提供系统托盘、快捷键操作和数据持久化功能。
 
@@ -9,10 +9,24 @@
 - **数据持久化**：使用 SQLite 数据库存储剪贴板历史记录
 - **快捷键操作**：自定义全局快捷键，支持编辑、删除、切换记录等操作
 - **二维码生成**：将文本内容转换为二维码
-- **收藏功能**：标记重要剪贴板内容
 - **主题切换**：支持浅色、深色和自动主题模式
 
-## 安装步骤
+## 截图展示
+
+1. 剪贴板历史记录页面
+
+    ![](./snapshots/example01.png)
+    ![](./snapshots/example02.png)
+
+2. 设置
+
+    ![](./snapshots/setting01.png)
+    ![](./snapshots/setting02.png)
+    <!-- ![](./snapshots/setting03.png) -->
+    ![](./snapshots/setting04.png)
+    ![](./snapshots/setting05.png)
+
+## 开发指南
 
 ### 前提条件
 - Node.js (v24+) 和 pnpm

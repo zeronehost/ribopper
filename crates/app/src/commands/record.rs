@@ -70,12 +70,23 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
     log::error!("commands::record::delete_record - failed to lock db: {}", e);
     e
   })?;
-  let record = db.get_record_by_id(id)?;
+  let record = db.get_record_by_id(id).map_err(|e| {
+    log::error!("commands::record::delete_record - get_record_by_id error: {}", e);
+    e
+  })?;
 
   if let Some(record) = record {
-    let path = get_images_path(&app)?.join(&record.content);
+    let path = get_images_path(&app)
+    .map_err(|e| {
+      log::error!("commands::record::delete_record - get_images_path error: {}", e);
+      e
+    })?.join(&record.content);
+    log::info!("commands::record::delete_record - deleting dir: {:?}", path.display());
     if path.exists() {
-      std::fs::remove_dir_all(path)?;
+      let _ = std::fs::remove_file(path).map_err(|e| {
+        log::error!("commands::record::delete_record - failed to remove dir: {}", e);
+        e
+      });
     }
   }
   match db.delete_record(id) {
@@ -176,7 +187,9 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
           Ok(_) => {
             match get_images_path(&app) {
               Ok(path) => {
-                let _ = std::fs::remove_dir_all(path);
+                if path.exists() {
+                  let _ = std::fs::remove_dir_all(path);
+                }
               }
               Err(e) => {
                 log::error!(

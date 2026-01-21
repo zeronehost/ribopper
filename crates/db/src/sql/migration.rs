@@ -54,7 +54,11 @@ impl Database {
         log::info!("db.migration: {}", migrate.description);
 
         // 迁移数据
-        let data_sql = migrate.migrate(self.conn())?;
+        let data_sql = if cfg!(feature = "migrate") {
+          migrate.migrate(self.conn())?
+        } else {
+          "".to_string()
+        };
 
         match self
           .0

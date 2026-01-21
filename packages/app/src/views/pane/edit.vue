@@ -4,6 +4,7 @@
       <s-icon-button slot="navigation" @click="goback">
         <s-icon name="arrow_back"></s-icon>
       </s-icon-button>
+      <span slot="headline" class="title">编辑</span>
     </s-appbar>
     <s-card>
       <textarea slot="text" v-model="value"></textarea>
@@ -64,6 +65,11 @@ section.edit-pane {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+
+  .title {
+    font-size: 1.1rem;
+    margin: 0;
+  }
 
   s-card {
     flex: 1;

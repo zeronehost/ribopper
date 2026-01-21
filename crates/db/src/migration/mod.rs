@@ -68,7 +68,7 @@ impl Migration {
 
 pub static MIGRATIONS: LazyLock<Vec<Migration>> = LazyLock::new(|| {
   vec![Migration::new(
-    2,
+    1,
     &format!("{}{}{}", SCHEMA, RECOED_SCHEMA, ACTION_SCHEMA),
     "Initial schema",
   )]
