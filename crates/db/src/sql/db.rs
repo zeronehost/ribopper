@@ -23,11 +23,11 @@ impl Database {
 
   pub fn init(&self) -> Result<()> {
     log::info!("Initializing database");
-    let schema_version_exists = self.schema_version_exists()?;
-    if !schema_version_exists {
+    let version_exists = self.migration_version_exists()?;
+    if !version_exists {
       self.migrate_after_version(0)?;
     } else {
-      let current_version = self.get_schema_version()?;
+      let current_version = self.get_migration_version()?;
       self.migrate_after_version(current_version.unwrap_or(0))?;
     }
     Ok(())

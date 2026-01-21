@@ -1,9 +1,6 @@
 use rusqlite::params;
 
-use crate::{
-  Database, Result,
-  models::ActionWithOption,
-};
+use crate::{Database, Result, models::ActionWithOption};
 
 impl Database {
   pub fn create_action_option_by_record(&mut self, record_id: u64, content: &str) -> Result<()> {

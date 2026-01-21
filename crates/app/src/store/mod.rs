@@ -1,6 +1,9 @@
 use crate::{
   store::config::RiboConfig,
-  utils::{constant::{APP_NAME, STORE_DB_FILE, STORE_FILE}, error::Result},
+  utils::{
+    constant::{APP_NAME, STORE_DB_FILE, STORE_FILE},
+    error::Result,
+  },
 };
 use serde_json::json;
 use tauri::{AppHandle, Manager, Runtime};

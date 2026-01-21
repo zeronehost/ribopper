@@ -173,7 +173,13 @@ impl Database {
     log::info!("db.actions: update_option invoked (id={:?})", option.id);
     let rows_affected = self.conn().execute(
       "update options set command = ?1, description = ?2, out = ?3, name = ?4 where id = ?5",
-      params![option.command, option.description, option.out, option.name, option.id],
+      params![
+        option.command,
+        option.description,
+        option.out,
+        option.name,
+        option.id
+      ],
     )?;
     Ok(rows_affected > 0)
   }
@@ -207,7 +213,7 @@ mod tests {
     let action = db.create_action(models::NewAction {
       description: Some("test".to_string()),
       pattern: "*".to_string(),
-      name: "test".to_string()
+      name: "test".to_string(),
     });
     println!("{:?}", action);
     assert!(action.is_ok());

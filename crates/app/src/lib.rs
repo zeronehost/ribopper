@@ -85,7 +85,7 @@ pub fn run() {
                         //   .message("暂不支持打开上下文菜单，请点击系统托盘图标打开")
                         //   .title("温馨提示")
                         //   .show(|_| {});
-                        if let Err(e) = crate::window::open_context_pane(&app) {
+                        if let Err(e) = crate::window::open_context_pane(app) {
                           log::error!("global shortcut: open context pane failed: {}", e);
                         }
                       }

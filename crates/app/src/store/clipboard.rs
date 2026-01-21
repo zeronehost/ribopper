@@ -87,9 +87,7 @@ impl Clipboard {
                 }
               }
             } else {
-              log::error!(
-                "store::clipboard::Clipboard::new::callback: failed to load image",
-              );
+              log::error!("store::clipboard::Clipboard::new::callback: failed to load image",);
               return;
             }
           }

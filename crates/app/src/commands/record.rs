@@ -73,7 +73,7 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
   let record = db.get_record_by_id(id)?;
 
   if let Some(record) = record {
-    let path = get_images_path(&app)?.join(record.content.to_string());
+    let path = get_images_path(&app)?.join(&record.content);
     if path.exists() {
       std::fs::remove_dir_all(path)?;
     }
@@ -274,8 +274,7 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
           data,
         })
       }
-    }
-    .map_err(|e| e)?;
+    }?;
   }
   Ok(())
 }
@@ -290,7 +289,8 @@ pub fn qrcode_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<Vec<u8>> 
     record,
     #[cfg(feature = "image")]
     &app,
-  ).map_err(|e| {
+  )
+  .map_err(|e| {
     log::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
     e
   })

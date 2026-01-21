@@ -1,9 +1,9 @@
+use crate::utils::error::Result;
 use ribo_db::models::ActionWithOption;
 use tauri::{
   Manager, Runtime, WebviewWindow,
   menu::{Menu, MenuItem, SubmenuBuilder},
 };
-use crate::utils::error::Result;
 
 pub struct Context<'a, R: Runtime> {
   menu: Menu<R>,

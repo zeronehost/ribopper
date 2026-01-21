@@ -132,7 +132,10 @@ where
       content: content.unwrap(),
       data,
     };
-    log::debug!("clipboard: get_content returning type={:?}", content_struct.get_type());
+    log::debug!(
+      "clipboard: get_content returning type={:?}",
+      content_struct.get_type()
+    );
     Some(content_struct)
   }
 

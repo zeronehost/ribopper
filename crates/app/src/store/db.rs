@@ -1,7 +1,7 @@
 use std::{path::Path, sync::Mutex};
 
-use ribo_db::Database;
 use crate::utils::error::Result;
+use ribo_db::Database;
 
 pub struct Db(pub Mutex<Database>);
 

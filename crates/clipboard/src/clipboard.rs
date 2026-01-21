@@ -26,7 +26,6 @@ impl Clipboard {
 
   #[cfg(feature = "image")]
   pub(crate) fn get_image(&mut self) -> Result<Image> {
-
     let image = self.0.get_image()?;
     Ok(Image {
       width: image.width as u32,

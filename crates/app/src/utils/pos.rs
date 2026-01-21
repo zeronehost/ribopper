@@ -1,5 +1,5 @@
-use tauri::{PhysicalPosition, Runtime};
 use super::error::Result;
+use tauri::{PhysicalPosition, Runtime};
 
 pub fn set_tray_window_pos<R: Runtime>(
   app: &tauri::AppHandle<R>,

@@ -1,4 +1,5 @@
 #[derive(Debug, thiserror::Error)]
+#[allow(clippy::enum_variant_names)]
 pub enum Error {
   #[error("Tauri error: {0}")]
   TauriError(#[from] tauri::Error),
@@ -23,7 +24,7 @@ pub enum Error {
   #[error("Global shortcut error: {0}")]
   TauriPluginShortcutError(#[from] tauri_plugin_global_shortcut::Error),
   #[error("Updater error: {0}")]
-  TauriPluginUpdaterError(#[from] tauri_plugin_updater::Error)
+  TauriPluginUpdaterError(#[from] tauri_plugin_updater::Error),
 }
 
 impl From<Error> for tauri::ipc::InvokeError {

@@ -5,7 +5,10 @@ use tauri::{
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
-use crate::{commands::config::config_load, utils::{constant::APP_NAME, error::Result}};
+use crate::{
+  commands::config::config_load,
+  utils::{constant::APP_NAME, error::Result},
+};
 
 pub(crate) struct Tray;
 
