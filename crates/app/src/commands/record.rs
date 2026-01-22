@@ -7,7 +7,7 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 #[cfg(feature = "action")]
 use crate::menu::Context;
 use crate::{
-  events::EventLabel,
+  events::{EventAction, EventLabel},
   models::{Record, UpdateRecord},
   store::db::Db,
   utils::{error::Result, path::get_images_path, qrcode::create_qrcode},
@@ -71,20 +71,33 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
     e
   })?;
   let record = db.get_record_by_id(id).map_err(|e| {
-    log::error!("commands::record::delete_record - get_record_by_id error: {}", e);
+    log::error!(
+      "commands::record::delete_record - get_record_by_id error: {}",
+      e
+    );
     e
   })?;
 
   if let Some(record) = record {
     let path = get_images_path(&app)
-    .map_err(|e| {
-      log::error!("commands::record::delete_record - get_images_path error: {}", e);
-      e
-    })?.join(&record.content);
-    log::info!("commands::record::delete_record - deleting dir: {:?}", path.display());
+      .map_err(|e| {
+        log::error!(
+          "commands::record::delete_record - get_images_path error: {}",
+          e
+        );
+        e
+      })?
+      .join(&record.content);
+    log::info!(
+      "commands::record::delete_record - deleting dir: {:?}",
+      path.display()
+    );
     if path.exists() {
       let _ = std::fs::remove_file(path).map_err(|e| {
-        log::error!("commands::record::delete_record - failed to remove dir: {}", e);
+        log::error!(
+          "commands::record::delete_record - failed to remove dir: {}",
+          e
+        );
         e
       });
     }
@@ -92,7 +105,8 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
   match db.delete_record(id) {
     Ok(success) => {
       if success {
-        crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record).emit(&app)?;
+        crate::events::RiboEvent::create_update_event(EventLabel::Record, EventAction::Delete)
+          .emit(&app)?;
         log::info!("commands::record::delete_record - record deleted id={}", id);
       }
       Ok(success)
@@ -126,7 +140,8 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Res
     log::error!("commands::record::create_record - failed to convert: {}", e);
     e
   })?;
-  crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record).emit(&app)?;
+  crate::events::RiboEvent::create_update_event(EventLabel::Record, EventAction::Create)
+    .emit(&app)?;
   log::info!("commands::record::create_record - created record");
   Ok(created)
 }
@@ -146,7 +161,7 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Res
         if success {
           #[cfg(feature = "action")]
           db.update_action_option_by_record(id, &content)?;
-          crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
+          crate::events::RiboEvent::create_update_event(EventLabel::Record, EventAction::Update)
             .emit(&app)?;
           log::info!("commands::record::update_record - updated id={}", id);
         }
@@ -198,8 +213,11 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
                 );
               }
             }
-            match crate::events::RiboEvent::<()>::create_update_event(None, EventLabel::Record)
-              .emit(&app_handle)
+            match crate::events::RiboEvent::create_update_event(
+              EventLabel::Record,
+              EventAction::Clear,
+            )
+            .emit(&app_handle)
             {
               Ok(_) => {
                 log::info!("commands::record::clear_records - notify refresh succeeded");

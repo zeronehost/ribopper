@@ -120,6 +120,7 @@ s-card.ribo-card {
   max-width: unset;
   margin: 1rem;
   position: relative;
+  min-height: 3rem;
 
   .content {
     padding: .5rem;

@@ -5,7 +5,7 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
 use tauri_plugin_store::StoreExt;
 
 use crate::{
-  events::{EventLabel, RiboEvent},
+  events::{EventAction, EventLabel, RiboEvent},
   store::config::RiboConfig,
   utils::{constant::STORE_FILE, error::Result},
 };
@@ -56,7 +56,7 @@ pub fn config_save<R: Runtime>(app: AppHandle<R>, config: RiboConfig) -> Result<
 
   store.set("config", json!(config));
   log::info!("commands::config::config_save - config saved");
-  RiboEvent::<()>::create_update_event(None, EventLabel::Config).emit(&app)?;
+  RiboEvent::create_update_event(EventLabel::Config, EventAction::Save).emit(&app)?;
   Ok(())
 }
 

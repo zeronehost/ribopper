@@ -18,6 +18,11 @@ export const routes = [
         path: "qrcode",
         name: "trayPaneQrcode",
         component: () => import("@/views/pane/qrcode.vue"),
+      },
+      {
+        path: "demo",
+        name: "trayPaneDemo",
+        component: () => import("@/views/pane/demo.vue"),
       }
     ]
   },

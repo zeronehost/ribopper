@@ -1,5 +1,5 @@
 <template>
-  <View appbar />
+  <View appbar label="tray_pane" />
 </template>
 <script setup lang="ts">
 import { inject, nextTick, onMounted, onUnmounted } from "vue";
@@ -20,8 +20,9 @@ const loadRecords = async (event: RiboEvent) => {
       || event.label === EVENT_LABEL_TARGET
       || event.label === EVENT_LABEL_ALL
     )) {
+      console.log("loadRecords =>");
     await nextTick();
-    await recordStore.initRecords();
+    await recordStore.load(event.action);
   }
   if (
     (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
@@ -35,7 +36,7 @@ const loadRecords = async (event: RiboEvent) => {
 };
 
 onMounted(() => {
-  recordStore.initRecords();
+  recordStore.init();
   settingStore.getAppInfo();
   context?.register(loadRecords);
 });

@@ -13,7 +13,7 @@ export default defineConfig({
         },
       },
     }),
-    // vueDevTools(),
+    vueDevTools(),
   ],
   server: {
     port: 5050,

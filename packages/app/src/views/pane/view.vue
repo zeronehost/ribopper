@@ -46,13 +46,17 @@ import { useSettingStore } from "@/stores/setting";
 import { RiboScrollView } from "@/components/scroll-view";
 
 defineOptions({
-  name: "tray_pane",
+  name: "RiboView",
 });
 
-defineProps({
+const props = defineProps({
   appbar: {
     type: Boolean,
     default: false,
+  },
+  label: {
+    type: String,
+    required: true
   }
 })
 
@@ -79,12 +83,7 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
   } else if (option === "edit") {
     router.push({ name: "trayPaneEdit", query: { id } });
   } else if (option === "exec") {
-    Snackbar.builder({
-      text: "暂不支持",
-      duration: 1000,
-      type: "warning",
-    });
-    // await recordStore.showRecordActions(id, "tray_pane");
+    await recordStore.showRecordActions(id, props.label);
   } else if (option === "copy") {
     copyRecord(id)
       .then(() => {
@@ -122,12 +121,12 @@ const search = computed({
 });
 const searchHandle = debounce(async () => {
   await nextTick();
-  await recordStore.initRecords();
+  await recordStore.init();
 }, 300);
 const clearSearchHandle = debounce(async () => {
   search.value = "";
   await nextTick();
-  await recordStore.initRecords();
+  await recordStore.init();
 });
 
 

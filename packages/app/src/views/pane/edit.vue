@@ -20,9 +20,11 @@ import { getRecord, logger, updateRecord } from '@ribo/api';
 import { Snackbar } from 'sober';
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useRecordStore } from "@/stores/record";
 
 const router = useRouter();
 const route = useRoute();
+const recordStore = useRecordStore();
 
 const goback = () => router.back();
 
@@ -31,7 +33,7 @@ const originVal = ref('');
 
 const id = ref(Number(route.query.id));
 
-getRecord(id.value).then((res) => {
+recordStore.getRecord(id.value).then((res) => {
   if (res.type === "text") {
     value.value = res.text;
     originVal.value = res.text;
@@ -39,14 +41,9 @@ getRecord(id.value).then((res) => {
 });
 
 const saveHandle = () => {
-  updateRecord({
-    id: id.value,
-    type: "text",
-    text: value.value
-  }).then(() => {
+  recordStore.updateRecord(id.value, value.value).then(() => {
     goback();
-  }).catch((e) => {
-    logger.error(e);
+  }).catch(() => {
     Snackbar.builder({
       text: "修改失败",
       duration: 1000,
