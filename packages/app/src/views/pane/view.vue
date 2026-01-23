@@ -22,18 +22,16 @@
         </s-popup-menu-item>
       </s-popup-menu>
     </s-appbar>
-    <RiboScrollView @load="scrollHandle">
-      <s-empty v-if="isEmpty">暂时没有内容</s-empty>
-      <template v-else>
-        <RiboCard :enabled="settingStore.appInfo?.features" :class="{ selected: currentId === record.id }"
-          v-for="record in list" :key="record.id" :data="record" @option="optionHandle" />
-      </template>
-    </RiboScrollView>
+    <s-empty v-if="isEmpty">暂时没有内容</s-empty>
+    <RiboVirtualList v-else ref="listRef" :list #default="{ data, id, selected }" estimated-item-height="3rem">
+      <RiboCard :enabled="settingStore.appInfo?.features" :data-id="id" :data :class="{ selected }"
+        @option="optionHandle" />
+    </RiboVirtualList>
   </section>
 </template>
 <script setup lang="ts">
 import { closeWindow, copyRecord, logger, WIN_LABEL_TRAY_PANE } from "@ribo/api";
-import { computed, nextTick } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
@@ -43,7 +41,7 @@ import { Snackbar } from "sober";
 import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
 import { useSettingStore } from "@/stores/setting";
-import { RiboScrollView } from "@/components/scroll-view";
+import { RiboVirtualList } from "@/components/scroll-view";
 
 defineOptions({
   name: "RiboView",
@@ -106,11 +104,6 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
   }
 };
 
-const scrollHandle = () => {
-  recordStore.getRecords();
-}
-
-
 const search = computed({
   get() {
     return recordStore.contentContains ?? "";
@@ -121,12 +114,12 @@ const search = computed({
 });
 const searchHandle = debounce(async () => {
   await nextTick();
-  await recordStore.init();
+  await recordStore.getAllRecords();
 }, 300);
 const clearSearchHandle = debounce(async () => {
   search.value = "";
   await nextTick();
-  await recordStore.init();
+  await recordStore.getAllRecords();
 });
 
 
@@ -141,6 +134,7 @@ const currentIndex = computed({
 const currentId = computed(() => list.value[currentIndex.value]?.id);
 
 const settingStore = useSettingStore();
+const listRef = ref<typeof RiboVirtualList>();
 logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
 useListenHotKey(settingStore.hotkeys, (type) => {
   logger.debug("useListenHotKey => type", type);
@@ -166,17 +160,13 @@ useListenHotKey(settingStore.hotkeys, (type) => {
         break;
     }
   }
-  if (type === "prev" || type === "next") {
-    const total = recordStore.total;
-    currentIndex.value = type === "prev"
-      ? (currentIndex.value - 1 + total) % total
-      : (currentIndex.value + 1) % total;
+  if (type === "prev") {
+    listRef.value?.prev();
+  } else if (type === "next") {
+    listRef.value?.next();
   }
   nextTick().then(() => {
-    const el = document.querySelector(".selected") as HTMLElement;
-    if (el) {
-      el.scrollIntoView({ behavior: "auto", block: "center" })
-    }
+    currentIndex.value = listRef.value?.selected ?? -1;
   })
 });
 
