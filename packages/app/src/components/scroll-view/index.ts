@@ -1,2 +1,2 @@
-import riboScrollView from "./index.vue";
-export const RiboScrollView = riboScrollView;
+export { default as RiboScrollView } from "./index.vue";
+export { default as RiboVirtualList } from "./virtual-list.vue";

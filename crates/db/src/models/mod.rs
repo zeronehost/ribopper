@@ -1,6 +1,6 @@
-mod record;
 #[cfg(feature = "action")]
 mod action;
+mod record;
 #[cfg(feature = "action")]
 mod record_action;
 
@@ -11,9 +11,6 @@ pub trait FromRow: Sized {
   fn from_row(row: &Row) -> Result<Self>;
 }
 
-#[cfg(feature = "action")]
-pub use self::{
-  action::*,
-  record_action::*,
-};
 pub use self::record::*;
+#[cfg(feature = "action")]
+pub use self::{action::*, record_action::*};

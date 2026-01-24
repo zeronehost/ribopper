@@ -53,7 +53,7 @@ const onScroll = () => {
   const delta = scrollTop - lastScrollTop.value;
   lastScrollTop.value = scrollTop;
 
-  if (observer.value || props.disabled || delta < 0) return;
+  if (!observer.value || props.disabled || delta < 0) return;
 
   const shouldTrigger = scrollHeight - (clientHeight + scrollTop) <= props.distance;
 

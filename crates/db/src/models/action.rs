@@ -1,7 +1,7 @@
 use chrono::{DateTime, Local};
 use rusqlite::{ToSql, types::FromSql};
 
-use crate::models::FromRow;
+use crate::{migration::Migrate, models::FromRow};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -27,6 +27,31 @@ impl FromRow for Action {
   }
 }
 
+impl Migrate for Action {
+  fn migrate(db: &rusqlite::Connection) -> crate::Result<String> {
+    // 原数据结构
+    let mut stmt =
+      db.prepare("select id, name, description, pattern, created_at, updated_at from action")?;
+    let data = stmt.query_map(rusqlite::params![], |row| {
+      // 新数据结构
+      Ok(format!(
+          "insert into action (id, name, description, pattern, created_at, updated_at) values ({}, '{}', '{}', '{}', '{}', '{}');\n",
+          row.get::<usize, u64>(0)?,
+          row.get::<usize, String>(1)?,
+          row.get::<usize, String>(2)?,
+          row.get::<usize, String>(3)?,
+          row.get::<usize, String>(4)?,
+          row.get::<usize, String>(5)?
+        ))
+    })?;
+    let mut sql = String::new();
+    for row in data {
+      sql.push_str(row?.as_str());
+    }
+    Ok(sql)
+  }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NewAction {
   pub description: Option<String>,
@@ -41,7 +66,6 @@ pub struct UpdateAction {
   pub pattern: String,
   pub name: String,
 }
-
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -68,6 +92,34 @@ impl FromRow for RiboOption {
       created_at: row.get(6)?,
       updated_at: row.get(7)?,
     })
+  }
+}
+
+impl Migrate for RiboOption {
+  fn migrate(db: &rusqlite::Connection) -> crate::Result<String> {
+    // 原数据结构
+    let mut stmt = db.prepare(
+      "select id, action_id, name, description, command, out, created_at, updated_at from action",
+    )?;
+    let data = stmt.query_map(rusqlite::params![], |row| {
+      // 新数据结构
+      Ok(format!(
+          "insert into action (id, action_id, name, description, command, out, created_at, updated_at) values ({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}');\n",
+          row.get::<usize, u64>(0)?,
+          row.get::<usize, String>(1)?,
+          row.get::<usize, String>(2)?,
+          row.get::<usize, String>(3)?,
+          row.get::<usize, String>(4)?,
+          row.get::<usize, String>(5)?,
+          row.get::<usize, String>(6)?,
+          row.get::<usize, String>(7)?,
+        ))
+    })?;
+    let mut sql = String::new();
+    for row in data {
+      sql.push_str(row?.as_str());
+    }
+    Ok(sql)
   }
 }
 

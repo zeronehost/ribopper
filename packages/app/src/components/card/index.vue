@@ -118,8 +118,9 @@ const copyHandle = () => {
 s-card.ribo-card {
   display: block;
   max-width: unset;
-  margin: 1rem;
+  margin: 0;
   position: relative;
+  min-height: 3rem;
 
   .content {
     padding: .5rem;

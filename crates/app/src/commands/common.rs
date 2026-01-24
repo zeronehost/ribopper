@@ -32,10 +32,8 @@ pub async fn update<R: Runtime>(app: AppHandle<R>, channel: tauri::ipc::Channel)
 }
 
 pub(crate) async fn check_update<R: Runtime>(
-  #[allow(unused)]
-  app: AppHandle<R>,
-  #[allow(unused)]
-  channel: Option<tauri::ipc::Channel>,
+  #[allow(unused)] app: AppHandle<R>,
+  #[allow(unused)] channel: Option<tauri::ipc::Channel>,
 ) -> Result<()> {
   log::info!("commands::common::check_update called");
   #[cfg(not(debug_assertions))]

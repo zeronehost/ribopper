@@ -1,3 +1,5 @@
+use crate::migration::Migrate;
+
 use super::FromRow;
 use chrono::{DateTime, Local};
 
@@ -23,6 +25,31 @@ impl FromRow for Record {
       created_at: row.get(4)?,
       updated_at: row.get(5)?,
     })
+  }
+}
+
+impl Migrate for Record {
+  fn migrate(db: &rusqlite::Connection) -> crate::Result<String> {
+    // 原数据结构
+    let mut stmt =
+      db.prepare("select id, content, data, type, created_at, updated_at from record")?;
+    let data = stmt.query_map(rusqlite::params![], |row| {
+      // 新数据结构
+      Ok(format!(
+          "insert into record (id, content, data, type, created_at, updated_at) values ({}, '{}', '{}', '{}', '{}', '{}');\n",
+          row.get::<usize, u64>(0)?,
+          row.get::<usize, String>(1)?,
+          row.get::<usize, String>(2)?,
+          row.get::<usize, String>(3)?,
+          row.get::<usize, String>(4)?,
+          row.get::<usize, String>(5)?
+        ))
+    })?;
+    let mut sql = String::new();
+    for row in data {
+      sql.push_str(row?.as_str());
+    }
+    Ok(sql)
   }
 }
 

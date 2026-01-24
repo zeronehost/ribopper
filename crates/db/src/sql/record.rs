@@ -68,9 +68,8 @@ impl Database {
 
   pub fn query_record(&self, query: models::RecordQuery) -> Result<Vec<models::Record>> {
     log::debug!("db.record: query_record start: {:?}", query);
-    let mut sql = String::from(
-      r#" SELECT id, content, data, type, created_at, updated_at FROM record"#,
-    );
+    let mut sql =
+      String::from(r#" SELECT id, content, data, type, created_at, updated_at FROM record"#);
     let mut params: Vec<Box<dyn ToSql>> = Vec::new();
     let mut conditions = Vec::new();
 

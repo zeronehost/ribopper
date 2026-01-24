@@ -22,9 +22,13 @@
   "pnpm": {
     "overrides": {
       "vite": "npm:rolldown-vite@7.2.5"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "devDependencies": {
+    "@pdanpdan/virtual-scroll": "^0.4.0",
     "@ribo/build": "workspace:*",
     "@types/node": "^24.10.1",
     "@types/semver": "^7.7.1",

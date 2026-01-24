@@ -24,7 +24,7 @@ provide(rootContextKey, {
 })
 
 const unlisten = listenNotify(async (data) => {
-  logger.debug("listenNotify =>", data.type);
+  logger.debug("listenNotify =>", data.type, data.label, data.action);
   let arr = hookCache.values();
   let item = arr.next();
   while (!item.done) {

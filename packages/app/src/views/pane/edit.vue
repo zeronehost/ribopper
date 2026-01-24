@@ -4,6 +4,7 @@
       <s-icon-button slot="navigation" @click="goback">
         <s-icon name="arrow_back"></s-icon>
       </s-icon-button>
+      <span slot="headline" class="title">编辑</span>
     </s-appbar>
     <s-card>
       <textarea slot="text" v-model="value"></textarea>
@@ -19,9 +20,11 @@ import { getRecord, logger, updateRecord } from '@ribo/api';
 import { Snackbar } from 'sober';
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useRecordStore } from "@/stores/record";
 
 const router = useRouter();
 const route = useRoute();
+const recordStore = useRecordStore();
 
 const goback = () => router.back();
 
@@ -30,7 +33,7 @@ const originVal = ref('');
 
 const id = ref(Number(route.query.id));
 
-getRecord(id.value).then((res) => {
+recordStore.getRecord(id.value).then((res) => {
   if (res.type === "text") {
     value.value = res.text;
     originVal.value = res.text;
@@ -38,14 +41,9 @@ getRecord(id.value).then((res) => {
 });
 
 const saveHandle = () => {
-  updateRecord({
-    id: id.value,
-    type: "text",
-    text: value.value
-  }).then(() => {
+  recordStore.updateRecord(id.value, value.value).then(() => {
     goback();
-  }).catch((e) => {
-    logger.error(e);
+  }).catch(() => {
     Snackbar.builder({
       text: "修改失败",
       duration: 1000,
@@ -64,6 +62,11 @@ section.edit-pane {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+
+  .title {
+    font-size: 1.1rem;
+    margin: 0;
+  }
 
   s-card {
     flex: 1;

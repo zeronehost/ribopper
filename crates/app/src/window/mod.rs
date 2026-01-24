@@ -162,8 +162,8 @@ pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
       let is_initialized = Arc::new(AtomicBool::new(false));
       let is_initialized_clone = is_initialized.clone();
 
-      win.on_window_event(move |ev| match ev {
-        WindowEvent::Focused(focused) => {
+      win.on_window_event(move |ev| {
+        if let WindowEvent::Focused(focused) = ev {
           if !focused {
             if !is_initialized_clone.load(Ordering::SeqCst) {
               log::info!("Ignoring initial focus loss");
@@ -184,7 +184,6 @@ pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
             is_initialized_clone.store(true, Ordering::SeqCst);
           }
         }
-        _ => {}
       });
       let is_initialized_timer = is_initialized.clone();
       std::thread::spawn(move || {

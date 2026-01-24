@@ -86,10 +86,7 @@ impl TryInto<(u64, String)> for UpdateRecord {
     match self.typ {
       ribo_db::models::RecordType::Text => Ok((self.id, self.text.unwrap_or_default())),
       #[cfg(feature = "image")]
-      ribo_db::models::RecordType::Image => Ok((
-        self.id,
-        self.image.unwrap_or("".to_string()),
-      )),
+      ribo_db::models::RecordType::Image => Ok((self.id, self.image.unwrap_or("".to_string()))),
       #[cfg(feature = "file")]
       ribo_db::models::RecordType::Files => Ok((
         self.id,

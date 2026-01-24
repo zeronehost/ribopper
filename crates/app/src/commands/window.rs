@@ -1,5 +1,5 @@
-use tauri::{AppHandle, Manager, Runtime};
 use crate::utils::error::Result;
+use tauri::{AppHandle, Manager, Runtime};
 
 #[tauri::command]
 pub fn close_window<R: Runtime>(app: AppHandle<R>, label: &str) -> Result<()> {

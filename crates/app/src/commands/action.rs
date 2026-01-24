@@ -6,9 +6,9 @@ use tauri::{AppHandle, Manager, Runtime, State};
 
 use crate::{
   events::{EventLabel, RiboEvent},
+  menu::Context,
   store::db::Db,
   utils::error::Result,
-  menu::Context,
 };
 
 #[tauri::command]
@@ -177,8 +177,7 @@ pub fn delete_option<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
   match db.delete_option(id) {
     Ok(success) => {
       if success {
-        RiboEvent::<()>::create_update_event(None, EventLabel::Option)
-          .emit(&app)?;
+        RiboEvent::<()>::create_update_event(None, EventLabel::Option).emit(&app)?;
         log::info!("commands::action::delete_option - success to delete option id={id}");
       }
       Ok(success)
@@ -208,8 +207,7 @@ pub fn update_action<R: Runtime>(app: AppHandle<R>, action: UpdateAction) -> Res
     Ok(success) => {
       if success {
         db.update_action_option_by_action(id, pattern)?;
-        RiboEvent::<()>::create_update_event(None, EventLabel::Action)
-          .emit(&app)?;
+        RiboEvent::<()>::create_update_event(None, EventLabel::Action).emit(&app)?;
         log::info!(
           "commands::action::update_action - success to update action id={}",
           id
@@ -242,8 +240,7 @@ pub fn update_option<R: Runtime>(app: AppHandle<R>, option: UpdateRiboOption) ->
   match db.update_option(option) {
     Ok(success) => {
       if success {
-        RiboEvent::<()>::create_update_event(None, EventLabel::Option)
-          .emit(&app)?;
+        RiboEvent::<()>::create_update_event(None, EventLabel::Option).emit(&app)?;
         log::info!(
           "commands::action::update_option - success to update option id={}",
           id

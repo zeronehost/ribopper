@@ -1,8 +1,8 @@
-mod db;
-mod record;
-mod schema;
 #[cfg(feature = "action")]
 mod action;
+mod db;
+mod migration;
+mod record;
 #[cfg(feature = "action")]
 mod record_action;
 

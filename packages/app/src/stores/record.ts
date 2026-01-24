@@ -1,22 +1,29 @@
-import { getRecords, deleteRecord, clearRecord, Record, showRecordActions } from "@ribo/api"
+import { getRecords, getRecord, deleteRecord, clearRecord, Record, showRecordActions, RiboEvent, logger, updateRecord } from "@ribo/api"
 import { defineStore } from "pinia"
 import { shallowReactive } from "vue";
 
 export const useRecordStore = defineStore('record', {
   state: (): {
+    // 数据集合
     list: Record[],
-    size: number,
-    index: number,
-    loadEnable: boolean,
+    // 搜索内容
     contentContains: string,
-    loading: boolean;
+    // 当前页码
+    // index: number,
+    // 每页条数
+    size: number,
+    // 是否正在加载
+    loading: boolean,
+    // 是否加载完成
+    finished: boolean,
   } => ({
     list: [],
-    size: 10,
-    index: 0,
-    loadEnable: true,
     contentContains: "",
+    // 分页配置
+    // index: 0,
+    size: 100,
     loading: false,
+    finished: false,
   }),
 
   getters: {
@@ -26,45 +33,76 @@ export const useRecordStore = defineStore('record', {
   },
 
   actions: {
-    async initRecords() {
-      this.list = shallowReactive([]);
-      this.index = 0;
-      this.size = 10;
-      this.loadEnable = true;
-      if (!this.loading) {
-        await this.getRecords();
-      }
+    async reset() {
+      this.list = [];
+      this.finished = false;
+      await this.getRecords();
     },
     async getRecords() {
-      if (this.loadEnable) {
-        const offset = this.index * this.size;
-        this.loading = true;
+      this.loading = true;
+      try {
         const list = await getRecords({
-          limit: this.size,
-          offset,
           contentContains: this.contentContains,
-        }).finally(() => {
-          this.loading = false;
+          offset: this.total,
+          limit: this.size,
         });
-        if (list.length >= this.size) {
-          this.index += 1;
-        } else {
-          this.loadEnable = false;
+        if (list.length < this.size) {
+          this.finished = true;
         }
         this.list.push(...list);
+      } catch (error) {
+        logger.error(error as Error);
       }
+      this.loading = false;
     },
     search(contentContains: string) {
       this.contentContains = contentContains;
     },
     async deleteRecord(id: number) {
-      return await deleteRecord(id);
+      const flag = await deleteRecord(id);
+      if (flag) {
+        const index = this.list.findIndex((record) => record.id === id);
+        if (index >= 0) {
+          this.list.splice(index, 1);
+        }
+      }
     },
     async clearRecord() {
-      return await clearRecord();
+      const flag = await clearRecord();
+      if (flag) {
+        this.list = shallowReactive([]);
+      }
+      return flag;
     },
     async showRecordActions(id: number, label: string) {
       await showRecordActions(id, label);
+    },
+    async getRecord(id: number) {
+      try {
+        return await getRecord(id)
+      } catch (error) {
+        logger.error(error as Error);
+        throw error;
+      }
+    },
+    async updateRecord(id: number, text: string) {
+      try {
+        const flag = await updateRecord({
+          id,
+          text,
+          type: "text"
+        });
+        if (flag) {
+          const index = this.list.findIndex((record) => record.id === id);
+          if (index >= 0 && this.list[index]?.type === "text") {
+            this.list[index].text = text;
+          }
+        }
+        return flag;
+      } catch (error) {
+        logger.error(error as Error);
+        throw error;
+      }
     }
   }
 })

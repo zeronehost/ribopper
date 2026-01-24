@@ -11,6 +11,9 @@ importers:
 
   .:
     devDependencies:
+      '@pdanpdan/virtual-scroll':
+        specifier: ^0.4.0
+        version: 0.4.0(vue@3.5.25(typescript@5.9.3))
       '@ribo/build':
         specifier: workspace:*
         version: link:scripts/build
@@ -105,6 +108,9 @@ importers:
 
   packages/app:
     dependencies:
+      '@pdanpdan/virtual-scroll':
+        specifier: ^0.4.0
+        version: 0.4.0(vue@3.5.25(typescript@5.9.3))
       '@ribo/api':
         specifier: workspace:*
         version: link:../api
@@ -805,6 +811,11 @@ packages:
   '@parcel/watcher@2.5.1':
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
+
+  '@pdanpdan/virtual-scroll@0.4.0':
+    resolution: {integrity: sha512-UIcYH4yy0oanAdLW/NI+oF5prFyOK/oyDu7PsYNb1t9K8gbvz9Jv9fRRCbWiDo0jp3mYMOkiDj/IJAMO+wl7jg==}
+    peerDependencies:
+      vue: ^3.0.0
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
@@ -2480,6 +2491,10 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
     optional: true
+
+  '@pdanpdan/virtual-scroll@0.4.0(vue@3.5.25(typescript@5.9.3))':
+    dependencies:
+      vue: 3.5.25(typescript@5.9.3)
 
   '@polka/url@1.0.0-next.29': {}
 
