@@ -1,199 +1,188 @@
 <template>
-  <s-scroll-view ref="rootEl" class="ribo-virtual-list" @scroll="scrollHandle">
-    <div class="ribo-virtual-list__wrapper" ref="wrapperEl">
-      <template v-for="item in visibleData">
-        <slot :data="item.value" :id="item.index" :selected="item.index === selected" />
-      </template>
-    </div>
+  <s-scroll-view class="ribo-virtual-list" ref="containerRef">
+    <section v-if="data.length" class="ribo-virtual-list__wrapper" ref="wrapperRef">
+      <div
+        v-for="data in renderedItems"
+        :key="data.index"
+        :data-index="data.index"
+        :ref="(el) => setItemRef(el, data.index)"
+        class="ribo-virtual-list__item"
+      >
+        <slot :data="data.item" :index="data.index" />
+      </div>
+    </section>
+    <s-empty v-else>{{ emptyTip }}</s-empty>
   </s-scroll-view>
 </template>
 <script setup lang="ts">
-import type { Record } from '@ribo/api';
-import { computed, nextTick, onMounted, ref, shallowRef, watch, type PropType } from 'vue';
+import { useVirtualScroll, type VirtualScrollProps } from "@pdanpdan/virtual-scroll";
+import { Record } from "@ribo/api";
+import { computed, nextTick, ref, watch, type PropType } from "vue";
 
 defineOptions({
   name: "RiboVirtualList"
-});
+})
 
 const props = defineProps({
-  list: {
-    type: Array as PropType<Array<Record>>,
+  data: {
+    type: Array as PropType<Record[]>,
     default: () => []
   },
-  // 预估高度
-  estimatedItemHeight: {
-    type: [Number, String],
-    required: true
+  emptyTip: {
+    type: String,
+    default: "暂时没有内容"
   },
+  loadDistance: {
+    type: Number,
+    default: 100,
+  },
+  gap: {
+    type: Number,
+    default: 16,
+  },
+  loading: Boolean,
+  finished: Boolean,
+  current: {
+    type: Object,
+    default: () => ({id: -1, index: -1}),
+  }
 });
 
-const rootEl = ref<HTMLElement>();
-const startIndex = ref<number>(0);
-const endIndex = ref<number>();
-const height = ref<number>(0);
-const offset = ref<number>(0);
-const selected = ref<number>(-1);
-const eItemHeight = computed<number>(() => {
-  if (typeof props.estimatedItemHeight === "number") return props.estimatedItemHeight;
-  if (typeof props.estimatedItemHeight === "string") {
-    if (/\d+px$/.test(props.estimatedItemHeight)) return parseInt(props.estimatedItemHeight);
-    if (/\d+rem$/.test(props.estimatedItemHeight)) {
-      const rootFontSize = parseInt(window.getComputedStyle(document.documentElement).fontSize);
-      return parseInt(props.estimatedItemHeight) * rootFontSize;
-    }
+const containerRef = ref();
+const wrapperRef = ref();
+const virtualScrollProps = computed<VirtualScrollProps<Record>>(() => {
+  return {
+    items: props.data,
+    direction: "vertical",
+    hostElement: wrapperRef.value,
+    loading: props.loading,
+    loadDistance: props.loadDistance,
+    container: containerRef.value,
+    gap: props.gap,
   }
-  return parseInt(props.estimatedItemHeight);
 })
-const listData = computed(() => props.list.map((item, index) => ({ index: index, value: item })));
-const visibleCount = computed(() => Math.ceil(height.value / eItemHeight.value));
-const visibleData = computed(() => listData.value.slice(startIndex.value, endIndex.value));
-const positions = shallowRef<Position[]>([]);
+const {
+  renderedItems,
+  scrollDetails,
 
-// watch(props.list, (value, _, oncleanup) => {
-//   let expired = false;
-//   oncleanup(() => expired = true);
-//   if (!expired) return;
-//   nextTick(() => {
-//     positions.value = value.map((_, index) => ({
-//       index,
-//       height: eItemHeight.value,
-//       top: index * eItemHeight.value,
-//       bottom: (index + 1) * eItemHeight.value
-//     }));
-//     updateItemSize();
-//   });
-// }, { flush: "post" });
+  updateItemSizes,
+  scrollToOffset,
+  refresh,
+  stopProgrammaticScroll,
+} = useVirtualScroll<Record>(virtualScrollProps);
 
-const scrollHandle = () => {
-  const scrollTop = rootEl.value?.scrollTop ?? 0;
-  startIndex.value = getStartIndex(scrollTop) ?? 0;
-  endIndex.value = startIndex.value + visibleCount.value;
-  setOffset();
-}
+const current = ref(props.current);
 
-const getStartIndex = (scrollTop: number = 0) => {
-  return binarySearch(positions.value, scrollTop);
-}
-
-const binarySearch = (list: Position[], scrollTop: number) => {
-  let start = 0;
-  let end = list.length - 1;
-  let mid: number | null = null;
-
-  while (start <= end) {
-    let midIndex = parseInt(`${(start + end) / 2}`);
-    let midValue = list[midIndex]?.bottom ?? 0;
-    if (midValue === scrollTop) {
-      return midIndex + 1;
-    }
-    if (midValue < scrollTop) {
-      start = midIndex + 1;
-    } else if (midValue > scrollTop) {
-      if (mid === null || mid > midIndex) {
-        mid = midIndex;
-      }
-      end = end - 1;
-    }
-  }
-  return mid;
-}
-
-const setOffset = () => {
-  offset.value = startIndex.value > 0 ? (positions.value[startIndex.value - 1]?.bottom ?? 0) : 0;
-}
-
-const next = () => {
-  if (props.list.length === 0) return;
-  selected.value = selected.value + 1;
-  if (selected.value >= positions.value.length) {
-    selected.value = 0;
-  }
-  scrollToIndex();
-}
-
-const prev = () => {
-  if (props.list.length === 0) return;
-  selected.value = selected.value - 1;
-  if (selected.value < 0) {
-    selected.value = positions.value.length - 1;
-  }
-  scrollToIndex();
-}
-
-const scrollToIndex = () => {
-  const position = positions.value[selected.value > 0 ? selected.value - 1 : selected.value];
-  rootEl.value?.scrollTo({
-    top: position?.top,
-    behavior: "auto"
-  })
-}
-
-const wrapperEl = ref<HTMLElement>();
-const isUpdatingPositions = ref(false);
-const updateItemSize = () => {
-  console.log("updateItemSize =>");
-  if (isUpdatingPositions.value) return;
-  isUpdatingPositions.value = true;
-
-  const nodes = wrapperEl.value?.childNodes ?? [];
-  let hasChanges = false;
-
-  nodes.forEach(el => {
-    if (el.nodeType !== 1) return;
-    const { height } = (el as HTMLElement).getBoundingClientRect();
-    const index = Number((el as HTMLElement).dataset.id);
-    const oldHeight = positions.value[index]?.height ?? height;
-    const val = oldHeight - height;
-    if (val) {
-      positions.value[index]!.bottom = positions.value[index]!.bottom - val;
-      positions.value[index]!.height = height;
-      for (let i = index + 1; i < positions.value.length; i++) {
-        positions.value[i]!.top = positions.value[i - 1]!.bottom;
-        positions.value[i]!.bottom = positions.value[i]!.bottom - val;
-      }
-      hasChanges = true;
-    }
-  });
-
-  if (hasChanges) {
-    totalHeight.value = positions.value[positions.value.length - 1]?.bottom ?? height.value;
-  }
-
-  isUpdatingPositions.value = false;
-}
-
-onMounted(() => {
-  height.value = rootEl.value?.clientHeight ?? 0;
-  startIndex.value = 0;
-  endIndex.value = startIndex.value + visibleCount.value;
-
-  // nextTick(() => {
-  //   updateItemSize();
-  // });
-});
-
-const totalHeight = ref(0);
-
-// onUnmounted(() => {
-// })
-
-// style v-bind
-const styleTotalHeight = computed(() => `${totalHeight.value}px`);
-const styleOffset = computed(() => `${offset.value ?? 0}px`);
+watch(() => props.current, (value) => {
+  current.value = value;
+}, { deep: true });
 
 defineExpose({
-  next,
-  prev,
-  selected
+  async prev() {
+    let index = current.value.index;
+    if (current.value.index >= 0) {
+      index = current.value.index === 0 ? props.data.length - 1 : current.value.index - 1;
+    } else {
+      index = scrollDetails.value.currentIndex;
+    }
+    const item = renderedItems.value.find((item) => item.index === index);
+    if (item) {
+      stopProgrammaticScroll();
+      await nextTick();
+      scrollToOffset(item.originalX, item.originalY);
+      await nextTick();
+      const id = props.data[index]?.id ?? -1;
+      emit("update:current", { id, index });
+    }
+  },
+  async next() {
+    let index = current.value.index;
+    if (current.value.index >= 0) {
+      index = current.value.index === props.data.length - 1 ? 0 : current.value.index + 1;
+    } else {
+      index = scrollDetails.value.currentIndex;
+    }
+    const item = renderedItems.value.find((item) => item.index === index);
+    if (item) {
+      stopProgrammaticScroll();
+      await nextTick();
+      scrollToOffset(item.originalX, item.originalY);
+      await nextTick();
+      const id = props.data[index]?.id ?? -1;
+      emit("update:current", { id, index });
+    }
+  },
+  refresh,
 });
-</script>
-<script lang="ts">
-export interface Position {
-  index: number,
-  height: number,
-  top: number,
-  bottom: number
+
+const emit = defineEmits<{
+  load: [],
+  "update:current": [{id:number, index: number}]
+}>();
+
+watch(scrollDetails, (details, oldDetails) => {
+  // emit("scroll", details);
+  // if (
+  //   !oldDetails
+  // ) {}
+  // if (!details.isProgrammaticScroll) {
+  //   emit("update:current", { id: -1, index: -1 });
+  // }
+  if (props.loading || props.finished) return;
+
+  const remaining = details.totalSize.height - (details.scrollOffset.y + details.viewportSize.height);
+  if (remaining <= props.loadDistance) {
+    emit("load");
+  }
+});
+
+const itemRefs = new Map<number, HTMLElement>();
+const itemResizeObserver = new ResizeObserver((entries) => {
+  const updates = [];
+  for (const entry of entries) {
+    const target = entry.target as HTMLElement;
+    const index = Number(target.dataset.index);
+    let inlineSize = entry.contentRect.width;
+    let blockSize = entry.contentRect.height;
+    if (entry.borderBoxSize && entry.borderBoxSize.length > 0) {
+      inlineSize = entry.borderBoxSize[0]?.inlineSize ?? 0;
+      blockSize = entry.borderBoxSize[0]?.blockSize ?? 0;
+    } else {
+      inlineSize = target.offsetWidth;
+      blockSize = target.offsetHeight;
+    }
+    if (!Number.isNaN(index)) {
+      updates.push({
+        index, inlineSize, blockSize, element: target
+      })
+    }
+  }
+  if (updates.length) {
+    updateItemSizes(updates);
+  }
+})
+const setItemRef = (el: any, index: number) => {
+  if (el) {
+    itemRefs.set(index, el);
+    itemResizeObserver.observe(el);
+  } else {
+    const oldEl = itemRefs.get(index);
+    if (oldEl) {
+      itemResizeObserver.unobserve(oldEl);
+      itemRefs.delete(index);
+    }
+  }
 }
+
+const styleTotalHeight = computed(() => {
+  return `${scrollDetails.value.totalSize.height}px`;
+});
+const styleOffset = computed(() => {
+  return `${scrollDetails.value.scrollOffset.y}px`;
+});
+const styleGap = computed(() => {
+  return `${props.gap}px`;
+})
 </script>
 <style lang="scss">
 .ribo-virtual-list {
@@ -211,6 +200,7 @@ export interface Position {
     z-index: -1;
     min-height: 100%;
     height: v-bind(styleTotalHeight);
+    pointer-events: none;
   }
 
   &__wrapper {
@@ -219,7 +209,16 @@ export interface Position {
     right: 0;
     top: 0;
     transform: translate3d(0, v-bind(styleOffset), 0);
-    display: flow-root;
+    display: flex;
+    flex-direction: column;
+    gap: v-bind(styleGap);
+    padding: v-bind(styleGap) 0;
+  }
+
+  &__item {
+    flex: 1;
+    padding: 0 0.5rem;
+    position: relative;
   }
 }
 </style>

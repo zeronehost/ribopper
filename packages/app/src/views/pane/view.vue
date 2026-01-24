@@ -22,16 +22,16 @@
         </s-popup-menu-item>
       </s-popup-menu>
     </s-appbar>
-    <s-empty v-if="isEmpty">暂时没有内容</s-empty>
-    <RiboVirtualList v-else ref="listRef" :list #default="{ data, id, selected }" estimated-item-height="3rem">
-      <RiboCard :enabled="settingStore.appInfo?.features" :data-id="id" :data :class="{ selected }"
-        @option="optionHandle" />
+    <RiboVirtualList ref="listRef" :data="list" :loading :finished @load="loadHandle" v-model:current="current">
+      <template #default="{ data }">
+        <RiboCard :enabled="settingStore.appInfo?.features" :data="data" :class="{selected: data.id === current.id}" @option="optionHandle" />
+      </template>
     </RiboVirtualList>
   </section>
 </template>
 <script setup lang="ts">
 import { closeWindow, copyRecord, logger, WIN_LABEL_TRAY_PANE } from "@ribo/api";
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onMounted, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
@@ -61,14 +61,12 @@ const props = defineProps({
 const router = useRouter();
 const recordStore = useRecordStore();
 
-const isEmpty = computed(() => recordStore.list.length === 0);
-
 const list = computed(() => recordStore.list)
 
 const cacheStore = useCacheStore();
 
 const closeHandle = async () => {
-  currentIndex.value = -1;
+  current.value = {id: -1, index: -1};
   await closeWindow(WIN_LABEL_TRAY_PANE);
 };
 const cleanHandle = async () => {
@@ -114,31 +112,40 @@ const search = computed({
 });
 const searchHandle = debounce(async () => {
   await nextTick();
-  await recordStore.getAllRecords();
+  current.value.index = -1;
+  await recordStore.reset();
 }, 300);
 const clearSearchHandle = debounce(async () => {
   search.value = "";
   await nextTick();
-  await recordStore.getAllRecords();
+  current.value.index = -1;
+  await recordStore.reset();
 });
 
+const loading = computed(() => recordStore.loading);
+const finished = computed(() => recordStore.finished);
+const loadHandle = async () => {
+  await recordStore.getRecords();
+}
 
-const currentIndex = computed({
+
+const current = computed({
   get() {
-    return cacheStore.get("currentIndex") ?? -1;
+    const index = cacheStore.get("currentIndex") ?? -1;
+    const id = index > -1 ? list.value[index]?.id ?? -1 : -1;
+    return {id, index};
   },
   set(value) {
-    cacheStore.set("currentIndex", value ?? -1);
+    cacheStore.set("currentIndex", value.index ?? -1);
   }
 });
-const currentId = computed(() => list.value[currentIndex.value]?.id);
 
 const settingStore = useSettingStore();
-const listRef = ref<typeof RiboVirtualList>();
+const listRef = shallowRef<typeof RiboVirtualList>();
 logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
 useListenHotKey(settingStore.hotkeys, (type) => {
   logger.debug("useListenHotKey => type", type);
-  const id = currentId.value;
+  const id = current.value.id > 0 ? current.value.id : undefined;
   if (id) {
     switch (type) {
       case "edit":
@@ -152,11 +159,11 @@ useListenHotKey(settingStore.hotkeys, (type) => {
         break;
       case "delete":
         optionHandle("delete", id).then(() => {
-          currentIndex.value = currentIndex.value - 1;
+          current.value.index -= 1;
         });
         break;
       case "clear":
-        currentIndex.value = -1;
+        current.value.index = -1;
         break;
     }
   }
@@ -165,12 +172,11 @@ useListenHotKey(settingStore.hotkeys, (type) => {
   } else if (type === "next") {
     listRef.value?.next();
   }
-  nextTick().then(() => {
-    currentIndex.value = listRef.value?.selected ?? -1;
-  })
 });
 
-
+onMounted(() => {
+  recordStore.reset();
+})
 </script>
 <style lang="scss">
 section.tray-pane {

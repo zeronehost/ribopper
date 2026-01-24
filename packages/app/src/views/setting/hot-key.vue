@@ -12,12 +12,12 @@
         <RiboKey @edit="editHandle" :selected="currentEdit === 'pane'" desc="显示剪贴板" label="pane" :data="settingStore.config.hotkey?.pane">
         </RiboKey>
         <RiboKey @edit="editHandle" :selected="currentEdit === 'clear'" desc="清除历史记录" label="clear" :data="settingStore.config.hotkey?.clear"></RiboKey>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'edit'" desc="编辑内容" label="edit" :data="settingStore.config.hotkey?.edit"></RiboKey>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'prev'" desc="上一条记录" label="prev" :data="settingStore.config.hotkey?.prev"></RiboKey>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'next'" desc="下一条记录" label="next" :data="settingStore.config.hotkey?.next"></RiboKey>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'qrcode'" desc="显示二维码" label="qrcode" :data="settingStore.config.hotkey?.qrcode"></RiboKey>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'delete'" desc="删除" label="delete" :data="settingStore.config.hotkey?.delete"></RiboKey>
-        <RiboKey @edit="editHandle" :selected="currentEdit === 'copy'" desc="复制" label="copy" :data="settingStore.config.hotkey?.copy"></RiboKey>
+        <!-- <RiboKey @edit="editHandle" :selected="currentEdit === 'edit'" desc="编辑内容" label="edit" :data="settingStore.config.hotkey?.edit"></RiboKey> -->
+        <!-- <RiboKey @edit="editHandle" :selected="currentEdit === 'prev'" desc="上一条记录" label="prev" :data="settingStore.config.hotkey?.prev"></RiboKey> -->
+        <!-- <RiboKey @edit="editHandle" :selected="currentEdit === 'next'" desc="下一条记录" label="next" :data="settingStore.config.hotkey?.next"></RiboKey> -->
+        <!-- <RiboKey @edit="editHandle" :selected="currentEdit === 'qrcode'" desc="显示二维码" label="qrcode" :data="settingStore.config.hotkey?.qrcode"></RiboKey> -->
+        <!-- <RiboKey @edit="editHandle" :selected="currentEdit === 'delete'" desc="删除" label="delete" :data="settingStore.config.hotkey?.delete"></RiboKey> -->
+        <!-- <RiboKey @edit="editHandle" :selected="currentEdit === 'copy'" desc="复制" label="copy" :data="settingStore.config.hotkey?.copy"></RiboKey> -->
       </s-tbody>
     </s-table>
     <RiboKeyDialog v-model="showKeyF" @confirm="confirmHandle" @close="closeHandle"></RiboKeyDialog>

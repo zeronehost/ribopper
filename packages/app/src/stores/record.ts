@@ -8,9 +8,22 @@ export const useRecordStore = defineStore('record', {
     list: Record[],
     // 搜索内容
     contentContains: string,
+    // 当前页码
+    // index: number,
+    // 每页条数
+    size: number,
+    // 是否正在加载
+    loading: boolean,
+    // 是否加载完成
+    finished: boolean,
   } => ({
     list: [],
     contentContains: "",
+    // 分页配置
+    // index: 0,
+    size: 100,
+    loading: false,
+    finished: false,
   }),
 
   getters: {
@@ -20,15 +33,27 @@ export const useRecordStore = defineStore('record', {
   },
 
   actions: {
-    async getAllRecords() {
+    async reset() {
+      this.list = [];
+      this.finished = false;
+      await this.getRecords();
+    },
+    async getRecords() {
+      this.loading = true;
       try {
-        this.list = shallowReactive([]);
-        this.list = await getRecords({
+        const list = await getRecords({
           contentContains: this.contentContains,
+          offset: this.total,
+          limit: this.size,
         });
+        if (list.length < this.size) {
+          this.finished = true;
+        }
+        this.list.push(...list);
       } catch (error) {
         logger.error(error as Error);
       }
+      this.loading = false;
     },
     search(contentContains: string) {
       this.contentContains = contentContains;

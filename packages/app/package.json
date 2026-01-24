@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pdanpdan/virtual-scroll": "^0.4.0",
     "@ribo/api": "workspace:*",
     "pinia": "^3.0.4",
     "sober": "^1.1.9",

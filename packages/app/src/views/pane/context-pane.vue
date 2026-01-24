@@ -22,7 +22,8 @@ const loadRecords = async (event: RiboEvent) => {
     )) {
     await nextTick();
     if (event.action === "DELETE" || event.action === "UPDATE" || event.action === "CLEAR") return;
-    await recordStore.getAllRecords();
+    // await recordStore.getAllRecords();
+    await recordStore.reset();
   }
   if (
     (event.type === EVENT_TYPE_INIT || event.type === EVENT_TYPE_UPDATE)) {
@@ -36,7 +37,7 @@ const loadRecords = async (event: RiboEvent) => {
 };
 
 onMounted(() => {
-  recordStore.getAllRecords();
+  // recordStore.getAllRecords();
   settingStore.getAppInfo();
   context?.register(loadRecords);
 });
