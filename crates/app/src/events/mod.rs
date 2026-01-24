@@ -59,7 +59,7 @@ pub enum EventLabel {
   ActionOption,
   #[cfg(feature = "action")]
   Option,
-  Target,
+  // Target,
 }
 
 impl core::fmt::Display for EventLabel {
@@ -73,7 +73,7 @@ impl core::fmt::Display for EventLabel {
       EventLabel::ActionOption => write!(f, "action-option"),
       #[cfg(feature = "action")]
       EventLabel::Option => write!(f, "option"),
-      EventLabel::Target => write!(f, "target"),
+      // EventLabel::Target => write!(f, "target"),
     }
   }
 }
@@ -83,7 +83,7 @@ impl core::fmt::Display for EventLabel {
 pub enum EventAction {
   Create,
   Update,
-  Read,
+  // Read,
   Delete,
   Clear,
   Save,
@@ -94,7 +94,7 @@ impl core::fmt::Display for EventAction {
     match self {
       EventAction::Create => write!(f, "create"),
       EventAction::Update => write!(f, "update"),
-      EventAction::Read => write!(f, "read"),
+      // EventAction::Read => write!(f, "read"),
       EventAction::Delete => write!(f, "delete"),
       EventAction::Clear => write!(f, "clear"),
       EventAction::Save => write!(f, "save"),
