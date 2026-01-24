@@ -120,7 +120,7 @@ const emit = defineEmits<{
   "update:current": [{id:number, index: number}]
 }>();
 
-watch(scrollDetails, (details, oldDetails) => {
+watch(scrollDetails, (details) => {
   // emit("scroll", details);
   // if (
   //   !oldDetails

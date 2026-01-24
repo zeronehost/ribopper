@@ -1,4 +1,4 @@
-import { getRecords, getRecord, deleteRecord, clearRecord, Record, showRecordActions, RiboEvent, logger, updateRecord } from "@ribo/api"
+import { getRecords, getRecord, deleteRecord, clearRecord, Record, showRecordActions, logger, updateRecord } from "@ribo/api"
 import { defineStore } from "pinia"
 import { shallowReactive } from "vue";
 
