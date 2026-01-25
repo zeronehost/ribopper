@@ -16,7 +16,6 @@
   </section>
 </template>
 <script setup lang="ts">
-import { getRecord, logger, updateRecord } from '@ribo/api';
 import { Snackbar } from 'sober';
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
