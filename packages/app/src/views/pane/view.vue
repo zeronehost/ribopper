@@ -31,14 +31,14 @@
 </template>
 <script setup lang="ts">
 import { closeWindow, copyRecord, logger, WIN_LABEL_TRAY_PANE } from "@ribo/api";
-import { computed, nextTick, onMounted, shallowRef } from "vue";
+import { computed, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
 import { useRecordStore } from "@/stores/record";
 import { debounce } from "@/utils/helper";
 import { Snackbar } from "sober";
-import { useListenHotKey } from "@/hooks";
+// import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
 import { useSettingStore } from "@/stores/setting";
 import { RiboVirtualList } from "@/components/scroll-view";
@@ -141,38 +141,38 @@ const current = computed({
 });
 
 const settingStore = useSettingStore();
-const listRef = shallowRef<typeof RiboVirtualList>();
-logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
-useListenHotKey(settingStore.hotkeys, (type) => {
-  logger.debug("useListenHotKey => type", type);
-  const id = current.value.id > 0 ? current.value.id : undefined;
-  if (id) {
-    switch (type) {
-      case "edit":
-        optionHandle("edit", id);
-        break;
-      case "copy":
-        optionHandle("copy", id);
-        break;
-      case "qrcode":
-        optionHandle("qrcode", id);
-        break;
-      case "delete":
-        optionHandle("delete", id).then(() => {
-          current.value.index -= 1;
-        });
-        break;
-      case "clear":
-        current.value.index = -1;
-        break;
-    }
-  }
-  if (type === "prev") {
-    listRef.value?.prev();
-  } else if (type === "next") {
-    listRef.value?.next();
-  }
-});
+// const listRef = shallowRef<typeof RiboVirtualList>();
+// logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
+// useListenHotKey(settingStore.hotkeys, (type) => {
+//   logger.debug("useListenHotKey => type", type);
+//   const id = current.value.id > 0 ? current.value.id : undefined;
+//   if (id) {
+//     switch (type) {
+//       case "edit":
+//         optionHandle("edit", id);
+//         break;
+//       case "copy":
+//         optionHandle("copy", id);
+//         break;
+//       case "qrcode":
+//         optionHandle("qrcode", id);
+//         break;
+//       case "delete":
+//         optionHandle("delete", id).then(() => {
+//           current.value.index -= 1;
+//         });
+//         break;
+//       case "clear":
+//         current.value.index = -1;
+//         break;
+//     }
+//   }
+//   if (type === "prev") {
+//     listRef.value?.prev();
+//   } else if (type === "next") {
+//     listRef.value?.next();
+//   }
+// });
 
 onMounted(() => {
   recordStore.reset();
