@@ -14,19 +14,19 @@
     </div>
     <div class="ribo-card__option">
       <!-- 执行 -->
-      <s-icon-button v-if="isText && enabled.action" class="btn" @click.prevent.stop="playHandle">
+      <s-icon-button v-if="enableExec" class="btn" @click.prevent.stop="playHandle">
         <RiboIconPlay />
       </s-icon-button>
       <!-- 二维码 -->
-      <s-icon-button v-if="!isImage" class="btn" @click.prevent.stop="qrcodeHandle">
+      <s-icon-button v-if="enableQrcode" class="btn" @click.prevent.stop="qrcodeHandle">
         <RiboIconQrcode />
       </s-icon-button>
       <!-- 编辑 -->
-      <s-icon-button v-if="isText" class="btn" @click.prevent.stop="editHandle">
+      <s-icon-button v-if="enableEdit" class="btn" @click.prevent.stop="editHandle">
         <RiboIconEdit />
       </s-icon-button>
       <!-- 删除 -->
-      <s-icon-button class="btn delete" @click.prevent.stop="deleteHandle">
+      <s-icon-button v-if="enableDelete" class="btn delete" @click.prevent.stop="deleteHandle">
         <RiboIconDelete />
       </s-icon-button>
     </div>
@@ -81,10 +81,16 @@ const content = computed(() => {
   if (isImage.value) {
     let image = (props.data as ImageRecord)?.image;
     return image ? `${
-      navigator.platform === "Win32" ? "http://ribopper.localhost" : "ribopper://localhost"
+      navigator.platform === "Win32" ? import.meta.env.VITE_APP_URI_BASE_WIN : import.meta.env.VITE_APP_URI_BASE_NOT_WIN
     }/${image}` : ""
   }
-})
+});
+
+const enableExec = computed(() => isText.value && props.enabled.action && (import.meta.env.VITE_APP_ENABLE === "true" || import.meta.env.VITE_APP_ENABLE_EXEC === "true"));
+const enableQrcode = computed(() => !isImage.value && (import.meta.env.VITE_APP_ENABLE === "true" || import.meta.env.VITE_APP_ENABLE_QRCODE === "true"));
+const enableEdit = computed(() => isText.value && (import.meta.env.VITE_APP_ENABLE === "true" || import.meta.env.VITE_APP_ENABLE_EDIT === "true"));
+const enableDelete = computed(() => (import.meta.env.VITE_APP_ENABLE === "true" || import.meta.env.VITE_APP_ENABLE_DELETE === "true"));
+
 const id = computed(() => props.data.id);
 
 const emit = defineEmits<{

@@ -1,5 +1,7 @@
 /// 应用名
 pub const APP_NAME: &str = "ribopper";
+/// 应用标题
+pub const APP_TITLE: &str = "剪贴板管理工具";
 /// 窗口名
 pub const WIN_NANE: &str = "剪贴板管理工具-设置";
 
@@ -20,7 +22,11 @@ pub const WIN_URL_TRAY_PANE: &str = "#/tray/";
 pub const WIN_URL_CONTEXT_PANE: &str = "#/context/";
 
 /// 配置文件名
-pub const STORE_FILE: &str = "config.json";
+pub const STORE_FILE: &str = if cfg!(debug_assertions) {
+  "config.dev.json"
+} else {
+  "config.json"
+};
 /// 数据库文件名
 pub const STORE_DB_FILE: &str = "ribopper.db";
 

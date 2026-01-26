@@ -21,7 +21,7 @@ export const useRecordStore = defineStore('record', {
     contentContains: "",
     // 分页配置
     // index: 0,
-    size: 100,
+    size: 50,
     loading: false,
     finished: false,
   }),

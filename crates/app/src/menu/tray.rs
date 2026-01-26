@@ -7,7 +7,7 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
 use crate::{
   commands::config::config_load,
-  utils::{constant::APP_NAME, error::Result},
+  utils::{constant::{APP_NAME, APP_TITLE}, error::Result},
 };
 
 pub(crate) struct Tray;
@@ -56,6 +56,8 @@ impl Tray {
       .build()?;
 
     TrayIconBuilder::new()
+      .title(APP_TITLE)
+      .tooltip(APP_TITLE)
       .icon(app.default_window_icon().unwrap().clone())
       .menu(&menu)
       .on_tray_icon_event(|icon, ev| {

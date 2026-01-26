@@ -43,8 +43,8 @@ const props = defineProps({
   loading: Boolean,
   finished: Boolean,
   current: {
-    type: Object,
-    default: () => ({id: -1, index: -1}),
+    type: Object as PropType<{id?: number, index: number}>,
+    default: () => ({id: undefined, index: -1}),
   }
 });
 
@@ -80,8 +80,13 @@ watch(() => props.current, (value) => {
 defineExpose({
   async prev() {
     let index = current.value.index;
-    if (current.value.index >= 0) {
-      index = current.value.index === 0 ? props.data.length - 1 : current.value.index - 1;
+    if (index >= 0) {
+      if (index < scrollDetails.value.range.start || index > scrollDetails.value.range.end) {
+        index = scrollDetails.value.range.end;
+      }
+      if (index !== 0) {
+        index -= 1;
+      }
     } else {
       index = scrollDetails.value.currentIndex;
     }
@@ -91,14 +96,19 @@ defineExpose({
       await nextTick();
       scrollToOffset(item.originalX, item.originalY);
       await nextTick();
-      const id = props.data[index]?.id ?? -1;
+      const id = props.data[index]?.id;
       emit("update:current", { id, index });
     }
   },
   async next() {
     let index = current.value.index;
-    if (current.value.index >= 0) {
-      index = current.value.index === props.data.length - 1 ? 0 : current.value.index + 1;
+    if (index >= 0) {
+      if (index < scrollDetails.value.range.start || index > scrollDetails.value.range.end) {
+        index = scrollDetails.value.range.start;
+      }
+      if (index !== props.data.length-1) {
+        index += 1;
+      }
     } else {
       index = scrollDetails.value.currentIndex;
     }
@@ -108,7 +118,7 @@ defineExpose({
       await nextTick();
       scrollToOffset(item.originalX, item.originalY);
       await nextTick();
-      const id = props.data[index]?.id ?? -1;
+      const id = props.data[index]?.id;
       emit("update:current", { id, index });
     }
   },
@@ -117,7 +127,7 @@ defineExpose({
 
 const emit = defineEmits<{
   load: [],
-  "update:current": [{id:number, index: number}]
+  "update:current": [{id?:number, index: number}]
 }>();
 
 watch(scrollDetails, (details) => {
