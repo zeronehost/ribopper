@@ -34,11 +34,12 @@ export const useRecordStore = defineStore('record', {
 
   actions: {
     async reset() {
-      this.list = [];
+      this.list = shallowReactive([]);
       this.finished = false;
       await this.getRecords();
     },
     async getRecords() {
+      if (this.loading || this.finished) return;
       this.loading = true;
       try {
         const list = await getRecords({
@@ -68,11 +69,12 @@ export const useRecordStore = defineStore('record', {
       }
     },
     async clearRecord() {
-      const flag = await clearRecord();
-      if (flag) {
-        this.list = shallowReactive([]);
+      try {
+        await clearRecord();
+      } catch (error) {
+        logger.error(error as Error);
+        throw error;
       }
-      return flag;
     },
     async showRecordActions(id: number, label: string) {
       await showRecordActions(id, label);

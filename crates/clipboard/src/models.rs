@@ -11,7 +11,7 @@ pub enum RecordType {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Record {
   pub content: String,
-  pub data: String,
+  // pub data: String,
   #[serde(rename = "type")]
   pub typ: RecordType,
 }

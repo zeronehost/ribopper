@@ -1,9 +1,30 @@
-/// 应用名
-pub const APP_NAME: &str = "ribopper";
-/// 应用标题
-pub const APP_TITLE: &str = "剪贴板管理工具";
-/// 窗口名
-pub const WIN_NANE: &str = "剪贴板管理工具-设置";
+#[cfg(debug_assertions)]
+mod dev {
+  /// 应用名
+  pub const APP_NAME: &str = "ribopper_dev";
+  /// 应用标题
+  pub const APP_TITLE: &str = "剪贴板管理工具_开发";
+  /// 窗口名
+  pub const WIN_NANE: &str = "剪贴板管理工具-设置_开发";
+  /// 配置文件名
+  pub const STORE_FILE: &str = "config.dev.json";
+}
+#[cfg(not(debug_assertions))]
+mod prod {
+  /// 应用名
+  pub const APP_NAME: &str = "ribopper";
+  /// 应用标题
+  pub const APP_TITLE: &str = "剪贴板管理工具";
+  /// 窗口名
+  pub const WIN_NANE: &str = "剪贴板管理工具-设置";
+  /// 配置文件名
+  pub const STORE_FILE: &str = "config.json";
+}
+
+#[cfg(debug_assertions)]
+pub use self::dev::*;
+#[cfg(not(debug_assertions))]
+pub use self::prod::*;
 
 /// 设置窗口标签
 pub const WIN_LABEL_MAIN: &str = "setting";
@@ -21,12 +42,6 @@ pub const WIN_URL_TRAY_PANE: &str = "#/tray/";
 #[allow(unused)]
 pub const WIN_URL_CONTEXT_PANE: &str = "#/context/";
 
-/// 配置文件名
-pub const STORE_FILE: &str = if cfg!(debug_assertions) {
-  "config.dev.json"
-} else {
-  "config.json"
-};
 /// 数据库文件名
 pub const STORE_DB_FILE: &str = "ribopper.db";
 

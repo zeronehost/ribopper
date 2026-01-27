@@ -30,6 +30,8 @@ impl Database {
       let current_version = self.get_migration_version()?;
       self.migrate_after_version(current_version.unwrap_or(0))?;
     }
+    // 释放空闲占用
+    let _ = self.0.execute("VACUUM;", []);
     Ok(())
   }
 

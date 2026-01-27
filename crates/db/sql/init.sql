@@ -1,3 +1,4 @@
+-- PRAGMA auto_vacuum = FULL;  -- 开启自动清理
 create table if not exists schema_version (
   version integer not null
 );
