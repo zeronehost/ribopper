@@ -4,14 +4,14 @@
   </s-page>
 </template>
 <script setup lang="ts">
-import { listenNotify, Theme, logger, RiboEvent } from "@ribo/api";
+import { listenNotify, logger, RiboEvent } from "@ribo/api";
 import { computed, onMounted, onUnmounted, provide } from "vue";
 import { useSettingStore } from "@/stores/setting";
 import { rootContextKey } from "@/utils/types";
 
 
 const store = useSettingStore();
-const currentTheme = computed<Theme>(() => store.theme);
+const currentTheme = computed<any>(() => store.theme);
 const hookCache = new Set<(event: RiboEvent) => void>();
 
 provide(rootContextKey, {
