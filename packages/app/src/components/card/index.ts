@@ -1,3 +1,1 @@
-import riboCard from "./index.vue";
-
-export const RiboCard = riboCard;
+export { default as RiboCard } from "./index.vue";

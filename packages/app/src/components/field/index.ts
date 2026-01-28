@@ -1,5 +1,2 @@
-import riboFieldItem from "./field-item.vue";
-import riboField from "./index.vue";
-
-export const RiboField = riboField;
-export const RiboFieldItem = riboFieldItem;
+export { default as RiboFieldItem } from "./field-item.vue";
+export { default as RiboField } from "./index.vue";

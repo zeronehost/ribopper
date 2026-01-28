@@ -13,19 +13,29 @@
         </s-segmented-button-item>
         <s-segmented-button-item value="auto">
           <s-icon slot="start">
-            <RiboIconBrightnessAuto />
+            <RiboIconAuto />
           </s-icon>
           <span>给随系统</span>
         </s-segmented-button-item>
+        <s-segmented-button-item value="custom" disabled>
+          <s-icon slot="start">
+            <RiboIconCustom />
+          </s-icon>
+          <span>自定义</span>
+        </s-segmented-button-item>
       </s-segmented-button>
+    </s-card>
+    <s-card v-if="currentTheme === 'custom'">
+      <span>建设中...</span>
     </s-card>
   </RiboOptionSection>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { RiboIconBrightnessAuto } from "@/components/icons";
+import { RiboIconAuto, RiboIconCustom } from "@/components/icons";
 import { RiboOptionSection } from "@/components/section";
 import { useSettingStore } from "@/stores/setting";
+import { type Theme } from "@ribo/api";
 
 const store = useSettingStore();
 
@@ -33,7 +43,7 @@ const currentTheme = computed({
   get() {
     return store.theme;
   },
-  set(value: "light" | "dark" | "auto") {
+  set(value: Theme) {
     store.toggleTheme(value);
   },
 });
