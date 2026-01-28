@@ -17,7 +17,10 @@ pub const ACTION_SCHEMA: &str = if cfg!(feature = "action") {
 };
 
 pub(crate) trait Migrate {
-  fn migrate(db: &rusqlite::Connection) -> Result<String>;
+  #[allow(unused)]
+  fn migrate(db: &rusqlite::Connection) -> Result<&'static str>{
+    Ok("")
+  }
 }
 
 pub struct Migration {
@@ -41,9 +44,11 @@ impl Migration {
     let mut sql = String::new();
     while let Some(row) = rows.next()? {
       let name: String = row.get(0)?;
+      log::debug!("migrate => {}", name);
       match name.as_str() {
         "record" => {
-          sql.push_str(Record::migrate(db)?.as_str());
+          log::debug!("record =>");
+          sql.push_str(Record::migrate(db)?);
         }
         #[cfg(feature = "action")]
         "actions" => {
@@ -58,7 +63,7 @@ impl Migration {
           sql.push_str(RiboOptions::migrate(db)?.as_str());
         }
         _ => {
-          break;
+          continue;
         }
       }
     }
@@ -68,7 +73,7 @@ impl Migration {
 
 pub static MIGRATIONS: LazyLock<Vec<Migration>> = LazyLock::new(|| {
   vec![Migration::new(
-    1,
+    2,
     &format!("{}{}{}", SCHEMA, RECOED_SCHEMA, ACTION_SCHEMA),
     "Initial schema",
   )]

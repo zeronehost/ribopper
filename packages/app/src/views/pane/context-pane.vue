@@ -21,7 +21,7 @@ const loadRecords = async (event: RiboEvent) => {
       || event.label === EVENT_LABEL_ALL
     )) {
     await nextTick();
-    if (event.action === "DELETE" || event.action === "UPDATE" || event.action === "CLEAR") return;
+    if (event.action === "DELETE" || event.action === "UPDATE") return;
     // await recordStore.getAllRecords();
     await recordStore.reset();
   }

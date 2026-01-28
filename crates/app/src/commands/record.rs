@@ -260,7 +260,6 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
       ribo_db::models::RecordType::Text => {
         let content = ribo_clipboard::FormatContent::Text(record.content.clone());
         clipboard.0.paste(ribo_clipboard::Content {
-          data: vec![content.clone()],
           content,
         })
       }
@@ -278,7 +277,6 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
               height: data.height(),
               data: data.into_rgba8().into_raw(),
             }),
-            data: vec![],
           })
         } else {
           log::error!(
@@ -290,11 +288,6 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
       }
       #[cfg(feature = "file")]
       ribo_db::models::RecordType::Files => {
-        let data = serde_json::from_str::<Vec<ribo_clipboard::FormatContent>>(&record.data)
-          .map_err(|e| {
-            log::error!("commands::record::copy_record - failed to parse files json: {e}");
-            e
-          })?;
         clipboard.0.paste(ribo_clipboard::Content {
           content: ribo_clipboard::FormatContent::Files(
             serde_json::from_str::<Vec<PathBuf>>(&record.content).map_err(|e| {
@@ -302,7 +295,6 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
               e
             })?,
           ),
-          data,
         })
       }
     }?;

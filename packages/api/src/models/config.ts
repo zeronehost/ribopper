@@ -28,7 +28,7 @@ export const Hotkey = z.object({
 }).partial();
 export type Hotkey = z.infer<typeof Hotkey>;
 
-export const Theme = z.enum(["light", "dark", "auto"]);
+export const Theme = z.enum(["light", "dark", "auto", "custom"]);
 export type Theme = z.infer<typeof Theme>;
 
 export const Config = z.object({

@@ -1,3 +1,1 @@
-import riboOption from "./index.vue";
-
-export const RiboOption = riboOption;
+export { default as RiboOption } from "./index.vue";

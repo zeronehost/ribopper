@@ -18,9 +18,9 @@ impl Database {
         params![max],
       )?;
     }
-    let mut stmt = self.conn().prepare("insert into record (content, data, type) values (?1, ?2, ?3) RETURNING id, content, data, type, created_at, updated_at")?;
+    let mut stmt = self.conn().prepare("insert into record (content, type) values (?1, ?2) RETURNING id, content, type, created_at, updated_at")?;
 
-    stmt.query_row(params![record.content, record.data, record.typ], |row| {
+    stmt.query_row(params![record.content, record.typ], |row| {
       Ok(models::Record::from_row(row))
     })?
   }
@@ -28,7 +28,7 @@ impl Database {
   #[allow(unused)]
   pub(crate) fn get_records(&self) -> Result<Vec<models::Record>> {
     log::debug!("db.record: get_record");
-    let mut stmt = self.conn().prepare("select * from record;")?;
+    let mut stmt = self.conn().prepare("select id, content, type, created_at, updated_at from record;")?;
     let records = stmt.query_map([], |row| Ok(models::Record::from_row(row)))?;
     let mut arr = Vec::new();
     for record in records {
@@ -39,7 +39,7 @@ impl Database {
 
   pub fn get_record_by_id(&self, id: u64) -> Result<Option<models::Record>> {
     log::debug!("db.record: get_record_by_id id={}", id);
-    let mut stmt = self.conn().prepare("select * from record where id = ?1;")?;
+    let mut stmt = self.conn().prepare("select id, content, type, created_at, updated_at from record where id = ?1;")?;
     match stmt.query_row(params![id], |row| Ok(models::Record::from_row(row))) {
       Ok(record) => Ok(Some(record?)),
       Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
@@ -69,7 +69,7 @@ impl Database {
   pub fn query_record(&self, query: models::RecordQuery) -> Result<Vec<models::Record>> {
     log::debug!("db.record: query_record start: {:?}", query);
     let mut sql =
-      String::from(r#" SELECT id, content, data, type, created_at, updated_at FROM record"#);
+      String::from(r#" SELECT id, content, type, created_at, updated_at FROM record"#);
     let mut params: Vec<Box<dyn ToSql>> = Vec::new();
     let mut conditions = Vec::new();
 
@@ -129,7 +129,7 @@ impl Database {
     log::debug!("db.record: get_record_recent limit={}", limit);
     let mut stmt = self
       .conn()
-      .prepare("select * from record order by created_at desc limit ?1;")?;
+      .prepare("select id, content, type, created_at, updated_at from record order by created_at desc limit ?1;")?;
     let record_iter = stmt.query_map(params![limit], |row| Ok(models::Record::from_row(row)))?;
     let mut results = Vec::new();
     for record in record_iter {
@@ -191,7 +191,6 @@ mod tests {
     let record = db.create_record(
       models::NewRecord {
         content: "test content".to_string(),
-        data: "test data".to_string(),
         typ: models::RecordType::Text,
       },
       None,
@@ -213,7 +212,6 @@ mod tests {
       .create_record(
         models::NewRecord {
           content: "test content".to_string(),
-          data: "test data".to_string(),
           typ: models::RecordType::Text,
         },
         None,
@@ -241,7 +239,6 @@ mod tests {
       .create_record(
         models::NewRecord {
           content: "original content".to_string(),
-          data: "test data".to_string(),
           typ: models::RecordType::Text,
         },
         None,
@@ -270,7 +267,6 @@ mod tests {
       .create_record(
         models::NewRecord {
           content: "to be deleted".to_string(),
-          data: "test data".to_string(),
           typ: models::RecordType::Text,
         },
         None,
@@ -297,7 +293,6 @@ mod tests {
       db.create_record(
         models::NewRecord {
           content: format!("content {}", i),
-          data: format!("data {}", i),
           typ: models::RecordType::Text,
         },
         None,
@@ -321,7 +316,6 @@ mod tests {
     let records: Vec<models::NewRecord> = (0..3)
       .map(|i| models::NewRecord {
         content: format!("batch content {}", i),
-        data: format!("batch data {}", i),
         typ: models::RecordType::Text,
       })
       .collect();

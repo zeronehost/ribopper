@@ -8,7 +8,7 @@ export const getRecord = async (id: number) => await invoke<Record>(GET_RECORD, 
 export const updateRecord = async (record: UpdateRecord) => await invoke<boolean>(UPDATE_RECORD, { record });
 
 export const deleteRecord = async (id: number) => await invoke<boolean>(DELETE_RECORD, { id });
-export const clearRecord = async () => await invoke<boolean>(CLEAR_RECORD);
+export const clearRecord = async () => await invoke<void>(CLEAR_RECORD);
 
 export const copyRecord = async (id: number) => await invoke<boolean>(COPY_RECORD, { id });
 

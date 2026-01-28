@@ -59,10 +59,10 @@ impl Database {
         } else {
           "".to_string()
         };
-
+        println!("|{}\n{}|", migrate.description, data_sql);
         match self
           .0
-          .execute_batch(&format!("BEGIN; {}\n{} COMMIT;", migrate.script, data_sql))
+          .execute_batch(&format!("BEGIN;\n{}\n{}\nCOMMIT;", migrate.script, data_sql))
         {
           Ok(_) => {
             self.update_migration_version(migrate.version)?;

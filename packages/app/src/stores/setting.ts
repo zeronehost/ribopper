@@ -46,6 +46,12 @@ export const useSettingStore = defineStore("setting", {
       }
       (this.config.hotkey as Hotkey)[label] = data;
     },
+    deleteHotkey(label: keyof Hotkey) {
+      if (!this.config.hotkey) {
+        return;
+      }
+      this.config.hotkey[label] = undefined;
+    },
     setExitConfirm(exitConfirm: boolean) {
       (this.config.general as General).exitConfirm = exitConfirm;
     },

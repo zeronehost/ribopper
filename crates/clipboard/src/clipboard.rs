@@ -24,7 +24,10 @@ impl Clipboard {
     self.0.set_text(text).map_err(Into::into)
   }
 
-  #[cfg(feature = "image")]
+}
+
+#[cfg(feature = "image")]
+impl Clipboard {
   pub(crate) fn get_image(&mut self) -> Result<Image> {
     let image = self.0.get_image()?;
     Ok(Image {
@@ -34,7 +37,6 @@ impl Clipboard {
     })
   }
 
-  #[cfg(feature = "image")]
   pub(crate) fn set_image(&mut self, data: Image) -> Result<()> {
     let data = arboard::ImageData {
       width: data.width as usize,
@@ -43,13 +45,15 @@ impl Clipboard {
     };
     self.0.set_image(data).map_err(Into::into)
   }
+}
 
-  #[cfg(feature = "file")]
+#[cfg(feature = "file")]
+impl Clipboard {
+  
   pub(crate) fn get_files(&mut self) -> Result<Vec<PathBuf>> {
     let clipboard_get = self.0.get();
     clipboard_get.file_list().map_err(Into::into)
   }
-  #[cfg(feature = "file")]
   pub(crate) fn set_files(&mut self, files: &[impl AsRef<Path>]) -> Result<()> {
     let clipboard_set = self.0.set();
     clipboard_set.file_list(files).map_err(Into::into)

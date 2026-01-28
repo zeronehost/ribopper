@@ -1,5 +1,2 @@
-import dialog from "./dialog.vue";
-import key from "./index.vue";
-
-export const RiboKey = key;
-export const RiboKeyDialog = dialog;
+export { default as RiboKeyDialog } from "./dialog.vue";
+export { default as RiboKey } from "./index.vue";

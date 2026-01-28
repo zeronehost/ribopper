@@ -29,8 +29,7 @@ impl Clipboard {
         };
         let record: ribo_db::models::NewRecord = match c.content {
           ribo_clipboard::FormatContent::Text(text) => ribo_db::models::NewRecord {
-            content: text.clone(),
-            data: text,
+            content: text,
             typ: ribo_db::models::RecordType::Text,
           },
           ribo_clipboard::FormatContent::Files(files) => {
@@ -45,8 +44,7 @@ impl Clipboard {
               }
             };
             ribo_db::models::NewRecord {
-              content: data.clone(),
-              data,
+              content: data,
               typ: ribo_db::models::RecordType::Files,
             }
           }
@@ -74,8 +72,7 @@ impl Clipboard {
             if let Some(image) = image {
               match image::DynamicImage::ImageRgba8(image).save(p) {
                 Ok(_) => ribo_db::models::NewRecord {
-                  content: filename.clone(),
-                  data: filename,
+                  content: filename,
                   typ: ribo_db::models::RecordType::Image,
                 },
                 Err(e) => {

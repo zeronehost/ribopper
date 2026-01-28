@@ -24,21 +24,22 @@
     </s-appbar>
     <RiboVirtualList ref="listRef" :data="list" :loading :finished @load="loadHandle" v-model:current="current">
       <template #default="{ data }">
-        <RiboCard :enabled="settingStore.appInfo?.features" :data="data" :class="{selected: data.id === current.id}" @option="optionHandle" />
+        <RiboCard :enabled="settingStore.appInfo?.features" :data="data" :class="{ selected: data.id === current.id }"
+          @option="optionHandle" />
       </template>
     </RiboVirtualList>
   </section>
 </template>
 <script setup lang="ts">
 import { closeWindow, copyRecord, logger, WIN_LABEL_TRAY_PANE } from "@ribo/api";
-import { computed, nextTick, onMounted } from "vue";
+import { computed, nextTick, onMounted, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 import { RiboCard } from "@/components/card";
 import { RiboIconClean } from "@/components/icons";
 import { useRecordStore } from "@/stores/record";
 import { debounce } from "@/utils/helper";
 import { Snackbar } from "sober";
-// import { useListenHotKey } from "@/hooks";
+import { useListenHotKey } from "@/hooks";
 import { useCacheStore } from "@/stores/cache";
 import { useSettingStore } from "@/stores/setting";
 import { RiboVirtualList } from "@/components/scroll-view";
@@ -66,21 +67,22 @@ const list = computed(() => recordStore.list)
 const cacheStore = useCacheStore();
 
 const closeHandle = async () => {
-  current.value = {id: -1, index: -1};
+  current.value = { id: -1, index: -1 };
   await closeWindow(WIN_LABEL_TRAY_PANE);
 };
 const cleanHandle = async () => {
   await recordStore.clearRecord();
 };
 
-const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcode", id: number) => {
-  if (option === "delete") {
+const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcode" | "next" | "prev", id?: number) => {
+  if (import.meta.env.VITE_APP_ENABLE !== "true") return;
+  if (option === "delete" && id && import.meta.env.VITE_APP_ENABLE_DELETE === "true") {
     await recordStore.deleteRecord(id);
-  } else if (option === "edit") {
+  } else if (option === "edit" && id && import.meta.env.VITE_APP_ENABLE_EDIT === "true") {
     router.push({ name: "trayPaneEdit", query: { id } });
-  } else if (option === "exec") {
+  } else if (option === "exec" && id && import.meta.env.VITE_APP_ENABLE_EXEC === "true") {
     await recordStore.showRecordActions(id, props.label);
-  } else if (option === "copy") {
+  } else if (option === "copy" && id && import.meta.env.VITE_APP_ENABLE_COPY === "true") {
     copyRecord(id)
       .then(() => {
         Snackbar.builder({
@@ -97,8 +99,12 @@ const optionHandle = async (option: "delete" | "edit" | "exec" | "copy" | "qrcod
           type: "error",
         });
       });
-  } else if (option === "qrcode") {
+  } else if (option === "qrcode" && id && import.meta.env.VITE_APP_ENABLE_QRCODE === "true") {
     router.push({ name: "trayPaneQrcode", query: { id } });
+  } else if (option === "prev" && import.meta.env.VITE_APP_ENABLE_PREV === "true") {
+    listRef.value?.prev();
+  } else if (option === "next" && import.meta.env.VITE_APP_ENABLE_NEXT === "true") {
+    listRef.value?.next();
   }
 };
 
@@ -132,8 +138,8 @@ const loadHandle = async () => {
 const current = computed({
   get() {
     const index = cacheStore.get("currentIndex") ?? -1;
-    const id = index > -1 ? list.value[index]?.id ?? -1 : -1;
-    return {id, index};
+    const id = index > -1 ? list.value[index]?.id : undefined;
+    return { id, index };
   },
   set(value) {
     cacheStore.set("currentIndex", value.index ?? -1);
@@ -141,38 +147,38 @@ const current = computed({
 });
 
 const settingStore = useSettingStore();
-// const listRef = shallowRef<typeof RiboVirtualList>();
-// logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
-// useListenHotKey(settingStore.hotkeys, (type) => {
-//   logger.debug("useListenHotKey => type", type);
-//   const id = current.value.id > 0 ? current.value.id : undefined;
-//   if (id) {
-//     switch (type) {
-//       case "edit":
-//         optionHandle("edit", id);
-//         break;
-//       case "copy":
-//         optionHandle("copy", id);
-//         break;
-//       case "qrcode":
-//         optionHandle("qrcode", id);
-//         break;
-//       case "delete":
-//         optionHandle("delete", id).then(() => {
-//           current.value.index -= 1;
-//         });
-//         break;
-//       case "clear":
-//         current.value.index = -1;
-//         break;
-//     }
-//   }
-//   if (type === "prev") {
-//     listRef.value?.prev();
-//   } else if (type === "next") {
-//     listRef.value?.next();
-//   }
-// });
+const listRef = shallowRef<typeof RiboVirtualList>();
+logger.debug("setting.hotkeys =>", JSON.stringify(settingStore.hotkeys));
+useListenHotKey(settingStore.hotkeys, (type) => {
+  logger.debug("useListenHotKey => type", type);
+  switch (type) {
+    case "edit":
+      optionHandle("edit", current.value.id);
+      break;
+    case "copy":
+      optionHandle("copy", current.value.id);
+      break;
+    case "qrcode":
+      optionHandle("qrcode", current.value.id);
+      break;
+    case "delete":
+      optionHandle("delete", current.value.id).then(() => {
+        current.value.index -= 1;
+      });
+      break;
+    case "prev": {
+      optionHandle("prev", current.value.id);
+      break;
+    }
+    case "next": {
+      optionHandle("next", current.value.id);
+      break;
+    }
+    case "clear":
+      current.value.index = -1;
+      break;
+  }
+});
 
 onMounted(() => {
   recordStore.reset();

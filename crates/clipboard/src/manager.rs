@@ -99,26 +99,22 @@ where
       self.flag = false;
       return None;
     }
-    let mut data: Vec<FormatContent> = vec![];
     let mut content = None;
 
     if let Ok(text) = self.clipboard.get_text() {
       content = Some(FormatContent::Text(text.clone()));
-      data.push(FormatContent::Text(text));
     }
     // TODO image 存在问题 后续再处理
     #[cfg(feature = "image")]
     if let Ok(png) = self.clipboard.get_image() {
       content = Some(FormatContent::Image(png.clone()));
-      data.push(FormatContent::Image(png));
     }
 
     #[cfg(feature = "file")]
     if let Ok(files) = self.clipboard.get_files() {
       content = Some(FormatContent::Files(files.clone()));
-      data.push(FormatContent::Files(files));
     }
-    if content.is_none() || data.is_empty() {
+    if content.is_none() {
       log::debug!("clipboard: get_content found no usable content");
       return None;
     }
@@ -130,7 +126,6 @@ where
 
     let content_struct = Content {
       content: content.unwrap(),
-      data,
     };
     log::debug!(
       "clipboard: get_content returning type={:?}",
@@ -157,8 +152,6 @@ where
         self.clipboard.set_files(data.as_slice())?;
       }
     }
-    // for data in content.content {
-    // }
     self.flag = true;
     log::debug!("clipboard: paste completed, flag set");
     Ok(())
@@ -169,7 +162,6 @@ where
 #[serde(rename_all = "camelCase")]
 pub struct Content {
   pub content: FormatContent,
-  pub data: Vec<FormatContent>,
 }
 
 impl Content {
@@ -213,7 +205,6 @@ impl TryFrom<Content> for crate::models::Record {
     };
     Ok(crate::models::Record {
       content,
-      data: serde_json::to_string(&value.data)?,
       typ,
     })
   }

@@ -19,23 +19,39 @@ pub fn set_tray_window_pos<R: Runtime>(
   log::info!("Baseline size: {baseline_w_physical}x{baseline_h_physical}");
   let monitor_size = monitor.work_area().size;
   log::info!("Monitor size: {:?}", monitor_size);
+  // 计算当前窗口显示位置
+  let is_left = pos.x < (monitor_size.width / 2) as f64;
+  let is_top = pos.y < (monitor_size.height / 2) as f64;
 
-  #[cfg(target_os = "macos")]
-  {
-    // TODO 未测试，macOS 上需要调整位置
-    let x = monitor_size.width - baseline_w_physical;
-    log::info!("Window position: {x}x{y}");
+  // #[cfg(target_os = "macos")]
+  // {
+  //   // TODO 未测试，macOS 上需要调整位置
+  //   let x = monitor_size.width - baseline_w_physical;
+  //   log::info!("Window position: {x}x{y}");
 
-    window.set_position(PhysicalPosition::new(x, 0))?;
-  }
-  #[cfg(not(target_os = "macos"))]
-  {
-    let x = monitor_size.width - baseline_w_physical;
-    let y = monitor_size.height - baseline_h_physical;
-    log::info!("Window position: {x}x{y}");
-
-    window.set_position(PhysicalPosition::new(x, y))?;
-  }
+  //   window.set_position(PhysicalPosition::new(x, 0))?;
+  // }
+  // #[cfg(not(target_os = "macos"))]
+  // {
+  //   let x = monitor_size.width - baseline_w_physical;
+  //   let y = monitor_size.height - baseline_h_physical;
+  //   let (x, y) = match (is_left, is_top) {
+  //     (true, true) => (0u32, 0u32),
+  //     (true, false) => (0u32, monitor_size.height - baseline_h_physical),
+  //     (false, true) => (monitor_size.width - baseline_w_physical, 0u32),
+  //     (false, false) => (monitor_size.width - baseline_w_physical, monitor_size.height - baseline_h_physical),
+  //   };
+  //   log::info!("Window position: {x}x{y}");
+  //   window.set_position(PhysicalPosition::new(x, y))?;
+  // }
+  let (x, y) = match (is_left, is_top) {
+    (true, true) => (0u32, 0u32),
+    (true, false) => (0u32, monitor_size.height - baseline_h_physical),
+    (false, true) => (monitor_size.width - baseline_w_physical, 0u32),
+    (false, false) => (monitor_size.width - baseline_w_physical, monitor_size.height - baseline_h_physical),
+  };
+  log::info!("Window position: {x}x{y}");
+  window.set_position(PhysicalPosition::new(x, y))?;
   Ok(())
 }
 
