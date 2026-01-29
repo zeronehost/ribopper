@@ -4,14 +4,15 @@ use crate::{
   models::{self, FromRow},
 };
 use rusqlite::{ToSql, params};
+use tracing::instrument;
 
 impl Database {
+  #[instrument(skip(self))]
   pub fn create_record(
     &self,
     record: models::NewRecord,
     limit: Option<i64>,
   ) -> Result<models::Record> {
-    log::info!("db.record: create_record invoked (type={:?})", record.typ);
     if let Some(max) = limit {
       self.0.execute(
         "DELETE from record where id not in (select id from record order by id desc limit ?1)",
@@ -26,9 +27,11 @@ impl Database {
   }
 
   #[allow(unused)]
+  #[instrument(skip(self))]
   pub(crate) fn get_records(&self) -> Result<Vec<models::Record>> {
-    log::debug!("db.record: get_record");
-    let mut stmt = self.conn().prepare("select id, content, type, created_at, updated_at from record;")?;
+    let mut stmt = self
+      .conn()
+      .prepare("select id, content, type, created_at, updated_at from record;")?;
     let records = stmt.query_map([], |row| Ok(models::Record::from_row(row)))?;
     let mut arr = Vec::new();
     for record in records {
@@ -37,9 +40,11 @@ impl Database {
     Ok(arr)
   }
 
+  #[instrument(skip(self))]
   pub fn get_record_by_id(&self, id: u64) -> Result<Option<models::Record>> {
-    log::debug!("db.record: get_record_by_id id={}", id);
-    let mut stmt = self.conn().prepare("select id, content, type, created_at, updated_at from record where id = ?1;")?;
+    let mut stmt = self
+      .conn()
+      .prepare("select id, content, type, created_at, updated_at from record where id = ?1;")?;
     match stmt.query_row(params![id], |row| Ok(models::Record::from_row(row))) {
       Ok(record) => Ok(Some(record?)),
       Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
@@ -47,29 +52,28 @@ impl Database {
     }
   }
 
+  #[instrument(skip(self))]
   pub fn update_record_content(&self, id: u64, content: String) -> Result<bool> {
-    log::info!("db.record: update_record_content id={}", id);
     let rows_affected = self.conn().execute(
       "update record set content = ?1 where id = ?2",
       params![content, id],
     )?;
-    log::debug!("db.record: update affected {} rows", rows_affected);
+    tracing::debug!("db.record: update affected {} rows", rows_affected);
     Ok(rows_affected > 0)
   }
 
+  #[instrument(skip(self))]
   pub fn delete_record(&self, id: u64) -> Result<bool> {
-    log::info!("db.record: delete_record id={}", id);
     let rows_affected = self
       .conn()
       .execute("delete from record where id = ?1", params![id])?;
-    log::debug!("db.record: delete affected {} rows", rows_affected);
+    tracing::debug!("db.record: delete affected {} rows", rows_affected);
     Ok(rows_affected > 0)
   }
 
+  #[instrument(skip(self))]
   pub fn query_record(&self, query: models::RecordQuery) -> Result<Vec<models::Record>> {
-    log::debug!("db.record: query_record start: {:?}", query);
-    let mut sql =
-      String::from(r#" SELECT id, content, type, created_at, updated_at FROM record"#);
+    let mut sql = String::from(r#" SELECT id, content, type, created_at, updated_at FROM record"#);
     let mut params: Vec<Box<dyn ToSql>> = Vec::new();
     let mut conditions = Vec::new();
 
@@ -125,8 +129,8 @@ impl Database {
     Ok(results)
   }
 
+  #[instrument(skip(self))]
   pub fn get_record_recent(&self, limit: i64) -> Result<Vec<models::Record>> {
-    log::debug!("db.record: get_record_recent limit={}", limit);
     let mut stmt = self
       .conn()
       .prepare("select id, content, type, created_at, updated_at from record order by created_at desc limit ?1;")?;
@@ -138,12 +142,12 @@ impl Database {
     Ok(results)
   }
 
+  #[instrument(skip(self))]
   pub fn batch_inset_record(
     &self,
     records: Vec<models::NewRecord>,
     max: Option<i64>,
   ) -> Result<Vec<models::Record>> {
-    log::info!("db.record: batch_inset_record count={}", records.len());
     let mut results = Vec::with_capacity(records.len());
 
     for record in records {
@@ -151,13 +155,14 @@ impl Database {
       results.push(result);
     }
 
-    log::debug!(
+    tracing::debug!(
       "db.record: batch insert completed, inserted={}",
       results.len()
     );
     Ok(results)
   }
 
+  #[instrument(skip(self))]
   pub fn clear_records(&self) -> Result<()> {
     self.conn().execute_batch(
       r#"

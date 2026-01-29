@@ -1,0 +1,18 @@
+[package]
+name = "tauri-plugin-tracing"
+version.workspace = true
+authors.workspace = true
+description = "tracing for Ribopper"
+edition.workspace = true
+links = "tauri-plugin-tracing"
+
+[dependencies]
+tauri = { version = "2.0.2" }
+serde.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["chrono", "env-filter"] }
+tracing-appender = "0.2"
+
+[build-dependencies]
+tauri-plugin = { version = "2.0.1", features = ["build"] }

@@ -2,27 +2,31 @@ use std::path::Path;
 
 use crate::error::Result;
 use rusqlite::Connection;
+use tracing::instrument;
 
 pub struct Database(pub Connection);
 
 impl Database {
+  #[instrument(skip_all)]
   fn get_connection<P: AsRef<Path>>(path: P, key: Option<&str>) -> Result<Connection> {
-    log::debug!("db: opening connection to path");
+    tracing::info!("opening connection to path");
     let conn = Connection::open(path)?;
     if let Some(key) = key {
-      log::debug!("db: applying key to connection (hidden)");
+      tracing::debug!("applying key to connection (hidden)");
       conn.pragma_update(None, "key", key)?;
     }
     Ok(conn)
   }
 
+  #[instrument(skip_all)]
   pub fn new<P: AsRef<Path>>(path: P, key: Option<&str>) -> Result<Self> {
-    log::info!("db: creating Database at path");
+    tracing::info!("creating Database at path");
     Ok(Self(Self::get_connection(path, key)?))
   }
 
+  #[instrument(skip_all)]
   pub fn init(&self) -> Result<()> {
-    log::info!("Initializing database");
+    tracing::info!("Initializing database");
     let version_exists = self.migration_version_exists()?;
     if !version_exists {
       self.migrate_after_version(0)?;
@@ -35,9 +39,12 @@ impl Database {
     Ok(())
   }
 
+  #[instrument(skip_all)]
   pub fn conn(&self) -> &Connection {
     &self.0
   }
+
+  #[instrument(skip_all)]
   pub fn conn_mut(&mut self) -> &mut Connection {
     &mut self.0
   }

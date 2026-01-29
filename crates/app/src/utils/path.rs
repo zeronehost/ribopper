@@ -1,10 +1,12 @@
 use std::{fs::create_dir_all, path::PathBuf};
 
 use tauri::{AppHandle, Manager, Runtime};
+use tracing::instrument;
 
 use super::error::Result;
 
 #[allow(unused)]
+#[instrument(skip_all)]
 pub fn get_ribo_db_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf> {
   #[cfg(debug_assertions)]
   {
@@ -29,6 +31,7 @@ pub fn get_ribo_db_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf> {
 }
 
 #[allow(unused)]
+#[instrument(skip_all)]
 pub fn get_images_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf> {
   #[cfg(debug_assertions)]
   {

@@ -4,6 +4,7 @@ use tauri::{
   Manager, Runtime, WebviewWindow,
   menu::{Menu, MenuItem, SubmenuBuilder},
 };
+use tracing::instrument;
 
 pub struct Context<'a, R: Runtime> {
   menu: Menu<R>,
@@ -13,6 +14,7 @@ pub struct Context<'a, R: Runtime> {
 }
 
 impl<'a, R: Runtime> Context<'a, R> {
+  #[instrument(skip(app))]
   pub fn new(app: &'a tauri::AppHandle<R>, content: &str) -> Result<Self> {
     Ok(Self {
       menu: Menu::new(app)?,
@@ -22,6 +24,7 @@ impl<'a, R: Runtime> Context<'a, R> {
     })
   }
 
+  #[instrument(skip_all)]
   pub fn set_menu(&mut self, actions: Vec<ActionWithOption>) -> Result<()> {
     if actions.is_empty() {
       self.menu.append(&MenuItem::with_id(
@@ -51,6 +54,7 @@ impl<'a, R: Runtime> Context<'a, R> {
     Ok(())
   }
 
+  #[instrument(skip(self))]
   pub fn show(self, label: &str) -> Result<()> {
     let win = self.app.get_webview_window(label);
     if let Some(win) = win {
@@ -60,6 +64,7 @@ impl<'a, R: Runtime> Context<'a, R> {
     Ok(())
   }
 
+  #[instrument(skip_all)]
   fn on_event(&self, win: WebviewWindow<R>) -> Result<()> {
     // 在闭包外部克隆 actions，使其拥有独立的所有权
     let actions = self.actions.clone();
@@ -72,7 +77,7 @@ impl<'a, R: Runtime> Context<'a, R> {
       let (action_id, option_id) = match parts.as_slice() {
         [action_id, option_id] => (*action_id, *option_id),
         _ => {
-          log::error!(
+          tracing::error!(
             "Invalid ID format: expected 'actionId_optionId', got {:?}",
             event.id.as_ref()
           );
@@ -82,14 +87,14 @@ impl<'a, R: Runtime> Context<'a, R> {
       let action_id = match action_id.parse::<u64>() {
         Ok(id) => id,
         Err(_) => {
-          log::error!("Failed to parse action_id: {}", action_id);
+          tracing::error!("Failed to parse action_id: {}", action_id);
           return;
         }
       };
       let option_id = match option_id.parse::<u64>() {
         Ok(id) => id,
         Err(_) => {
-          log::error!("Failed to parse option_id: {}", option_id);
+          tracing::error!("Failed to parse option_id: {}", option_id);
           return;
         }
       };
@@ -97,14 +102,14 @@ impl<'a, R: Runtime> Context<'a, R> {
         if let Some(option) = action.options.iter().find(|o| o.id == option_id) {
           let cmd = option.command.replace("<%s>", &content);
           // 注意：这里执行命令的方式可能也需要根据平台调整
-          log::info!("Executing command: {}", cmd);
+          tracing::info!("Executing command: {}", cmd);
           #[cfg(target_os = "windows")]
           {
             if let Err(e) = std::process::Command::new("powershell")
               .arg(&format!("-e {cmd}"))
               .spawn()
             {
-              log::error!("Failed to execute command: {}", e);
+              tracing::error!("Failed to execute command: {}", e);
             }
           }
           #[cfg(target_os = "linux")]
@@ -113,7 +118,7 @@ impl<'a, R: Runtime> Context<'a, R> {
               .arg(&format!("-e {cmd}"))
               .spawn()
             {
-              log::error!("Failed to execute command: {}", e);
+              tracing::error!("Failed to execute command: {}", e);
             }
           }
           #[cfg(target_os = "macos")]
@@ -124,18 +129,18 @@ impl<'a, R: Runtime> Context<'a, R> {
               .arg(&format!("-e {cmd}"))
               .spawn()
             {
-              log::error!("Failed to execute command: {}", e);
+              tracing::error!("Failed to execute command: {}", e);
             }
           }
         } else {
-          log::error!(
+          tracing::error!(
             "Option with id {} not found in action {}",
             option_id,
             action_id
           );
         }
       } else {
-        log::error!("Action with id {} not found", action_id);
+        tracing::error!("Action with id {} not found", action_id);
       }
     });
     Ok(())

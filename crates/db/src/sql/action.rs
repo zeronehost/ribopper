@@ -1,16 +1,13 @@
-use rusqlite::params;
-
 use crate::{
   Database, Result,
   models::{self, FromRow},
 };
+use rusqlite::params;
+use tracing::instrument;
 
 impl Database {
+  #[instrument]
   pub fn create_action(&self, new_action: models::NewAction) -> Result<models::Action> {
-    log::info!(
-      "db.actions: create_action invoked (pattern={:?})",
-      new_action.pattern
-    );
     let mut stmt = self.conn().prepare("insert into actions (description, pattern, name) values (?1, ?2, ?3) RETURNING id, name, description, pattern, created_at, updated_at")?;
     let action = stmt.query_row(
       params![new_action.description, new_action.pattern, new_action.name],
@@ -19,14 +16,12 @@ impl Database {
 
     Ok(action)
   }
+
+  #[instrument]
   pub fn create_action_option(
     &self,
     new_action: models::NewActionWithOption,
   ) -> Result<models::ActionWithOption> {
-    log::info!(
-      "db.actions: create_action invoked (pattern={:?})",
-      new_action.pattern
-    );
     let mut stmt = self.conn().prepare("insert into actions (description, pattern, name) values (?1, ?2, ?3) RETURNING id, name, description, pattern, created_at, updated_at")?;
     let action = stmt
       .query_row(
@@ -50,8 +45,8 @@ impl Database {
     Ok(models::ActionWithOption { options, ..action })
   }
 
+  #[instrument]
   pub fn get_action_by_id(&self, id: u64) -> Result<Option<models::ActionWithOption>> {
-    log::info!("db.action: get_action_by_id id={}", id);
     let mut stmt = self.conn().prepare(
       "select id, name, description, pattern, created_at, updated_at from actions where id = ?1",
     )?;
@@ -74,8 +69,8 @@ impl Database {
     }
   }
 
+  #[instrument]
   pub(super) fn get_actions(&self) -> Result<Vec<models::Action>> {
-    log::info!("db.action: get_actions invoked");
     let mut stmt = self
       .conn()
       .prepare("select id, name, description, pattern, created_at, updated_at from actions")?;
@@ -87,8 +82,8 @@ impl Database {
     Ok(result)
   }
 
+  #[instrument]
   pub fn get_action_options(&self) -> Result<Vec<models::ActionWithOption>> {
-    log::info!("db.action: get_action_options invoked");
     let mut stmt = self
       .conn()
       .prepare("select id, name, description, pattern, created_at, updated_at from actions")?;
@@ -111,16 +106,16 @@ impl Database {
     Ok(result)
   }
 
+  #[instrument]
   pub fn delete_action(&self, id: u64) -> Result<bool> {
-    log::info!("db.action: delete_action invoked id={}", id);
     let rows_affected = self
       .conn()
       .execute("delete from actions where id = ?1", params![id])?;
     Ok(rows_affected > 0)
   }
 
+  #[instrument]
   pub fn get_options_by_action_id(&self, id: u64) -> Result<Vec<models::RiboOption>> {
-    log::info!("db.action: get_options_by_action_id invoked id={}", id);
     let mut stmt = self
       .conn()
       .prepare("select id, action_id, name, description, command, out, created_at, updated_at from options where action_id = ?1")?;
@@ -132,12 +127,8 @@ impl Database {
     Ok(options)
   }
 
+  #[instrument]
   pub fn create_option(&self, new_option: models::NewRiboOption) -> Result<models::RiboOption> {
-    log::info!(
-      "db.actions: create_option invoked (action_id={:?}, command={:?})",
-      new_option.action_id,
-      new_option.command
-    );
     let mut stmt = self.conn().prepare("insert into options (action_id, command, description, out, name) values (?1, ?2, ?3, ?4, ?5) RETURNING id, action_id, name, description, command, out, created_at, updated_at")?;
     let option = stmt.query_row(
       params![
@@ -152,16 +143,16 @@ impl Database {
     option?
   }
 
+  #[instrument]
   pub fn delete_option(&self, id: u64) -> Result<bool> {
-    log::info!("db.action: delete_option invoked id={}", id);
     let rows_affected = self
       .conn()
       .execute("delete from options where id = ?1", params![id])?;
     Ok(rows_affected > 0)
   }
 
+  #[instrument]
   pub fn update_action(&self, action: models::UpdateAction) -> Result<bool> {
-    log::info!("db.actions: update_action invoked (id={:?})", action.id);
     let rows_affected = self.conn().execute(
       "update actions set description = ?1, pattern = ?2, name = ?3 where id = ?4",
       params![action.description, action.pattern, action.name, action.id],
@@ -169,8 +160,8 @@ impl Database {
     Ok(rows_affected > 0)
   }
 
+  #[instrument]
   pub fn update_option(&self, option: models::UpdateRiboOption) -> Result<bool> {
-    log::info!("db.actions: update_option invoked (id={:?})", option.id);
     let rows_affected = self.conn().execute(
       "update options set command = ?1, description = ?2, out = ?3, name = ?4 where id = ?5",
       params![
@@ -184,8 +175,8 @@ impl Database {
     Ok(rows_affected > 0)
   }
 
+  #[instrument]
   pub fn get_option_by_id(&self, id: u64) -> Result<models::RiboOption> {
-    log::info!("db.action: get_option_by_id invoked id={}", id);
     let mut stmt = self
       .conn()
       .prepare("select id, action_id, name, description, command, out, created_at, updated_at from options where id = ?1")?;

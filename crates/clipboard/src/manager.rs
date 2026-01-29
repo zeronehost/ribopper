@@ -4,6 +4,7 @@ use std::{
   sync::{Arc, Mutex, mpsc},
   thread,
 };
+use tracing::instrument;
 
 #[cfg(feature = "image")]
 use crate::models::Image;
@@ -16,8 +17,9 @@ impl<F> Manager<F>
 where
   F: Fn(Content) + Send + 'static,
 {
+  #[instrument(skip_all)]
   pub fn new(handler: F) -> crate::error::Result<Self> {
-    log::info!("clipboard: creating Manager");
+    tracing::info!("creating Manager");
     let (tx, rx) = mpsc::channel();
     let manager = Self {
       inner: Arc::new(Mutex::new(InnerManager {
@@ -27,43 +29,41 @@ where
         current: None,
       })),
     };
-    log::debug!("clipboard: starting listener threads");
+    tracing::debug!("starting listener threads");
     manager.listen(rx, tx);
     Ok(manager)
   }
 
+  #[instrument(skip_all)]
   fn listen(&self, rx: mpsc::Receiver<()>, tx: mpsc::Sender<()>) {
     thread::spawn(move || {
-      log::debug!("clipboard: master thread starting");
+      tracing::debug!("master thread starting");
       Master::new(Handler(tx)).unwrap().run().unwrap();
-      log::debug!("clipboard: master thread exiting");
+      tracing::debug!("master thread exiting");
     });
 
     let inner = self.inner.clone();
     thread::spawn(move || {
       for _ in rx {
-        log::debug!("clipboard: received change notification");
+        tracing::debug!("received change notification");
         let mut inner = inner.lock().unwrap();
         if let Some(content) = inner.get_content() {
-          log::info!("clipboard: new content detected");
+          tracing::info!("new content detected");
           (*inner.handler)(content);
         } else {
-          log::debug!("clipboard: no new content from get_content()");
+          tracing::debug!("no new content from get_content()");
         }
       }
     });
   }
 
+  #[instrument(skip_all)]
   pub fn paste(&self, content: Content) -> crate::error::Result<()> {
-    log::info!(
-      "clipboard: paste called with content type={:?}",
-      content.get_type()
-    );
     let res = self.inner.lock().unwrap().paste(content);
     if let Err(ref e) = res {
-      log::error!("clipboard: paste failed: {:?}", e);
+      tracing::error!("paste failed: {:?}", e);
     } else {
-      log::debug!("clipboard: paste succeeded");
+      tracing::debug!("paste succeeded");
     }
     res
   }
@@ -72,12 +72,14 @@ where
 struct Handler(mpsc::Sender<()>);
 
 impl ClipboardHandler for Handler {
+  #[instrument(skip_all)]
   fn on_clipboard_change(&mut self) -> CallbackResult {
     if let Err(e) = self.0.send(()) {
-      log::error!("failed to send clipboard change event {e}");
+      tracing::error!("failed to send clipboard change event {e}");
     }
     CallbackResult::Next
   }
+  #[instrument(skip_all)]
   fn on_clipboard_error(&mut self, _error: std::io::Error) -> CallbackResult {
     CallbackResult::Next
   }
@@ -94,6 +96,7 @@ impl<F> InnerManager<F>
 where
   F: Fn(Content) + Send + 'static,
 {
+  #[instrument(skip_all)]
   fn get_content(&mut self) -> Option<Content> {
     if self.flag {
       self.flag = false;
@@ -115,7 +118,7 @@ where
       content = Some(FormatContent::Files(files.clone()));
     }
     if content.is_none() {
-      log::debug!("clipboard: get_content found no usable content");
+      tracing::debug!("get_content found no usable content");
       return None;
     }
     if self.current.is_some() && self.current == content {
@@ -127,18 +130,15 @@ where
     let content_struct = Content {
       content: content.unwrap(),
     };
-    log::debug!(
-      "clipboard: get_content returning type={:?}",
+    tracing::debug!(
+      "get_content returning type={:?}",
       content_struct.get_type()
     );
     Some(content_struct)
   }
 
+  #[instrument(skip_all)]
   fn paste(&mut self, content: Content) -> crate::error::Result<()> {
-    log::info!(
-      "clipboard: InnerManager::paste content_type={:?}",
-      content.get_type()
-    );
     match content.content {
       FormatContent::Text(data) => {
         self.clipboard.set_text(data.as_str())?;
@@ -153,7 +153,7 @@ where
       }
     }
     self.flag = true;
-    log::debug!("clipboard: paste completed, flag set");
+    tracing::debug!("paste completed, flag set");
     Ok(())
   }
 }
@@ -165,6 +165,7 @@ pub struct Content {
 }
 
 impl Content {
+  #[instrument(skip_all)]
   fn get_type(&self) -> crate::models::RecordType {
     self.content.get_type()
   }
@@ -181,6 +182,7 @@ pub enum FormatContent {
 }
 
 impl FormatContent {
+  #[instrument(skip_all)]
   fn get_type(&self) -> crate::models::RecordType {
     match self {
       Self::Text(_) => crate::models::RecordType::Text,
@@ -203,9 +205,6 @@ impl TryFrom<Content> for crate::models::Record {
       #[cfg(feature = "file")]
       FormatContent::Files(data) => serde_json::to_string(&data)?,
     };
-    Ok(crate::models::Record {
-      content,
-      typ,
-    })
+    Ok(crate::models::Record { content, typ })
   }
 }

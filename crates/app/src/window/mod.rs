@@ -12,7 +12,9 @@ use crate::utils::{
   pos::{set_context_window_pos, set_tray_window_pos},
 };
 use tauri::{AppHandle, Manager, Runtime, WindowEvent};
+use tracing::instrument;
 
+#[instrument(skip_all)]
 pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   match app.get_webview_window(WIN_LABEL_MAIN) {
     Some(win) => match win.is_visible() {
@@ -58,6 +60,7 @@ pub fn open_setting_window<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   }
 }
 
+#[instrument(skip_all)]
 pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   match app.get_webview_window(WIN_LABEL_TRAY_PANE) {
     Some(win) => match win.is_visible() {
@@ -111,6 +114,7 @@ pub fn open_tray_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   }
 }
 
+#[instrument(skip_all)]
 pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
   match app.get_webview_window(WIN_LABEL_CONTEXT_PANE) {
     Some(win) => match win.is_visible() {
@@ -166,17 +170,17 @@ pub fn open_context_pane<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
         if let WindowEvent::Focused(focused) = ev {
           if !focused {
             if !is_initialized_clone.load(Ordering::SeqCst) {
-              log::info!("Ignoring initial focus loss");
+              tracing::info!("Ignoring initial focus loss");
               return;
             }
-            log::info!("Context pane window lost focus, hiding it...");
+            tracing::info!("Context pane window lost focus, hiding it...");
             if let Some(w) = app.get_webview_window(WIN_LABEL_CONTEXT_PANE) {
-              log::info!("Context pane window found, hiding it...");
+              tracing::info!("Context pane window found, hiding it...");
               if w.is_visible().is_ok_and(|x| x) {
-                log::info!("Context pane window is visible, hiding it...");
+                tracing::info!("Context pane window is visible, hiding it...");
                 match w.hide() {
-                  Ok(_) => log::info!("Context pane window hidden"),
-                  Err(e) => log::error!("Failed to hide context pane window: {}", e),
+                  Ok(_) => tracing::info!("Context pane window hidden"),
+                  Err(e) => tracing::error!("Failed to hide context pane window: {}", e),
                 }
               }
             }

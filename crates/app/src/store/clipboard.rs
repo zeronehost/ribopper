@@ -1,11 +1,17 @@
 use tauri::{AppHandle, Manager, Runtime};
+use tracing::instrument;
 
-use crate::{commands::config::config_load, events::{EventAction, EventLabel}, utils::error::Result};
+use crate::{
+  commands::config::config_load,
+  events::{EventAction, EventLabel},
+  utils::error::Result,
+};
 pub struct Clipboard(
   pub(crate) ribo_clipboard::Manager<Box<dyn Fn(ribo_clipboard::Content) + Send + 'static>>,
 );
 
 impl Clipboard {
+  #[instrument(skip_all)]
   pub fn new<R: Runtime>(app: &AppHandle<R>) -> Result<Self> {
     let app_handle = app.clone();
     let callback: Box<dyn Fn(ribo_clipboard::Content) + Send + 'static> =
@@ -20,7 +26,7 @@ impl Clipboard {
         let mut db = match db.0.lock() {
           Ok(db) => db,
           Err(e) => {
-            log::error!(
+            tracing::error!(
               "store::clipboard::Clipboard::new::callback: failed to lock db: {}",
               e
             );
@@ -36,7 +42,7 @@ impl Clipboard {
             let data = match serde_json::to_string(&files) {
               Ok(data) => data,
               Err(e) => {
-                log::error!(
+                tracing::error!(
                   "store::clipboard::Clipboard::new::callback: failed to serialize files: {}",
                   e
                 );
@@ -61,7 +67,7 @@ impl Clipboard {
             let p = match get_images_path(&app_handle) {
               Ok(p) => p.join(filename.clone()),
               Err(e) => {
-                log::error!(
+                tracing::error!(
                   "store::clipboard::Clipboard::new::callback: failed to get images path: {}",
                   e
                 );
@@ -76,7 +82,7 @@ impl Clipboard {
                   typ: ribo_db::models::RecordType::Image,
                 },
                 Err(e) => {
-                  log::error!(
+                  tracing::error!(
                     "store::clipboard::Clipboard::new::callback: failed to save image: {}",
                     e
                   );
@@ -84,7 +90,7 @@ impl Clipboard {
                 }
               }
             } else {
-              log::error!("store::clipboard::Clipboard::new::callback: failed to load image",);
+              tracing::error!("store::clipboard::Clipboard::new::callback: failed to load image",);
               return;
             }
           }
@@ -96,7 +102,7 @@ impl Clipboard {
             match db.create_action_option_by_record(record.id, &record.content) {
               Ok(_) => {}
               Err(e) => {
-                log::error!(
+                tracing::error!(
                   "store::clipboard::Clipboard::new::callback: failed to create action option: {}",
                   e
                 );
@@ -106,7 +112,7 @@ impl Clipboard {
               .emit(&app_handle)
               .unwrap();
           }
-          Err(e) => log::error!(
+          Err(e) => tracing::error!(
             "store::clipboard::Clipboard::new::callback: failed to create record: {}",
             e
           ),

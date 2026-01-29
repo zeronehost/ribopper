@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use ribo_db::models::{NewRecord, RecordQuery};
 use tauri::{AppHandle, Manager, Runtime, State};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+use tracing::instrument;
 
 #[cfg(feature = "action")]
 use crate::menu::Context;
@@ -14,13 +15,10 @@ use crate::{
 };
 
 #[tauri::command]
+#[instrument(skip(state))]
 pub fn get_records(state: State<'_, Db>, query: RecordQuery) -> Result<Vec<Record>> {
-  log::debug!(
-    "commands::record::get_records called with query={:?}",
-    query
-  );
   let db = state.0.lock().map_err(|e| {
-    log::error!("commands::record::get_records - failed to lock db: {}", e);
+    tracing::error!("commands::record::get_records - failed to lock db: {}", e);
     e
   })?;
   let data = db.query_record(query)?;
@@ -28,7 +26,7 @@ pub fn get_records(state: State<'_, Db>, query: RecordQuery) -> Result<Vec<Recor
     .iter()
     .map(|i| {
       i.try_into().map_err(|e: serde_json::Error| {
-        log::error!("commands::record::get_records - failed to convert: {}", e);
+        tracing::error!("commands::record::get_records - failed to convert: {}", e);
         e.into()
       })
     })
@@ -36,25 +34,25 @@ pub fn get_records(state: State<'_, Db>, query: RecordQuery) -> Result<Vec<Recor
 }
 
 #[tauri::command]
+#[instrument(skip(state))]
 pub fn get_record(state: State<'_, Db>, id: u64) -> Result<Record> {
-  log::debug!("commands::record::get_record id={}", id);
   let db = state.0.lock().map_err(|e| {
-    log::error!("commands::record::get_record - failed to lock db: {}", e);
+    tracing::error!("commands::record::get_record - failed to lock db: {}", e);
     e
   })?;
 
   let data = db.get_record_by_id(id).map_err(|e| {
-    log::error!("commands::record::get_record - db error: {}", e);
+    tracing::error!("commands::record::get_record - db error: {}", e);
     e
   })?;
 
   let data: Record = match data {
     Some(data) => data.try_into().map_err(|e: serde_json::Error| {
-      log::error!("commands::record::get_record - failed to convert: {}", e);
+      tracing::error!("commands::record::get_record - failed to convert: {}", e);
       e
     })?,
     None => {
-      log::error!("commands::record::get_record - record not found id={id}");
+      tracing::error!("commands::record::get_record - record not found id={id}");
       return Err(ribo_db::Error::NotFound(format!("{id}")).into());
     }
   };
@@ -63,15 +61,15 @@ pub fn get_record(state: State<'_, Db>, id: u64) -> Result<Record> {
 }
 
 #[tauri::command]
+#[instrument(skip(app))]
 pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
-  log::info!("commands::record::delete_record id={}", id);
   let state = app.state::<crate::store::db::Db>();
   let db = state.0.lock().map_err(|e| {
-    log::error!("commands::record::delete_record - failed to lock db: {}", e);
+    tracing::error!("commands::record::delete_record - failed to lock db: {}", e);
     e
   })?;
   let record = db.get_record_by_id(id).map_err(|e| {
-    log::error!(
+    tracing::error!(
       "commands::record::delete_record - get_record_by_id error: {}",
       e
     );
@@ -81,20 +79,20 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
   if let Some(record) = record {
     let path = get_images_path(&app)
       .map_err(|e| {
-        log::error!(
+        tracing::error!(
           "commands::record::delete_record - get_images_path error: {}",
           e
         );
         e
       })?
       .join(&record.content);
-    log::info!(
+    tracing::info!(
       "commands::record::delete_record - deleting dir: {:?}",
       path.display()
     );
     if path.exists() {
       let _ = std::fs::remove_file(path).map_err(|e| {
-        log::error!(
+        tracing::error!(
           "commands::record::delete_record - failed to remove dir: {}",
           e
         );
@@ -107,23 +105,23 @@ pub fn delete_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<bool> {
       if success {
         crate::events::RiboEvent::create_update_event(EventLabel::Record, EventAction::Delete)
           .emit(&app)?;
-        log::info!("commands::record::delete_record - record deleted id={}", id);
+        tracing::info!("commands::record::delete_record - record deleted id={}", id);
       }
       Ok(success)
     }
     Err(e) => {
-      log::error!("commands::record::delete_record - db error: {}", e);
+      tracing::error!("commands::record::delete_record - db error: {}", e);
       Err(e.into())
     }
   }
 }
 
 #[tauri::command]
+#[instrument(skip_all)]
 pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Result<Record> {
-  log::info!("commands::record::create_record type={:?}", clipboard.typ);
   let state = app.state::<crate::store::db::Db>();
   let db = state.0.lock().map_err(|e| {
-    log::error!("commands::record::create_record - failed to lock db: {}", e);
+    tracing::error!("commands::record::create_record - failed to lock db: {}", e);
     e
   })?;
   let max = if let Ok(Some(config)) = super::config::config_load(app.clone()) {
@@ -133,26 +131,26 @@ pub fn create_record<R: Runtime>(app: AppHandle<R>, clipboard: NewRecord) -> Res
   };
 
   let data = db.create_record(clipboard, max).map_err(|e| {
-    log::error!("commands::record::create_record - db error: {}", e);
+    tracing::error!("commands::record::create_record - db error: {}", e);
     e
   })?;
   let created: Record = data.try_into().map_err(|e: serde_json::Error| {
-    log::error!("commands::record::create_record - failed to convert: {}", e);
+    tracing::error!("commands::record::create_record - failed to convert: {}", e);
     e
   })?;
   crate::events::RiboEvent::create_update_event(EventLabel::Record, EventAction::Create)
     .emit(&app)?;
-  log::info!("commands::record::create_record - created record");
+  tracing::info!("commands::record::create_record - created record");
   Ok(created)
 }
 
 #[tauri::command]
+#[instrument(skip(app))]
 pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Result<bool> {
-  log::info!("commands::record::update_record called");
   let state = app.state::<crate::store::db::Db>();
   #[allow(unused_mut)]
   let mut db = state.0.lock().map_err(|e| {
-    log::error!("commands::record::update_record - failed to lock db: {}", e);
+    tracing::error!("commands::record::update_record - failed to lock db: {}", e);
     e
   })?;
   match record.try_into() {
@@ -163,7 +161,7 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Res
           db.update_action_option_by_record(id, &content)?;
           crate::events::RiboEvent::create_update_event(EventLabel::Record, EventAction::Update)
             .emit(&app)?;
-          log::info!("commands::record::update_record - updated id={}", id);
+          tracing::info!("commands::record::update_record - updated id={}", id);
         }
         Ok(success)
       }
@@ -174,8 +172,8 @@ pub fn update_record<R: Runtime>(app: AppHandle<R>, record: UpdateRecord) -> Res
 }
 
 #[tauri::command]
+#[instrument(skip_all)]
 pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
-  log::info!("commands::record::clear_records called");
   let app_handle = app.clone();
   app
     .dialog()
@@ -187,14 +185,14 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
     ))
     .show(move |result| {
       if result {
-        log::info!("commands::record::clear_records confirmed by user");
+        tracing::info!("commands::record::clear_records confirmed by user");
         // 通知刷新
         let state = app_handle.state::<crate::store::db::Db>();
         let db = state
           .0
           .lock()
           .map_err(|e| {
-            log::error!("commands::record::clear_records - failed to lock db: {}", e);
+            tracing::error!("commands::record::clear_records - failed to lock db: {}", e);
             e
           })
           .unwrap();
@@ -207,7 +205,7 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
                 }
               }
               Err(e) => {
-                log::error!(
+                tracing::error!(
                   "commands::record::clear_records - failed to get images path: {}",
                   e
                 );
@@ -220,10 +218,10 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
             .emit(&app_handle)
             {
               Ok(_) => {
-                log::info!("commands::record::clear_records - notify refresh succeeded");
+                tracing::info!("commands::record::clear_records - notify refresh succeeded");
               }
               Err(e) => {
-                log::error!(
+                tracing::error!(
                   "commands::record::clear_records - notify refresh failed: {}",
                   e
                 );
@@ -231,7 +229,7 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
             };
           }
           Err(e) => {
-            log::error!("commands::record::clear_records - clear failed: {}", e);
+            tracing::error!("commands::record::clear_records - clear failed: {}", e);
           }
         };
       }
@@ -240,16 +238,16 @@ pub fn clear_records<R: Runtime>(app: AppHandle<R>) -> Result<()> {
 }
 
 #[tauri::command]
+#[instrument(skip(app))]
 pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
-  log::info!("commands::record::copy_record called id={id}");
   let db = app.state::<crate::store::db::Db>();
   let clipboard = app.state::<crate::store::clipboard::Clipboard>();
   let db = db.0.lock().map_err(|e| {
-    log::error!("commands::record::copy_record - failed to lock db: {}", e);
+    tracing::error!("commands::record::copy_record - failed to lock db: {}", e);
     e
   })?;
   let data = db.get_record_by_id(id).map_err(|e| {
-    log::error!(
+    tracing::error!(
       "commands::record::copy_record - failed to get record: {}",
       e
     );
@@ -259,16 +257,14 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
     match record.typ {
       ribo_db::models::RecordType::Text => {
         let content = ribo_clipboard::FormatContent::Text(record.content.clone());
-        clipboard.0.paste(ribo_clipboard::Content {
-          content,
-        })
+        clipboard.0.paste(ribo_clipboard::Content { content })
       }
       #[cfg(feature = "image")]
       ribo_db::models::RecordType::Image => {
         let p = get_images_path(&app)?.join(record.content);
         if p.exists() {
           let data = image::open(p).map_err(|e| {
-            log::error!("commands::record::copy_record - failed to parse image json: {e}");
+            tracing::error!("commands::record::copy_record - failed to parse image json: {e}");
             e
           })?;
           clipboard.0.paste(ribo_clipboard::Content {
@@ -279,7 +275,7 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
             }),
           })
         } else {
-          log::error!(
+          tracing::error!(
             "commands::record::copy_record - image file not exists: {}",
             p.display()
           );
@@ -287,24 +283,22 @@ pub fn copy_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<()> {
         }
       }
       #[cfg(feature = "file")]
-      ribo_db::models::RecordType::Files => {
-        clipboard.0.paste(ribo_clipboard::Content {
-          content: ribo_clipboard::FormatContent::Files(
-            serde_json::from_str::<Vec<PathBuf>>(&record.content).map_err(|e| {
-              log::error!("commands::record::copy_record - failed to parse files: {e}");
-              e
-            })?,
-          ),
-        })
-      }
+      ribo_db::models::RecordType::Files => clipboard.0.paste(ribo_clipboard::Content {
+        content: ribo_clipboard::FormatContent::Files(
+          serde_json::from_str::<Vec<PathBuf>>(&record.content).map_err(|e| {
+            tracing::error!("commands::record::copy_record - failed to parse files: {e}");
+            e
+          })?,
+        ),
+      }),
     }?;
   }
   Ok(())
 }
 
 #[tauri::command]
+#[instrument(skip(app))]
 pub fn qrcode_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<Vec<u8>> {
-  log::info!("commands::record::qrcode_record called id={id}");
   let state = app.state::<crate::store::db::Db>();
 
   let record = get_record(state, id)?;
@@ -314,7 +308,7 @@ pub fn qrcode_record<R: Runtime>(app: AppHandle<R>, id: u64) -> Result<Vec<u8>> 
     &app,
   )
   .map_err(|e| {
-    log::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
+    tracing::error!("commands::record::qrcode_record - failed to create qrcode: {e}");
     e
   })
 }

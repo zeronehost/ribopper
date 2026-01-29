@@ -7,7 +7,7 @@ use crate::{store::config::RiboConfig, utils::constant::STORE_FILE};
 
 mod commands;
 mod events;
-mod logger;
+// mod logger;
 mod menu;
 mod models;
 mod store;
@@ -18,24 +18,13 @@ mod window;
 pub fn run() {
   let ctx = tauri::generate_context!();
   let mut builder = tauri::Builder::default()
+    .plugin(tauri_plugin_tracing::init(if cfg!(debug_assertions) {
+      "debug".to_string()
+    } else {
+      "info".to_string()
+    }))
     .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
-    .plugin(tauri_plugin_updater::Builder::new().build())
-    .plugin(
-      tauri_plugin_log::Builder::new()
-        .targets(crate::logger::targets())
-        .level(crate::logger::level())
-        .with_colors(tauri_plugin_log::fern::colors::ColoredLevelConfig::default())
-        .max_file_size(crate::logger::MAX_FILE_SIZE)
-        .format(|o, m, r| {
-          o.finish(format_args!(
-            "{}[{}] {}",
-            chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
-            r.level(),
-            m
-          ))
-        })
-        .build(),
-    );
+    .plugin(tauri_plugin_updater::Builder::new().build());
   #[cfg(desktop)]
   {
     builder = builder
@@ -55,14 +44,14 @@ pub fn run() {
                     if let Ok(key) = TryInto::<Shortcut>::try_into(&k)
                       && sc == &key
                     {
-                      log::info!("global shortcut: clear shortcut triggered");
+                      tracing::info!("global shortcut: clear shortcut triggered");
                       if ev.state() == ShortcutState::Pressed {
                         match crate::commands::record::clear_records(app.clone()) {
                           Ok(_) => {
-                            log::info!("global shortcut: clear records success");
+                            tracing::info!("global shortcut: clear records success");
                           }
                           Err(e) => {
-                            log::error!("global shortcut: clear records failed: {}", e);
+                            tracing::error!("global shortcut: clear records failed: {}", e);
                           }
                         }
                       }
@@ -74,11 +63,11 @@ pub fn run() {
                     if let Ok(key) = TryInto::<Shortcut>::try_into(&k)
                       && sc == &key
                     {
-                      log::info!("global shortcut: clear shortcut triggered");
+                      tracing::info!("global shortcut: clear shortcut triggered");
                       if ev.state() == ShortcutState::Pressed {
                         // use tauri_plugin_dialog::DialogExt;
 
-                        // log::info!("global shortcut: toggle tray pane window");
+                        // tracing::info!("global shortcut: toggle tray pane window");
                         // app
                         //   .clone()
                         //   .dialog()
@@ -86,18 +75,18 @@ pub fn run() {
                         //   .title("温馨提示")
                         //   .show(|_| {});
                         if let Err(e) = crate::window::open_context_pane(app) {
-                          log::error!("global shortcut: open context pane failed: {}", e);
+                          tracing::error!("global shortcut: open context pane failed: {}", e);
                         }
                       }
                     }
                   }
                 }
                 None => {
-                  log::warn!("global shortcut: config not exist");
+                  tracing::warn!("global shortcut: config not exist");
                 }
               },
               Err(e) => {
-                log::error!("global shortcut: Failed to load config: {}", e);
+                tracing::error!("global shortcut: Failed to load config: {}", e);
               }
             }
           })
@@ -116,12 +105,12 @@ pub fn run() {
   let app = builder
     .register_asynchronous_uri_scheme_protocol("ribopper", |ctx, request, responder| {
       let p = request.uri().path()[1..].to_string();
-      log::info!("ribopper: request image: {}", p);
+      tracing::info!("ribopper: request image: {}", p);
       let app = ctx.app_handle();
       let root = match crate::utils::path::get_images_path(app) {
         Ok(root) => root,
         Err(e) => {
-          log::error!("ribopper: get images path failed: {}", e);
+          tracing::error!("ribopper: get images path failed: {}", e);
           return responder.respond(
             tauri::http::Response::builder()
               .status(tauri::http::StatusCode::INTERNAL_SERVER_ERROR)
@@ -141,7 +130,7 @@ pub fn run() {
                 .unwrap(),
             );
           } else {
-            log::error!("ribopper: read file failed: {}", &path.display());
+            tracing::error!("ribopper: read file failed: {}", &path.display());
             responder.respond(
               tauri::http::Response::builder()
                 .status(tauri::http::StatusCode::BAD_REQUEST)
@@ -201,6 +190,7 @@ pub fn run() {
       //-------------------------------------------
     ])
     .setup(|app| {
+      tracing::info!("start app");
       crate::store::Store::init(app.handle())?;
       crate::menu::Tray::init(app.handle())?;
 
@@ -231,10 +221,10 @@ pub fn run() {
     } = event
       && let tauri::WindowEvent::CloseRequested { api, .. } = win_e
     {
-      log::info!("Window close requested for label={}", label);
+      tracing::info!("Window close requested for label={}", label);
       let w = app.get_webview_window(label.as_str()).unwrap();
       w.hide().unwrap();
-      log::info!("Window hidden; prevented close for label={}", label);
+      tracing::info!("Window hidden; prevented close for label={}", label);
       api.prevent_close();
     }
   })

@@ -1,13 +1,11 @@
 use rusqlite::params;
+use tracing::instrument;
 
 use crate::{Database, Result, models::ActionWithOption};
 
 impl Database {
+  #[instrument(skip(self))]
   pub fn create_action_option_by_record(&mut self, record_id: u64, content: &str) -> Result<()> {
-    log::info!(
-      "db.record_action.create_action_option_by_record: (record_id={})",
-      record_id
-    );
     let actions = self.get_actions()?;
     let ids = actions
       .iter()
@@ -21,11 +19,8 @@ impl Database {
     self.create_record_actions(ids)?;
     Ok(())
   }
+  #[instrument(skip(self))]
   pub fn create_action_option_by_action(&mut self, action_id: u64, pattern: &str) -> Result<()> {
-    log::info!(
-      "db.record_action.create_action_option_by_action: (action_id={})",
-      action_id
-    );
     let records = self.get_records()?;
     let ids = records
       .iter()
@@ -39,11 +34,9 @@ impl Database {
     self.create_record_actions(ids)?;
     Ok(())
   }
+  #[instrument(skip(self))]
   pub fn update_action_option_by_record(&mut self, record_id: u64, content: &str) -> Result<()> {
-    log::info!(
-      "db.record_action.update_action_option_by_record: (record_id={})",
-      record_id
-    );
+
     {
       let mut stmt = self
         .conn()
@@ -53,11 +46,8 @@ impl Database {
     self.create_action_option_by_record(record_id, content)?;
     Ok(())
   }
+  #[instrument(skip(self))]
   pub fn update_action_option_by_action(&mut self, action_id: u64, pattern: &str) -> Result<()> {
-    log::info!(
-      "db.record_action.update_action_option_by_action: (action_id={})",
-      action_id
-    );
     {
       let mut stmt = self
         .conn()
@@ -67,11 +57,8 @@ impl Database {
     self.create_action_option_by_action(action_id, pattern)?;
     Ok(())
   }
+  #[instrument(skip(self))]
   fn create_record_actions(&mut self, ids: Vec<(u64, u64)>) -> Result<()> {
-    log::info!(
-      "db.record_action.create_record_actions: (len={})",
-      ids.len()
-    );
     let tx = self.conn_mut().transaction()?;
     {
       let mut stmt =
@@ -84,11 +71,8 @@ impl Database {
     Ok(())
   }
 
+  #[instrument(skip(self))]
   pub fn get_actions_by_record_id(&self, record_id: u64) -> Result<Vec<ActionWithOption>> {
-    log::info!(
-      "db.record_action.get_actions_by_record_id: (record_id={})",
-      record_id
-    );
     let mut stmt = self
       .conn()
       .prepare("select action_id from record_action where record_id = ?1;")?;
