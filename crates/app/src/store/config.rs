@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use tauri_plugin_global_shortcut::{Modifiers, Shortcut};
+use tracing::instrument;
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RiboConfig {
@@ -11,6 +12,7 @@ pub struct RiboConfig {
 }
 
 impl RiboConfig {
+  #[instrument(skip_all)]
   pub(crate) fn get_max(&self) -> anyhow::Result<Option<i64>> {
     if let Some(conf) = &self.general
       && let Some(max) = conf.max
@@ -20,6 +22,7 @@ impl RiboConfig {
     Ok(None)
   }
 
+  #[instrument(skip_all)]
   pub(crate) fn get_autostart(&self) -> bool {
     if let Some(conf) = &self.general {
       return conf.auto_start;
@@ -27,6 +30,7 @@ impl RiboConfig {
     false
   }
 
+  #[instrument(skip_all)]
   pub(crate) fn get_exit_confirm(&self) -> bool {
     if let Some(conf) = &self.general {
       return conf.exit_confirm;

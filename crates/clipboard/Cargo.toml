@@ -10,7 +10,7 @@ repository.workspace = true
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
-log.workspace = true
+tracing.workspace = true
 thiserror.workspace = true
 clipboard-master = "4.0.0"
 arboard = { version = "3.6.1", features = []}

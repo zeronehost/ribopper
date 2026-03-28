@@ -1,4 +1,5 @@
 use tauri::{AppHandle, Emitter, Runtime};
+use tracing::instrument;
 
 use crate::utils::{constant::RIBO_EVENT, error::Result};
 
@@ -10,33 +11,25 @@ pub struct RiboEvent {
   action: EventAction,
 }
 
-impl RiboEvent
-{
+impl RiboEvent {
+  #[instrument(skip_all)]
   fn new(typ: EventType, label: EventLabel, action: EventAction) -> Self {
-    Self {
-      typ,
-      label,
-      action,
-    }
+    Self { typ, label, action }
   }
 
   #[allow(unused)]
+  #[instrument(skip_all)]
   pub(crate) fn create_init_event(label: EventLabel, action: EventAction) -> Self {
     Self::new(EventType::Init, label, action)
   }
 
+  #[instrument(skip_all)]
   pub(crate) fn create_update_event(label: EventLabel, action: EventAction) -> Self {
     Self::new(EventType::Update, label, action)
   }
 
+  #[instrument(skip_all)]
   pub(crate) fn emit<R: Runtime>(&self, app: &AppHandle<R>) -> Result<()> {
-    log::debug!(
-      "events: emitting {:?} to {} (label={}, action={})",
-      self.typ,
-      RIBO_EVENT,
-      self.label,
-      self.action
-    );
     app.emit(RIBO_EVENT, self).map_err(Into::into)
   }
 }

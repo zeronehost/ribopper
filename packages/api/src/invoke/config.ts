@@ -9,7 +9,6 @@ export const configSave = async (config: Config) => await invoke<void>(CONFIG_SA
 export const getAppInfo = async () => await invoke<AppInfo>(GET_APP_INFO);
 
 export const updateApp = async (cb: (payload: UpdateApp) => void) => {
-  const channel = new Channel();
-  channel.onmessage(cb)
+  const channel = new Channel(cb);
   await invoke<void>(UPDATE_APP, { channel })
 };

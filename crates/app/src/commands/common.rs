@@ -3,6 +3,7 @@ use tauri::{AppHandle, Runtime};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 #[cfg(not(debug_assertions))]
 use tauri_plugin_updater::UpdaterExt;
+use tracing::instrument;
 
 use crate::{
   models::{AppInfo, Features},
@@ -10,6 +11,7 @@ use crate::{
 };
 
 #[tauri::command]
+#[instrument(skip_all)]
 pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> Result<AppInfo> {
   let info = app.package_info();
 
@@ -26,16 +28,17 @@ pub fn get_app_info<R: Runtime>(app: AppHandle<R>) -> Result<AppInfo> {
 
 // TODO 优化更新逻辑
 #[tauri::command]
+#[instrument(skip_all)]
 pub async fn update<R: Runtime>(app: AppHandle<R>, channel: tauri::ipc::Channel) -> Result<()> {
   check_update(app, Some(channel)).await?;
   Ok(())
 }
 
+#[instrument(skip_all)]
 pub(crate) async fn check_update<R: Runtime>(
   #[allow(unused)] app: AppHandle<R>,
   #[allow(unused)] channel: Option<tauri::ipc::Channel>,
 ) -> Result<()> {
-  log::info!("commands::common::check_update called");
   #[cfg(not(debug_assertions))]
   if let Some(update) = app.updater()?.check().await? {
     app
@@ -67,9 +70,9 @@ pub(crate) async fn check_update<R: Runtime>(
                       });
                       channel.send(payload.to_string().into()).unwrap();
                     }
-                    log::info!("download progress: {:.2}%", progress);
+                    tracing::info!("download progress: {:.2}%", progress);
                   } else {
-                    log::info!("download progress: {}", downloaded);
+                    tracing::info!("download progress: {}", downloaded);
                     if let Some(channel) = &channel {
                       let payload = serde_json::json!({
                         "downloaded": downloaded,
@@ -81,7 +84,7 @@ pub(crate) async fn check_update<R: Runtime>(
                   }
                 },
                 || {
-                  log::info!("download finished");
+                  tracing::info!("download finished");
                   if let Some(channel) = &channel {
                     let payload = serde_json::json!({
                       "done": true,
@@ -94,7 +97,7 @@ pub(crate) async fn check_update<R: Runtime>(
               )
               .await
               .unwrap();
-            log::info!("update installed");
+            tracing::info!("update installed");
             app
               .dialog()
               .message("下载完成，立即安装")

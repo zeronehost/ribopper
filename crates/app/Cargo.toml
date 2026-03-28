@@ -10,7 +10,7 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "app_lib"
+name = "ribopper"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -21,15 +21,15 @@ serde_json.workspace = true
 serde.workspace = true
 chrono.workspace = true
 anyhow.workspace = true
-log.workspace = true
 tokio.workspace = true
 thiserror.workspace = true
+tracing.workspace = true
 
 ribo-db = { path = "../db" }
 ribo-clipboard = { path = "../clipboard"}
+tauri-plugin-tracing = { path = "../tracing" }
 
 tauri = { version = "2.9.2", features = ["tray-icon"] }
-tauri-plugin-log = { version = "2", features = ["colored"] }
 tauri-plugin-opener = {version = "2", optional = true}
 tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"

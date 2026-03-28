@@ -1,11 +1,10 @@
 use std::sync::LazyLock;
 
+use tracing::instrument;
+
 #[cfg(feature = "action")]
 use crate::models::{Action, RecordAction};
-use crate::{
-  Result,
-  models::Record,
-};
+use crate::{Result, models::Record};
 
 pub const SCHEMA: &str = include_str!("../../sql/init.sql");
 pub const RECOED_SCHEMA: &str = include_str!("../../sql/record.sql");
@@ -18,11 +17,12 @@ pub const ACTION_SCHEMA: &str = if cfg!(feature = "action") {
 
 pub(crate) trait Migrate {
   #[allow(unused)]
-  fn migrate(db: &rusqlite::Connection) -> Result<&'static str>{
+  fn migrate(db: &rusqlite::Connection) -> Result<&'static str> {
     Ok("")
   }
 }
 
+#[derive(Debug, Clone)]
 pub struct Migration {
   pub version: u16,
   pub script: String,
@@ -30,6 +30,7 @@ pub struct Migration {
 }
 
 impl Migration {
+  #[instrument(skip(script, description))]
   pub fn new(version: u16, script: &str, description: &str) -> Self {
     Self {
       version,
@@ -38,16 +39,15 @@ impl Migration {
     }
   }
 
+  #[instrument(skip(db))]
   pub fn migrate(&self, db: &rusqlite::Connection) -> Result<String> {
     let mut stmt = db.prepare("select name from sqlite_master where type='table';")?;
     let mut rows = stmt.query([])?;
     let mut sql = String::new();
     while let Some(row) = rows.next()? {
       let name: String = row.get(0)?;
-      log::debug!("migrate => {}", name);
       match name.as_str() {
         "record" => {
-          log::debug!("record =>");
           sql.push_str(Record::migrate(db)?);
         }
         #[cfg(feature = "action")]

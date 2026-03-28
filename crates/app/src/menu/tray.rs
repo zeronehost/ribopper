@@ -4,15 +4,20 @@ use tauri::{
   tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+use tracing::instrument;
 
 use crate::{
   commands::config::config_load,
-  utils::{constant::{APP_NAME, APP_TITLE}, error::Result},
+  utils::{
+    constant::{APP_NAME, APP_TITLE},
+    error::Result,
+  },
 };
 
 pub(crate) struct Tray;
 
 impl Tray {
+  #[instrument(skip(app))]
   pub fn init<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     // let pkg_info = app.package_info();
     #[allow(unused_mut)]
@@ -67,18 +72,18 @@ impl Tray {
           ..
         } = ev
         {
-          log::info!("tray::on_tray_icon_event::click");
+          tracing::info!("tray::on_tray_icon_event::click");
           let app = icon.app_handle();
           crate::window::open_tray_pane(app).unwrap();
         }
       })
       .on_menu_event(|app, ev| match ev.id().as_ref() {
         "main" => {
-          log::info!("tray::on_menu_event::main open");
+          tracing::info!("tray::on_menu_event::main open");
           crate::window::open_tray_pane(app).unwrap();
         }
         "quit" => {
-          log::info!("tray::on_menu_event::quit");
+          tracing::info!("tray::on_menu_event::quit");
           let app_handle = app.clone();
           let exit_confirm = if let Ok(Some(config)) = config_load(app_handle.clone()) {
             config.get_exit_confirm()
@@ -86,8 +91,8 @@ impl Tray {
             true
           };
           if !exit_confirm {
-            log::info!("tray::on_menu_event::quit::exit");
-            log::info!("================================");
+            tracing::info!("tray::on_menu_event::quit::exit");
+            tracing::info!("================================");
             app_handle.exit(0);
           }
           app
@@ -100,22 +105,22 @@ impl Tray {
             ))
             .show(move |result| {
               if result {
-                log::info!("tray::on_menu_event::quit::exit");
-                log::info!("================================");
+                tracing::info!("tray::on_menu_event::quit::exit");
+                tracing::info!("================================");
                 app_handle.exit(0);
               }
             });
         }
         "clear" => {
-          log::info!("tray::on_menu_event::clear");
+          tracing::info!("tray::on_menu_event::clear");
           crate::commands::record::clear_records(app.clone()).unwrap();
         }
         "setting" => {
-          log::info!("tray::on_menu_event::setting");
+          tracing::info!("tray::on_menu_event::setting");
           crate::window::open_setting_window(app).unwrap();
         }
         "about" => {
-          log::info!("tray::on_menu_event::about");
+          tracing::info!("tray::on_menu_event::about");
           let pkg_info = app.package_info();
           app
             .dialog()

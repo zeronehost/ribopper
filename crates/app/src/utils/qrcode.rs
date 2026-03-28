@@ -1,7 +1,9 @@
 use tauri::{AppHandle, Runtime};
+use tracing::instrument;
 
 use super::error::Result;
 
+#[instrument(skip_all)]
 pub fn create_qrcode<R: Runtime>(
   data: crate::models::Record,
   #[cfg(feature = "image")] app: &AppHandle<R>,
